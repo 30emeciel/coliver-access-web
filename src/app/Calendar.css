@@ -1,0 +1,10 @@
+.wednesday {
+    background-color: blue;
+}
+
+.reservation-pending {
+    background-color: orange;
+}
+.reservation-confirmed {
+    background-color: khaki;
+}
