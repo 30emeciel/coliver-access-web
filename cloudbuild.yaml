@@ -1,0 +1,10 @@
+steps:
+- name: 'docker'
+  args: ['build', '-t', 'gcr.io/trentiemeciel/coliver-access-web', '.']
+- name: 'docker'
+  args: ['run', 'gcr.io/trentiemeciel/coliver-access-web']
+
+secrets:
+- kmsKeyName: 'projects/trentiemeciel/locations/global/keyRings/cloudbuilder/cryptoKeys/firebase-token'
+  secretEnv:
+    FIREBASE_TOKEN: 'CiQADhD9N8Ner1hyKdVB0eLDAP0Jb2j+zSH0E75jFMIZF+ywwtYSkAEARHgwJJPqbEyXFua16WHn9c1lwsHQE8T7V7Agaq/o0oGWkcE/7c5d/2/A1dMzRpjyvzFsNhTztkW4soBApDQ+bmn0FxntUF45fzm4Q8eoM77MH8/pHdeOYL8iuac+nd8zpdfTvzk4TtrRSKhipNPmxxNX1/bVfO7Gihe72TRy8/X1kWKZsqfZChKcwC/SPEQ='

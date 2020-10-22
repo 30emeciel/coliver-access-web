@@ -2,9 +2,43 @@
     background-color: blue;
 }
 
-.reservation-pending {
+.react-calendar__tile:enabled:focus {
+    background-color: inherit;
+}
+
+.react-calendar__tile--now {
+    background-color: inherit;
+    font-weight: bold;
+}
+
+.reservation-pending, .reservation-pending:enabled:focus {
     background-color: orange;
 }
+
+.reservation-pending:enabled:hover {
+    background-color: rgb(255, 191, 112);
+}
+
 .reservation-confirmed {
     background-color: khaki;
+}
+
+.react-calendar-container {
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+    font-size: 19px;
+}
+.react-calendar {
+    box-shadow: 0 30px 40px 0 rgba(16, 36, 94, 0.2);
+    border-radius: 4px;
+}
+
+.calendar-toolbar {
+    margin-top: 8px;
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
 }

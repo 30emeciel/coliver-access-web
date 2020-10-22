@@ -26,7 +26,7 @@ const LoginButton = () => {
   if ((isAuthenticated && !firebaseAuthUser) || isLoading || firebaseAuthIsloading) {
     return <Button disabled>Loading...</Button>;
   }
-  return <Button onClick={() => loginWithRedirect(auth0_options)}>Log In</Button>;  
+  return <Button onClick={() => loginWithRedirect(auth0_options)}>Continue with 30ème Ciel SSO</Button>;  
 
 };
 
@@ -50,8 +50,8 @@ function App() {
   if (!isAuthenticated || !firebaseAuthUser) {
     return <Container>
         <Jumbotron>
-          <h1 className="header">Welcome To 30ème Ciel app</h1>
-          <h2 className="header">Here you can manage your presence, see budget, manage events... </h2>
+          <h1 className="header">Welcome To 30ème Ciel Coliv'app</h1>
+          <h2 className="header">Here you can manage your presence to the Coliving and Coworking and contribute to the project</h2>
           <hr />      
           <LoginButton />
           { firebaseAuthError && <div>Error with Firebase Auth: {JSON.stringify(firebaseAuthError)}</div>}    
