@@ -2,9 +2,6 @@
     background-color: blue;
 }
 
-.react-calendar__tile:enabled:focus {
-    background-color: inherit;
-}
 
 .react-calendar__tile--now {
     background-color: inherit;

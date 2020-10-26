@@ -5,28 +5,38 @@ import Calendar, { CalendarTileProperties } from 'react-calendar'
 import 'react-calendar/dist/Calendar.css';
 import './Calendar.css'
 import './Switch.css'
+import {DateTime, Interval} from 'luxon';
 
-import { Alert, Card, Col, Container, Dropdown, DropdownButton, Form } from 'react-bootstrap';
+import { Alert, Card, Col, Container, Dropdown, DropdownButton, Form, Modal } from 'react-bootstrap';
 import Switch from "react-switch";
 
 const MyPresenceCalendar = () => {
   const [ isFirstTimer, setIsFirstTimer ] = useState(false)
-  const [ isColivingMode, setIsColivingMode ] = useState(true)
+  const [ isTestNotAvailable, setTestNotAvailable ] = useState(false)
+  const [ isCoworkingMode, setIsCoworkingMode ] = useState(false)
+  const [ isColivingMode, setIsColivingMode ] = useState(false)
+  const [ show, setShow ] = useState(false)
 
     const [ isRangeMode, setIsRangeMode ] = useState(false)
     const [ pendingDays, setPendingDays ] = useState<Set<number>>(new Set())
     //const [ disabledDay, setDisabledDay ] = useState<null | Date>(null)
-    const [ calValue, setCalValue ] = useState<Date | Date[] | null  | undefined >(null)
+    const [ calValue, setCalValue ] = useState<Date | Date[] | null>(null)
 
     
-    const pendingDaysTilesMemo =
+    const pendingDaysTiles =
       ({ activeStartDate, date, view } : CalendarTileProperties) => pendingDays.has(date.getTime()) ? 'reservation-pending' : ''
 
     const disabledTiles = 
-      ({ activeStartDate, date, view } : CalendarTileProperties) => isFirstTimer ? date.getDay() !== 1 : false
+      ({ activeStartDate, date, view } : CalendarTileProperties) => isTestNotAvailable ? (date.getDay() === 3 ? true : false) : (isFirstTimer ? date.getDay() !== 1 : false)
+
+    const contentTiles = 
+      ({ activeStartDate, date, view } : CalendarTileProperties) => isTestNotAvailable ? (date.getDay() === 3 ? <div>Sold out</div> : null) : null
 
     const onChangeFct = (d: Date|Date[]) => {
       console.log('Clicked day: ' + d.toString())
+      if (!isCoworkingMode && !isColivingMode) {
+        return
+      }
 
       function onD(d: Date[], onlyAdd: boolean) {
         var new_value = new Set(pendingDays)            
@@ -58,10 +68,30 @@ const MyPresenceCalendar = () => {
         }
         
         onD(new_d, true)
+        
        
       }
     
       
+    }
+
+
+    const ColivingForm = () => {
+
+      if ((calValue as Date[])[1] == null) {
+        return <p>Pick your departure date.</p>
+      }
+
+      const d = Interval.fromDateTimes(
+        DateTime.fromJSDate((calValue as Date[])[0]),
+        DateTime.fromJSDate((calValue as Date[])[1]))
+          .count("days") - 1
+      return <>
+        <span>Nunber of nights {d}.</span>
+        {" "}
+        <Button disabled={d <= 0} variant="primary" type="submit">Submit</Button>
+        </>
+
     }
     return <>
     
@@ -76,8 +106,6 @@ const MyPresenceCalendar = () => {
         When ready, click <strong>Submit</strong> to send your request.
         Your request will be reviewed by the <strong>Participante role</strong> and you will received an email with the decision.<br />
         Some days may not be available if the gender equity is not reached or there is not anymore spot available.      
-        <hr />
-        You may activate the "Range mode" to select multiple days at once.
         </Alert>
         </Row>
         <Row>
@@ -89,65 +117,67 @@ const MyPresenceCalendar = () => {
         }
       </Row>
       <Row>
-        <label>
-          <span>Coworking</span>
-          <Switch disabled={isFirstTimer} className="react-switch" onChange={(checked) => setIsColivingMode(checked)} checked={isColivingMode}
-              uncheckedIcon={false}
-              checkedIcon={false}
-              onColor="#3F7FBF"
-              offColor="#32CD32"
-           />
-          <span>Coliving</span>
-        </label>
-
-      </Row>
-      <Row>
-        {isColivingMode &&
-        <Alert variant="info">
-          <Alert.Heading>Coliving</Alert.Heading>
-          <p>You sleep! As a result, you need to book at least two consecutive days (arrival and departure days).</p>
-        </Alert>}  
-        {!isColivingMode &&
-        <Alert variant="info">
-          <Alert.Heading>Coworking</Alert.Heading>
-          <p>You work!</p>
-        </Alert>}  
-      </Row>
-      <Row>
       <Calendar
         selectRange={isRangeMode}
         view="month"
         //showDoubleView 
         //showWeekNumbers
         showNeighboringMonth={false}
-        tileClassName={pendingDaysTilesMemo}
+        tileClassName={pendingDaysTiles}
         tileDisabled={disabledTiles}
+        tileContent={contentTiles}
 
+        onClickDay={(d) => {
+          if (!isCoworkingMode && !isColivingMode) {
+            setCalValue(d);
+            setShow(true)
+        }}}
         value={calValue}
-        onChange={onChangeFct}/>
+        onChange={(d) => {
+          if (isCoworkingMode || isColivingMode) {
+            setCalValue(d)
+          }
+        }}
+        />
         </Row>
         <br />
         <Row>
-         <label>
-          <span>Range mode</span>
-          <Switch className="react-switch" onChange={(checked) => {
-            setCalValue(null)
-            setIsRangeMode(checked)
-            }} checked={isRangeMode}  />
-        </label>
-        </Row>
-        <Row>
-          <Form noValidate validated={true}>
-          <Form.Group controlId="formGroupNights">
-            <Form.Label>Number of selected nights</Form.Label>
-            <Form.Control plaintext readOnly value={pendingDays.size}/>
-            {pendingDays.size <= 1 && <Form.Control.Feedback type="invalid">Please select at least one night</Form.Control.Feedback>}
-            {pendingDays.size > 31 && <Form.Control.Feedback type="invalid">You cannot book more than 31 nights at once</Form.Control.Feedback>}
-            <Form.Control.Feedback type="invalid">Test</Form.Control.Feedback>
-          </Form.Group>
-          <Button disabled={pendingDays.size <= 0} variant="primary" type="submit">Submit</Button>
-          </Form>
-        </Row>
+        {isColivingMode && 
+        <Alert variant="info">
+          <ColivingForm />
+        </Alert>
+        }
+
+        {isCoworkingMode &&
+        <Alert variant="info">
+          <Alert.Heading>Coworking</Alert.Heading>
+          <p>You work!</p>
+        </Alert>}  
+      </Row>
+        <Modal show={show} onHide={() => setShow(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>What would you like to book?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Please select what would you like to book</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => {
+            setIsCoworkingMode(true)
+            //setIsRangeMode(true)
+            setShow(false)
+            }}>
+            Coworking
+          </Button>
+          <Button variant="primary" onClick={() => {
+            setIsColivingMode(true)
+            setIsRangeMode(true)
+            setShow(false)
+            }}>
+            Coliving
+          </Button>
+        </Modal.Footer>
+      </Modal>
+        
+        <hr />
         <Row>
         <label>
           <span>First timer test</span>
@@ -160,6 +190,49 @@ const MyPresenceCalendar = () => {
           }/>
         </label>
         </Row>
+        <Row>
+         <label>
+          <span>Range mode</span>
+          <Switch className="react-switch" onChange={(checked) => {
+            setCalValue(null)
+            setIsRangeMode(checked)
+            }} checked={isRangeMode}  />
+        </label>
+        </Row>
+
+        <Row>
+        <label>
+          <span>Test Not available</span>
+          <Switch className="react-switch" checked={isTestNotAvailable} onChange={(checked) => {
+            setTestNotAvailable(checked)
+          }
+          }/>
+        </label>
+        </Row>
+        <Row>
+        <label>
+          <span>Off</span>
+          <Switch disabled={isFirstTimer} className="react-switch" onChange={(checked) => setIsCoworkingMode(checked)} checked={isCoworkingMode}
+//              uncheckedIcon={false}
+//              checkedIcon={false}
+              onColor="#3F7FBF"
+//              offColor="#32CD32"
+           />
+          <span>Coworking</span>
+        </label>
+        </Row>
+        <Row>
+        <label>
+          <span>Off</span>
+          <Switch disabled={isFirstTimer} className="react-switch" onChange={(checked) => setIsColivingMode(checked)} checked={isColivingMode}
+//              uncheckedIcon={false}
+//              checkedIcon={false}
+              onColor="#3F7FBF"
+//              offColor="#32CD32"
+           />
+          <span>Coliving</span>
+        </label>
+      </Row>
 
 </Container>
   
