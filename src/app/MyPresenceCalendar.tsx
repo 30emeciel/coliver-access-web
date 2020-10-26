@@ -5,10 +5,13 @@ import Calendar, { CalendarTileProperties } from 'react-calendar'
 import 'react-calendar/dist/Calendar.css';
 import './Calendar.css'
 import './Switch.css'
-import {DateTime, Interval} from 'luxon';
+import {DateTime, Duration, Interval} from 'luxon';
 
 import { Alert, Card, Col, Container, Dropdown, DropdownButton, Form, Modal } from 'react-bootstrap';
 import Switch from "react-switch";
+import db from '../db';
+import admin from 'firebase'
+import firebase from "../firebase_config"
 
 const MyPresenceCalendar = () => {
   const [ isFirstTimer, setIsFirstTimer ] = useState(false)
@@ -19,7 +22,7 @@ const MyPresenceCalendar = () => {
 
     const [ isRangeMode, setIsRangeMode ] = useState(false)
     const [ pendingDays, setPendingDays ] = useState<Set<number>>(new Set())
-    //const [ disabledDay, setDisabledDay ] = useState<null | Date>(null)
+    const [ disabledDay, setDisabledDay ] = useState<Set<DateTime>>(new Set())
     const [ calValue, setCalValue ] = useState<Date | Date[] | null>(null)
 
     
@@ -75,6 +78,43 @@ const MyPresenceCalendar = () => {
       
     }
 
+    const submitColivingRequest = async () => {
+
+      const start = DateTime.fromJSDate((calValue as Date[])[0])
+      const end = DateTime.fromJSDate((calValue as Date[])[1])
+      const oneDay = Duration.fromObject({"days": 1})
+      var res : DateTime[] = []
+      var i = start.plus({}); // clone
+      while (i <= end) {
+        if (disabledDay.has(i)) {
+          continue
+        }
+        res.push(i);
+        i = i.plus(oneDay);
+      }
+
+      console.log(res)
+      
+      // Get the `FieldValue` object
+      const FieldValue = admin.firestore.FieldValue;
+
+      const request_data = {
+        created: FieldValue.serverTimestamp(),        
+        status: "PENDING_REVIEW",
+      }
+      const currentUser = firebase.auth().currentUser!
+      console.assert(currentUser != null)
+      const request_doc = await db.collection(`users/${currentUser.uid}/requests`).add(request_data);
+      res.forEach(r => {
+        db.collection(`users/${currentUser.uid}/days`).doc(r.toISODate()).set({
+          on: r.toJSDate(),
+          request: request_doc,
+          status: "PENDING_REVIEW",
+          kind: "COLIVING"
+        })
+      })
+
+    }
 
     const ColivingForm = () => {
 
@@ -87,9 +127,9 @@ const MyPresenceCalendar = () => {
         DateTime.fromJSDate((calValue as Date[])[1]))
           .count("days") - 1
       return <>
-        <span>Nunber of nights {d}.</span>
+        <span>You request to stay for {d} nights</span>
         {" "}
-        <Button disabled={d <= 0} variant="primary" type="submit">Submit</Button>
+        <Button disabled={d <= 0} variant="primary" onClick={submitColivingRequest}>Submit</Button>
         </>
 
     }

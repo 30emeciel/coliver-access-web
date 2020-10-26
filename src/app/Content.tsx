@@ -23,8 +23,7 @@ function Content() {
   <Navbar.Collapse id="basic-navbar-nav">
     <Nav className="mr-auto">
       <Nav.Link href="#home">Reservation</Nav.Link>
-      <Nav.Link href="#link">Contribute</Nav.Link>
-      
+      <Nav.Link href="#link">Contribute</Nav.Link>      
     </Nav>
     <NavDropdown title="Alyosha" id="basic-nav-dropdown">
         <NavDropdown.Item href="#action/3.1">Profile</NavDropdown.Item>
