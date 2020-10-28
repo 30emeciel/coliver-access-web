@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 //import logo from './logo.svg';
 import { useAuth0 } from "@auth0/auth0-react";
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -35,17 +35,40 @@ const LoginButton = () => {
 function App() {
 
   const { user, isAuthenticated, getAccessTokenSilently} = useAuth0();
-  const [ firebaseAuthUser,, firebaseAuthError ] = useAuthState(firebase.auth());
+  const [ firebaseAuthUser, firebaseLoading, firebaseAuthError ] = useAuthState(firebase.auth());
+  const [ auth0Token, setAuth0Token ] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) {
       return
     }
     getAccessTokenSilently(auth0_options)
-    .then((auth0_token) => axios.post("https://europe-west3-trentiemeciel.cloudfunctions.net/create_session", {access_token: auth0_token}))
-    .then((exchange_token_response) => firebase.auth().signInWithCustomToken(exchange_token_response.data.firebase_token))
+    .then((auth0_token) => setAuth0Token(auth0_token))
 
   }, [user, getAccessTokenSilently])
+
+  useEffect(() => {
+    if (firebaseLoading) {
+      //wait firebase to be ready
+      return
+    }
+
+    if (firebaseAuthUser) {
+      // if user is already authenticated, nothing to do
+      return
+    }
+
+    if (!user || !auth0Token) {
+      //auth0 not ready yet, stop here and wait
+      return
+    }
+
+    // exchange auth0 token to firebase auth token
+    axios
+      .post("https://europe-west3-trentiemeciel.cloudfunctions.net/create_session", {access_token: auth0Token})
+      .then((exchange_token_response) => firebase.auth().signInWithCustomToken(exchange_token_response.data.firebase_token))
+    
+  }, [firebaseAuthUser, firebaseLoading, user, auth0Token])
 
   if (!isAuthenticated || !firebaseAuthUser) {
     return <Container>

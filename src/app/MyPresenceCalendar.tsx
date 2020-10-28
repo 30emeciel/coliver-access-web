@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Calendar, { CalendarTileProperties } from 'react-calendar'
@@ -12,20 +12,38 @@ import Switch from "react-switch";
 import db from '../db';
 import admin from 'firebase'
 import firebase from "../firebase_config"
+import { useCollectionData } from 'react-firebase-hooks/firestore';
+
+type DocumentData = firebase.firestore.DocumentData;
 
 const MyPresenceCalendar = () => {
+  const currentUser = firebase.auth().currentUser!
+  console.assert(currentUser != null)
+
   const [ isFirstTimer, setIsFirstTimer ] = useState(false)
   const [ isTestNotAvailable, setTestNotAvailable ] = useState(false)
   const [ isCoworkingMode, setIsCoworkingMode ] = useState(false)
   const [ isColivingMode, setIsColivingMode ] = useState(false)
-  const [ show, setShow ] = useState(false)
+  const [ isColivingFormSubmitting, setIsColivingFormSubmitting ] = useState(false)
+  const [ days, daysLoading, daysError ] = useCollectionData<DocumentData>(db.collection(`users/${currentUser.uid}/days`).orderBy("on", "asc"));
 
-    const [ isRangeMode, setIsRangeMode ] = useState(false)
-    const [ pendingDays, setPendingDays ] = useState<Set<number>>(new Set())
-    const [ disabledDay, setDisabledDay ] = useState<Set<DateTime>>(new Set())
-    const [ calValue, setCalValue ] = useState<Date | Date[] | null>(null)
+  const [ showEmptyDayModal, setShowEmptyDayModal ] = useState(false)
 
-    
+  const [ isRangeMode, setIsRangeMode ] = useState(false)
+  const [ pendingDays, setPendingDays ] = useState<Set<number>>(new Set())
+  const [ disabledDay, setDisabledDay ] = useState<Set<DateTime>>(new Set())
+  const [ calValue, setCalValue ] = useState<Date | Date[] | null>(null)
+
+  useEffect(() => {
+    if (!days) {
+      return
+    }
+    const pendingDays = days.filter(day => day.status === "PENDING_REVIEW").map(day => {
+      return new Date(day.on.seconds * 1000).getTime()
+    })
+    setPendingDays(new Set(pendingDays))
+  }, [days, setPendingDays])
+
     const pendingDaysTiles =
       ({ activeStartDate, date, view } : CalendarTileProperties) => pendingDays.has(date.getTime()) ? 'reservation-pending' : ''
 
@@ -79,7 +97,7 @@ const MyPresenceCalendar = () => {
     }
 
     const submitColivingRequest = async () => {
-
+      setIsColivingFormSubmitting(true)
       const start = DateTime.fromJSDate((calValue as Date[])[0])
       const end = DateTime.fromJSDate((calValue as Date[])[1])
       const oneDay = Duration.fromObject({"days": 1})
@@ -102,18 +120,20 @@ const MyPresenceCalendar = () => {
         created: FieldValue.serverTimestamp(),        
         status: "PENDING_REVIEW",
       }
-      const currentUser = firebase.auth().currentUser!
-      console.assert(currentUser != null)
       const request_doc = await db.collection(`users/${currentUser.uid}/requests`).add(request_data);
-      res.forEach(r => {
-        db.collection(`users/${currentUser.uid}/days`).doc(r.toISODate()).set({
+      const promise_arr = res.map(r => {
+        return db.collection(`users/${currentUser.uid}/days`).doc(r.toISODate()).set({
           on: r.toJSDate(),
           request: request_doc,
           status: "PENDING_REVIEW",
           kind: "COLIVING"
         })
       })
-
+      await Promise.all(promise_arr)
+      setIsColivingMode(false)
+      setIsRangeMode(false)
+      setCalValue(null)
+      setIsColivingFormSubmitting(false)
     }
 
     const ColivingForm = () => {
@@ -129,7 +149,11 @@ const MyPresenceCalendar = () => {
       return <>
         <span>You request to stay for {d} nights</span>
         {" "}
+        {isColivingFormSubmitting ?
+        <Button disabled variant="primary">Loading...</Button>
+        :
         <Button disabled={d <= 0} variant="primary" onClick={submitColivingRequest}>Submit</Button>
+        }
         </>
 
     }
@@ -170,7 +194,7 @@ const MyPresenceCalendar = () => {
         onClickDay={(d) => {
           if (!isCoworkingMode && !isColivingMode) {
             setCalValue(d);
-            setShow(true)
+            setShowEmptyDayModal(true)
         }}}
         value={calValue}
         onChange={(d) => {
@@ -194,7 +218,7 @@ const MyPresenceCalendar = () => {
           <p>You work!</p>
         </Alert>}  
       </Row>
-        <Modal show={show} onHide={() => setShow(false)}>
+        <Modal show={showEmptyDayModal} onHide={() => setShowEmptyDayModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>What would you like to book?</Modal.Title>
         </Modal.Header>
@@ -203,14 +227,14 @@ const MyPresenceCalendar = () => {
           <Button variant="secondary" onClick={() => {
             setIsCoworkingMode(true)
             //setIsRangeMode(true)
-            setShow(false)
+            setShowEmptyDayModal(false)
             }}>
             Coworking
           </Button>
           <Button variant="primary" onClick={() => {
             setIsColivingMode(true)
             setIsRangeMode(true)
-            setShow(false)
+            setShowEmptyDayModal(false)
             }}>
             Coliving
           </Button>

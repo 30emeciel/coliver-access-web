@@ -10,7 +10,9 @@ ReactDOM.render(
   <Auth0Provider
     domain="30emeciel.eu.auth0.com"
     clientId="OfVR9fU5mxH6OqsV5ziH19xtN3t7e6rv"
-  redirectUri={window.location.origin}
+    redirectUri={window.location.origin}
+    cacheLocation="localstorage"
+    useRefreshTokens={true}
 >
   <React.StrictMode>
     <App />
