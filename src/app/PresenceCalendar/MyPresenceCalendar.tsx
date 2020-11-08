@@ -1,10 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
-import Calendar, { CalendarTileProperties } from "react-calendar";
-import "react-calendar/dist/Calendar.css";
-import "./Calendar.css";
-import "./Switch.css";
+import "../Switch.css";
 import { DateTime, Duration, Interval } from "luxon";
 
 import {
@@ -18,12 +15,12 @@ import {
   Modal,
 } from "react-bootstrap";
 import Switch from "react-switch";
-import db from "../db";
+import db from "../../db";
 import admin from "firebase";
-import firebase from "../firebase_config";
+import firebase from "../../firebase_config";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import Spinner from "react-bootstrap/Spinner";
-import { AnyMxRecord } from "dns";
+import TheCalendar from "./TheCalendar";
 
 type DocumentData = firebase.firestore.DocumentData;
 
@@ -45,13 +42,18 @@ const MyPresenceCalendar = () => {
     db.collection(`users/${currentUser.uid}/days`).orderBy("on", "asc")
   );
 
+
+  const [isRangeMode, setIsRangeMode] = useState(false);
+  
+  const [disabledDay, setDisabledDay] = useState<Set<DateTime>>(new Set());
+  const [calValue, setCalValue] = useState<Date | Date[] | null>(null);
+
   const [showEmptyDayModal, setShowEmptyDayModal] = useState(false);
   const [showBusyDayModal, setShowBusyDayModal] = useState(false);
 
-  const [isRangeMode, setIsRangeMode] = useState(false);
+  
   const [pendingDays, setPendingDays] = useState<Set<number>>(new Set());
-  const [disabledDay, setDisabledDay] = useState<Set<DateTime>>(new Set());
-  const [calValue, setCalValue] = useState<Date | Date[] | null>(null);
+  
 
   useEffect(() => {
     if (!days) {
@@ -64,7 +66,6 @@ const MyPresenceCalendar = () => {
       });
     setPendingDays(new Set(pendingDays));
   }, [days, setPendingDays]);
-
 
   /******************************************************************************************************************
    * Functions
@@ -119,40 +120,6 @@ const MyPresenceCalendar = () => {
     setIsColivingFormSubmitting(false);
   };
 
-  /******************************************************************************************************************
-   * Calendar helper functions
-   *****************************************************************************************************************/
-
-  const pendingDaysTiles = ({
-    activeStartDate,
-    date,
-    view,
-  }: CalendarTileProperties) =>
-    pendingDays.has(date.getTime()) ? "reservation-pending" : "";
-
-  const disabledTiles = ({
-    activeStartDate,
-    date,
-    view,
-  }: CalendarTileProperties) =>
-    isTestNotAvailable
-      ? date.getDay() === 3
-        ? true
-        : false
-      : isFirstTimer
-      ? date.getDay() !== 1
-      : false;
-
-  const contentTiles = ({
-    activeStartDate,
-    date,
-    view,
-  }: CalendarTileProperties) =>
-    isTestNotAvailable ? (
-      date.getDay() === 3 ? (
-        <div>Sold out</div>
-      ) : null
-    ) : null;
 
 
   /******************************************************************************************************************
@@ -202,7 +169,8 @@ const MyPresenceCalendar = () => {
       Interval.fromDateTimes(
         DateTime.fromJSDate((calValue as Date[])[0]),
         DateTime.fromJSDate((calValue as Date[])[1])
-      ).count("days") - 1;
+      )      
+      .count("days") - 1;
     return (
       <>
         <span>You are going to stay for {d} nights</span>{" "}
@@ -222,6 +190,7 @@ const MyPresenceCalendar = () => {
       </>
     );
   };
+
 
   const EmptyDayModal = () => {
     return (
@@ -290,67 +259,7 @@ const MyPresenceCalendar = () => {
       </Modal>
     );
   };
-
-  const TheCalendar = () => {
-    return (
-      <>
-        <Row>
-          {daysLoading ? (
-            <>
-              <Spinner animation="border" variant="primary" role="status">
-                <span className="sr-only">Loading calendar...</span>
-              </Spinner>{" "}
-              <div>Loading calendar...</div>
-            </>
-          ) : (
-            <Calendar
-              selectRange={isRangeMode}
-              view="month"
-              //showDoubleView
-              //showWeekNumbers
-              //showNeighboringMonth={false}
-              tileClassName={pendingDaysTiles}
-              tileDisabled={disabledTiles}
-              tileContent={contentTiles}
-              onClickDay={(d) => {
-                if (!isCoworkingMode && !isColivingMode) {
-                  if (pendingDays.has(d.getTime())) {
-                    setShowBusyDayModal(true);
-                  } else {
-                    setCalValue(d);
-                    setShowEmptyDayModal(true);
-                  }
-                }
-              }}
-              value={calValue}
-              onChange={(d) => {
-                if (isCoworkingMode || isColivingMode) {
-                  setCalValue(d);
-                }
-              }}
-            />
-          )}
-        </Row>
-        <br />
-        <Row>
-          {isColivingMode && (
-            <Alert variant="info">
-              <ColivingForm />
-            </Alert>
-          )}
-
-          {isCoworkingMode && (
-            <Alert variant="info">
-              <Alert.Heading>Coworking</Alert.Heading>
-              <p>You work!</p>
-            </Alert>
-          )}
-        </Row>
-      </>
-    );
-  };
-
-
+  
 
   const DevRows = () => {
     return (
@@ -439,9 +348,45 @@ const MyPresenceCalendar = () => {
         <br />
         <Intro />
         {isFirstTimer && <FirstTimerIntro />}
-        <TheCalendar />
+        <TheCalendar
+          daysLoading={daysLoading}
+          pendingDays={pendingDays}
+          isRangeMode={isRangeMode}
+          calValue={calValue}
+          onChange={(d) => {
+            if (isCoworkingMode || isColivingMode) {
+              setCalValue(d);
+            }
+          }}
+          onClickDay={(d : Date) => {
+            if (!isCoworkingMode && !isColivingMode) {
+              if (pendingDays.has(d.getTime())) {
+                setShowBusyDayModal(true);
+              } else {
+                setCalValue(d);
+                setShowEmptyDayModal(true);
+              }
+            }
+          }}
+        />
         <EmptyDayModal />
         <OccupiedDayModal />
+
+        <br />
+        <Row>
+          {isColivingMode && (
+            <Alert variant="info">
+              <ColivingForm />
+            </Alert>
+          )}
+
+          {isCoworkingMode && (
+            <Alert variant="info">
+              <Alert.Heading>Coworking</Alert.Heading>
+              <p>You work!</p>
+            </Alert>
+          )}
+        </Row>
 
         <hr />
         <DevRows />

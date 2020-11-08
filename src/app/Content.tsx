@@ -9,7 +9,7 @@ import Form from "react-bootstrap/Form"
 import LogoutButton from '../LogoutButton';
 import TestDb from './TestDb';
 import Col from 'react-bootstrap/Col';
-import MyPresenceCalendar from './MyPresenceCalendar'
+import MyPresenceCalendar from './PresenceCalendar/MyPresenceCalendar'
 import { useAuth0 } from "@auth0/auth0-react";
 import firebase from "../firebase_config";
 
