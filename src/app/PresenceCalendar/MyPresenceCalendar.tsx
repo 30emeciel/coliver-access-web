@@ -3,9 +3,11 @@ import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
 import "../Switch.css";
 import { DateTime, Duration, Interval } from "luxon";
+import { $enum } from "ts-enum-util";
 
 import {
   Alert,
+  ButtonGroup,
   Card,
   Col,
   Container,
@@ -13,6 +15,7 @@ import {
   DropdownButton,
   Form,
   Modal,
+  ToggleButton,
 } from "react-bootstrap";
 import Switch from "react-switch";
 import db from "../../db";
@@ -24,6 +27,8 @@ import TheCalendar from "./TheCalendar";
 
 type DocumentData = firebase.firestore.DocumentData;
 
+enum AppStates {Normal, ShowEmptyForm, ShowOccupiedForm, NewCoworking, NewColiving}
+
 const MyPresenceCalendar = () => {
   const currentUser = firebase.auth().currentUser!;
   console.assert(currentUser != null);
@@ -33,8 +38,8 @@ const MyPresenceCalendar = () => {
    *****************************************************************************************************************/
   const [isFirstTimer, setIsFirstTimer] = useState(false);
   const [isTestNotAvailable, setTestNotAvailable] = useState(false);
-  const [isCoworkingMode, setIsCoworkingMode] = useState(false);
-  const [isColivingMode, setIsColivingMode] = useState(false);
+  const [appState, setAppState] = useState(AppStates.Normal);
+
   const [isColivingFormSubmitting, setIsColivingFormSubmitting] = useState(
     false
   );
@@ -42,15 +47,9 @@ const MyPresenceCalendar = () => {
     db.collection(`users/${currentUser.uid}/days`).orderBy("on", "asc")
   );
 
-
-  const [isRangeMode, setIsRangeMode] = useState(false);
-  
+    
   const [disabledDay, setDisabledDay] = useState<Set<DateTime>>(new Set());
   const [calValue, setCalValue] = useState<Date | Date[] | null>(null);
-
-  const [showEmptyDayModal, setShowEmptyDayModal] = useState(false);
-  const [showBusyDayModal, setShowBusyDayModal] = useState(false);
-
   
   const [pendingDays, setPendingDays] = useState<Set<number>>(new Set());
   
@@ -114,8 +113,7 @@ const MyPresenceCalendar = () => {
     await Promise.all(promise_arr);
 
     // When all done, reset the UI
-    setIsColivingMode(false);
-    setIsRangeMode(false);
+    setAppState(AppStates.Normal)
     setCalValue(null);
     setIsColivingFormSubmitting(false);
   };
@@ -195,20 +193,17 @@ const MyPresenceCalendar = () => {
   const EmptyDayModal = () => {
     return (
       <Modal
-        show={showEmptyDayModal}
-        onHide={() => setShowEmptyDayModal(false)}
+        show={appState === AppStates.ShowEmptyForm}
+        onHide={() => setAppState(AppStates.Normal)}
       >
         <Modal.Header closeButton>
           <Modal.Title>What would you like to book?</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Please select what would you like to book</Modal.Body>
         <Modal.Footer>
           <Button
             variant="secondary"
             onClick={() => {
-              setIsCoworkingMode(true);
-              //setIsRangeMode(true)
-              setShowEmptyDayModal(false);
+              setAppState(AppStates.NewCoworking)
             }}
           >
             Coworking
@@ -216,9 +211,7 @@ const MyPresenceCalendar = () => {
           <Button
             variant="primary"
             onClick={() => {
-              setIsColivingMode(true);
-              setIsRangeMode(true);
-              setShowEmptyDayModal(false);
+              setAppState(AppStates.NewColiving)
             }}
           >
             Coliving
@@ -230,32 +223,24 @@ const MyPresenceCalendar = () => {
 
   const OccupiedDayModal = () => {
     return (
-      <Modal show={showBusyDayModal} onHide={() => setShowBusyDayModal(false)}>
+      <Modal show={appState === AppStates.ShowOccupiedForm} onHide={() => setAppState(AppStates.Normal)}>
         <Modal.Header closeButton>
           <Modal.Title>What would you like to do?</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Footer>
           <Button
-            variant="secondary"
             onClick={() => {
-              setIsCoworkingMode(true);
-              //setIsRangeMode(true)
-              setShowEmptyDayModal(false);
             }}
           >
             Cancel reservation
           </Button>
           <Button
-            variant="primary"
             onClick={() => {
-              setIsColivingMode(true);
-              setIsRangeMode(true);
-              setShowEmptyDayModal(false);
             }}
           >
             Add/remove days
           </Button>
-        </Modal.Body>
+        </Modal.Footer>
       </Modal>
     );
   };
@@ -264,6 +249,9 @@ const MyPresenceCalendar = () => {
   const DevRows = () => {
     return (
       <>
+      <Row>
+      <h2>Dev switches</h2>
+      </Row>
         <Row>
           <label>
             <span>First timer test Meriem</span>
@@ -273,26 +261,12 @@ const MyPresenceCalendar = () => {
               onChange={(checked) => {
                 setIsFirstTimer(checked);
                 if (checked) {
-                  setIsColivingMode(false);
+                  setAppState(AppStates.Normal)
                 }
               }}
             />
           </label>
         </Row>
-        <Row>
-          <label>
-            <span>Range mode</span>
-            <Switch
-              className="react-switch"
-              onChange={(checked) => {
-                setCalValue(null);
-                setIsRangeMode(checked);
-              }}
-              checked={isRangeMode}
-            />
-          </label>
-        </Row>
-
         <Row>
           <label>
             <span>Test Not available</span>
@@ -306,7 +280,7 @@ const MyPresenceCalendar = () => {
           </label>
         </Row>
         <Row>
-          <label>
+{/*           <label>
             <span>Off</span>
             <Switch
               disabled={isFirstTimer}
@@ -319,23 +293,25 @@ const MyPresenceCalendar = () => {
               //              offColor="#32CD32"
             />
             <span>Coworking</span>
-          </label>
+          </label> */}
         </Row>
         <Row>
-          <label>
-            <span>Off</span>
-            <Switch
-              disabled={isFirstTimer}
-              className="react-switch"
-              onChange={(checked) => setIsColivingMode(checked)}
-              checked={isColivingMode}
-              //              uncheckedIcon={false}
-              //              checkedIcon={false}
-              onColor="#3F7FBF"
-              //              offColor="#32CD32"
-            />
-            <span>Coliving</span>
-          </label>
+        <ButtonGroup toggle>
+        {$enum(AppStates).map((value, key, wrappedEnum, index)  => (
+          <ToggleButton
+            key={index}
+            type="radio"
+            //variant="secondary"
+            name="radio"
+            value={key}
+            checked={appState === value}
+            onChange={(e) => setAppState($enum(AppStates).getValueOrThrow(e.currentTarget.value))}
+          >
+            {key}
+          </ToggleButton>
+        ))}
+      </ButtonGroup>
+
         </Row>
       </>
     );
@@ -351,20 +327,23 @@ const MyPresenceCalendar = () => {
         <TheCalendar
           daysLoading={daysLoading}
           pendingDays={pendingDays}
-          isRangeMode={isRangeMode}
+          isRangeMode={appState === AppStates.NewColiving}
+          isTestNotAvailable={isTestNotAvailable}
+          isFirstTimer={isFirstTimer}
           calValue={calValue}
           onChange={(d) => {
-            if (isCoworkingMode || isColivingMode) {
+            if (appState === AppStates.NewCoworking || appState === AppStates.NewColiving) {
               setCalValue(d);
             }
           }}
           onClickDay={(d : Date) => {
-            if (!isCoworkingMode && !isColivingMode) {
+            if (appState === AppStates.Normal) {
               if (pendingDays.has(d.getTime())) {
-                setShowBusyDayModal(true);
+                setAppState(AppStates.ShowOccupiedForm)
+                
               } else {
                 setCalValue(d);
-                setShowEmptyDayModal(true);
+                setAppState(AppStates.ShowEmptyForm)
               }
             }
           }}
@@ -374,13 +353,13 @@ const MyPresenceCalendar = () => {
 
         <br />
         <Row>
-          {isColivingMode && (
+          {appState === AppStates.NewColiving && (
             <Alert variant="info">
               <ColivingForm />
             </Alert>
           )}
 
-          {isCoworkingMode && (
+          {appState === AppStates.NewCoworking && (
             <Alert variant="info">
               <Alert.Heading>Coworking</Alert.Heading>
               <p>You work!</p>
