@@ -24,12 +24,15 @@ import firebase from "../../firebase_config";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import Spinner from "react-bootstrap/Spinner";
 import TheCalendar from "./TheCalendar";
+import ColivingForm from "./ColivingForm";
 
 type DocumentData = firebase.firestore.DocumentData;
 
 enum AppStates {Normal, ShowEmptyForm, ShowOccupiedForm, NewCoworking, NewColiving}
 
 const MyPresenceCalendar = () => {
+  
+
   const currentUser = firebase.auth().currentUser!;
   console.assert(currentUser != null);
 
@@ -40,15 +43,12 @@ const MyPresenceCalendar = () => {
   const [isTestNotAvailable, setTestNotAvailable] = useState(false);
   const [appState, setAppState] = useState(AppStates.Normal);
 
-  const [isColivingFormSubmitting, setIsColivingFormSubmitting] = useState(
-    false
-  );
   const [days, daysLoading, daysError] = useCollectionData<DocumentData>(
     db.collection(`users/${currentUser.uid}/days`).orderBy("on", "asc")
   );
 
     
-  const [disabledDay, setDisabledDay] = useState<Set<DateTime>>(new Set());
+  const [disabledDays, setDisabledDays] = useState<Set<DateTime>>(new Set());
   const [calValue, setCalValue] = useState<Date | Date[] | null>(null);
   
   const [pendingDays, setPendingDays] = useState<Set<number>>(new Set());
@@ -70,53 +70,7 @@ const MyPresenceCalendar = () => {
    * Functions
    *****************************************************************************************************************/
 
-   const submitColivingRequest = async () => {
-    setIsColivingFormSubmitting(true);
-    const start = DateTime.fromJSDate((calValue as Date[])[0]);
-    const end = DateTime.fromJSDate((calValue as Date[])[1]);
-    const oneDay = Duration.fromObject({ days: 1 });
-    
-    // Get all the days that contains the selected range
-    var res: DateTime[] = [];
-    var i = start.plus({}); // clone
-    while (i <= end) {
-      if (disabledDay.has(i)) {
-        continue;
-      }
-      res.push(i);
-      i = i.plus(oneDay);
-    }
 
-
-    // Submit the list of days to firestore
-    const FieldValue = admin.firestore.FieldValue;
-
-    const request_data = {
-      created: FieldValue.serverTimestamp(),
-      status: "PENDING_REVIEW",
-    };
-    const request_doc = await db
-      .collection(`users/${currentUser.uid}/requests`)
-      .add(request_data);
-    const promise_arr = res.map((r) => {
-      return db
-        .collection(`users/${currentUser.uid}/days`)
-        .doc(r.toISODate())
-        .set({
-          on: r.toJSDate(),
-          request: request_doc,
-          status: "PENDING_REVIEW",
-          kind: "COLIVING",
-        });
-    });
-    
-    await Promise.all(promise_arr);
-
-    // When all done, reset the UI
-    setAppState(AppStates.Normal)
-    setCalValue(null);
-    setIsColivingFormSubmitting(false);
-  };
 
 
 
@@ -158,36 +112,7 @@ const MyPresenceCalendar = () => {
     );
   };
 
-  const ColivingForm = () => {
-    if ((calValue as Date[])[1] == null) {
-      return <p>Pick your departure date.</p>;
-    }
 
-    const d =
-      Interval.fromDateTimes(
-        DateTime.fromJSDate((calValue as Date[])[0]),
-        DateTime.fromJSDate((calValue as Date[])[1])
-      )      
-      .count("days") - 1;
-    return (
-      <>
-        <span>You are going to stay for {d} nights</span>{" "}
-        {isColivingFormSubmitting ? (
-          <Button disabled variant="primary">
-            Loading...
-          </Button>
-        ) : (
-          <Button
-            disabled={d <= 0}
-            variant="primary"
-            onClick={submitColivingRequest}
-          >
-            Submit
-          </Button>
-        )}
-      </>
-    );
-  };
 
 
   const EmptyDayModal = () => {
@@ -355,7 +280,10 @@ const MyPresenceCalendar = () => {
         <Row>
           {appState === AppStates.NewColiving && (
             <Alert variant="info">
-              <ColivingForm />
+              <ColivingForm
+              arrivalDate={calValue as Date[] ? (calValue as Date[])[0] : null}
+              departureDate={calValue as Date[] ? (calValue as Date[])[1] : null}
+              disabledDays={disabledDays} />
             </Alert>
           )}
 
