@@ -28,11 +28,15 @@ import ColivingForm from "./ColivingForm";
 
 type DocumentData = firebase.firestore.DocumentData;
 
-enum AppStates {Normal, ShowEmptyForm, ShowOccupiedForm, NewCoworking, NewColiving}
+enum AppStates {
+  Normal,
+  ShowEmptyForm,
+  ShowOccupiedForm,
+  NewCoworking,
+  NewColiving,
+}
 
 const MyPresenceCalendar = () => {
-  
-
   const currentUser = firebase.auth().currentUser!;
   console.assert(currentUser != null);
 
@@ -47,12 +51,10 @@ const MyPresenceCalendar = () => {
     db.collection(`users/${currentUser.uid}/days`).orderBy("on", "asc")
   );
 
-    
   const [disabledDays, setDisabledDays] = useState<Set<DateTime>>(new Set());
   const [calValue, setCalValue] = useState<Date | Date[] | null>(null);
-  
+
   const [pendingDays, setPendingDays] = useState<Set<number>>(new Set());
-  
 
   useEffect(() => {
     if (!days) {
@@ -69,10 +71,6 @@ const MyPresenceCalendar = () => {
   /******************************************************************************************************************
    * Functions
    *****************************************************************************************************************/
-
-
-
-
 
   /******************************************************************************************************************
    * Inner Components
@@ -112,9 +110,6 @@ const MyPresenceCalendar = () => {
     );
   };
 
-
-
-
   const EmptyDayModal = () => {
     return (
       <Modal
@@ -128,7 +123,7 @@ const MyPresenceCalendar = () => {
           <Button
             variant="secondary"
             onClick={() => {
-              setAppState(AppStates.NewCoworking)
+              setAppState(AppStates.NewCoworking);
             }}
           >
             Coworking
@@ -136,7 +131,7 @@ const MyPresenceCalendar = () => {
           <Button
             variant="primary"
             onClick={() => {
-              setAppState(AppStates.NewColiving)
+              setAppState(AppStates.NewColiving);
             }}
           >
             Coliving
@@ -148,35 +143,27 @@ const MyPresenceCalendar = () => {
 
   const OccupiedDayModal = () => {
     return (
-      <Modal show={appState === AppStates.ShowOccupiedForm} onHide={() => setAppState(AppStates.Normal)}>
+      <Modal
+        show={appState === AppStates.ShowOccupiedForm}
+        onHide={() => setAppState(AppStates.Normal)}
+      >
         <Modal.Header closeButton>
           <Modal.Title>What would you like to do?</Modal.Title>
         </Modal.Header>
         <Modal.Footer>
-          <Button
-            onClick={() => {
-            }}
-          >
-            Cancel reservation
-          </Button>
-          <Button
-            onClick={() => {
-            }}
-          >
-            Add/remove days
-          </Button>
+          <Button onClick={() => {}}>Cancel reservation</Button>
+          <Button onClick={() => {}}>Add/remove days</Button>
         </Modal.Footer>
       </Modal>
     );
   };
-  
 
   const DevRows = () => {
     return (
       <>
-      <Row>
-      <h2>Dev switches</h2>
-      </Row>
+        <Row>
+          <h2>Dev switches</h2>
+        </Row>
         <Row>
           <label>
             <span>First timer test Meriem</span>
@@ -186,7 +173,7 @@ const MyPresenceCalendar = () => {
               onChange={(checked) => {
                 setIsFirstTimer(checked);
                 if (checked) {
-                  setAppState(AppStates.Normal)
+                  setAppState(AppStates.Normal);
                 }
               }}
             />
@@ -205,7 +192,7 @@ const MyPresenceCalendar = () => {
           </label>
         </Row>
         <Row>
-{/*           <label>
+          {/*           <label>
             <span>Off</span>
             <Switch
               disabled={isFirstTimer}
@@ -221,22 +208,25 @@ const MyPresenceCalendar = () => {
           </label> */}
         </Row>
         <Row>
-        <ButtonGroup toggle>
-        {$enum(AppStates).map((value, key, wrappedEnum, index)  => (
-          <ToggleButton
-            key={index}
-            type="radio"
-            //variant="secondary"
-            name="radio"
-            value={key}
-            checked={appState === value}
-            onChange={(e) => setAppState($enum(AppStates).getValueOrThrow(e.currentTarget.value))}
-          >
-            {key}
-          </ToggleButton>
-        ))}
-      </ButtonGroup>
-
+          <ButtonGroup toggle>
+            {$enum(AppStates).map((value, key, wrappedEnum, index) => (
+              <ToggleButton
+                key={index}
+                type="radio"
+                //variant="secondary"
+                name="radio"
+                value={key}
+                checked={appState === value}
+                onChange={(e) =>
+                  setAppState(
+                    $enum(AppStates).getValueOrThrow(e.currentTarget.value)
+                  )
+                }
+              >
+                {key}
+              </ToggleButton>
+            ))}
+          </ButtonGroup>
         </Row>
       </>
     );
@@ -257,18 +247,20 @@ const MyPresenceCalendar = () => {
           isFirstTimer={isFirstTimer}
           calValue={calValue}
           onChange={(d) => {
-            if (appState === AppStates.NewCoworking || appState === AppStates.NewColiving) {
+            if (
+              appState === AppStates.NewCoworking ||
+              appState === AppStates.NewColiving
+            ) {
               setCalValue(d);
             }
           }}
-          onClickDay={(d : Date) => {
+          onClickDay={(d: Date) => {
             if (appState === AppStates.Normal) {
               if (pendingDays.has(d.getTime())) {
-                setAppState(AppStates.ShowOccupiedForm)
-                
+                setAppState(AppStates.ShowOccupiedForm);
               } else {
                 setCalValue(d);
-                setAppState(AppStates.ShowEmptyForm)
+                setAppState(AppStates.ShowEmptyForm);
               }
             }
           }}
@@ -281,9 +273,18 @@ const MyPresenceCalendar = () => {
           {appState === AppStates.NewColiving && (
             <Alert variant="info">
               <ColivingForm
-              arrivalDate={calValue as Date[] ? (calValue as Date[])[0] : null}
-              departureDate={calValue as Date[] ? (calValue as Date[])[1] : null}
-              disabledDays={disabledDays} />
+                arrivalDate={
+                  (calValue as Date[]) ? (calValue as Date[])[0] : null
+                }
+                departureDate={
+                  (calValue as Date[]) ? (calValue as Date[])[1] : null
+                }
+                disabledDays={disabledDays}
+                onSubmit={() => {
+                  setAppState(AppStates.Normal);
+                  setCalValue(null);
+                }}
+              />
             </Alert>
           )}
 

@@ -30,11 +30,13 @@ type DocumentData = firebase.firestore.DocumentData;
 const ColivingForm = ({
   arrivalDate,
   departureDate,
-  disabledDays
+  disabledDays,
+  onSubmit
 }: {
   arrivalDate: Date|null;
   departureDate: Date|null;
   disabledDays: Set<DateTime>;
+  onSubmit: () => void;
 }) => {
 
   const currentUser = firebase.auth().currentUser!;
@@ -94,10 +96,9 @@ const ColivingForm = ({
 
     await Promise.all(promise_arr);
 
-    // When all done, reset the UI
-    //        setAppState(AppStates.Normal)
-    //        setCalValue(null);
+    // When all done, reset the UI    
     setIsColivingFormSubmitting(false);
+    onSubmit();
   };
   
   const numberOfNights = interval ? interval.count("days") - 1 : null;
