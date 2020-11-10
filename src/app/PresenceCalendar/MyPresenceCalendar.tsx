@@ -76,29 +76,6 @@ const MyPresenceCalendar = () => {
    * Inner Components
    *****************************************************************************************************************/
 
-  const Title = () => {
-    return (
-      <Row>
-        <h1>My presence calendar</h1>
-      </Row>
-    );
-  };
-
-  const Intro = () => {
-    return (
-      <Row>
-        <Alert variant="info">
-          Click on a day you would like to book. Your request will be reviewed
-          by the <strong>Participante role</strong> and you will received an
-          email with the decision.
-          <br />
-          Some days may not be available if the gender equity is not reached or
-          there is not anymore spot available.
-        </Alert>
-      </Row>
-    );
-  };
-
   const FirstTimerIntro = () => {
     return (
       <Row>
@@ -235,9 +212,20 @@ const MyPresenceCalendar = () => {
   return (
     <>
       <Container>
-        <Title />
+        <Row>
+          <h1>My presence calendar</h1>
+        </Row>
         <br />
-        <Intro />
+        <Row>
+          <Alert variant="info">
+            Click on a day you would like to book. Your request will be reviewed
+            by the <strong>Participante role</strong> and you will received an
+            email with the decision.
+            <br />
+            Some days may not be available if the gender equity is not reached
+            or there is not anymore spot available.
+          </Alert>
+        </Row>
         {isFirstTimer && <FirstTimerIntro />}
         <TheCalendar
           daysLoading={daysLoading}
