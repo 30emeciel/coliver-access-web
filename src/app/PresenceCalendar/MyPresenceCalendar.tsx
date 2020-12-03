@@ -25,6 +25,7 @@ import { useCollectionData } from "react-firebase-hooks/firestore";
 import Spinner from "react-bootstrap/Spinner";
 import TheCalendar from "./TheCalendar";
 import ColivingForm from "./ColivingForm";
+import EditForm from "./EditForm";
 
 type DocumentData = firebase.firestore.DocumentData;
 
@@ -34,6 +35,7 @@ enum AppStates {
   ShowOccupiedForm,
   NewCoworking,
   NewColiving,
+  EditDays,
 }
 
 const MyPresenceCalendar = () => {
@@ -55,6 +57,8 @@ const MyPresenceCalendar = () => {
   const [calValue, setCalValue] = useState<Date | Date[] | null>(null);
 
   const [pendingDays, setPendingDays] = useState<Set<number>>(new Set());
+
+  const [listEditDays, setListEditDays] = useState(new Set<Date>());
 
   useEffect(() => {
     if (!days) {
@@ -129,7 +133,10 @@ const MyPresenceCalendar = () => {
         </Modal.Header>
         <Modal.Footer>
           <Button onClick={() => {}}>Cancel reservation</Button>
-          <Button onClick={() => {}}>Add/remove days</Button>
+          <Button onClick={() => {
+            setCalValue(null)
+            setAppState(AppStates.EditDays)
+          }}>Add/remove days</Button>
         </Modal.Footer>
       </Modal>
     );
@@ -209,6 +216,18 @@ const MyPresenceCalendar = () => {
     );
   };
 
+
+  const onClickDayFct = (d: Date) => {
+    if (appState === AppStates.Normal) {
+      if (pendingDays.has(d.getTime())) {
+        setAppState(AppStates.ShowOccupiedForm);
+      } else {
+        setCalValue(d);
+        setAppState(AppStates.ShowEmptyForm);
+      }
+    }
+  }
+
   return (
     <>
       <Container>
@@ -227,46 +246,17 @@ const MyPresenceCalendar = () => {
           </Alert>
         </Row>
         {isFirstTimer && <FirstTimerIntro />}
-        <TheCalendar
-          daysLoading={daysLoading}
-          pendingDays={pendingDays}
-          isRangeMode={appState === AppStates.NewColiving}
-          isTestNotAvailable={isTestNotAvailable}
-          isFirstTimer={isFirstTimer}
-          calValue={calValue}
-          onChange={(d) => {
-            if (
-              appState === AppStates.NewCoworking ||
-              appState === AppStates.NewColiving
-            ) {
-              setCalValue(d);
-            }
-          }}
-          onClickDay={(d: Date) => {
-            if (appState === AppStates.Normal) {
-              if (pendingDays.has(d.getTime())) {
-                setAppState(AppStates.ShowOccupiedForm);
-              } else {
-                setCalValue(d);
-                setAppState(AppStates.ShowEmptyForm);
-              }
-            }
-          }}
-        />
+        
         <EmptyDayModal />
         <OccupiedDayModal />
 
         <br />
         <Row>
-          {appState === AppStates.NewColiving && (
+          {appState === AppStates.NewColiving && 
             <Alert variant="info">
               <ColivingForm
-                arrivalDate={
-                  (calValue as Date[]) ? (calValue as Date[])[0] : null
-                }
-                departureDate={
-                  (calValue as Date[]) ? (calValue as Date[])[1] : null
-                }
+                daysLoading={daysLoading}
+                pendingDays={pendingDays}
                 disabledDays={disabledDays}
                 onSubmit={() => {
                   setAppState(AppStates.Normal);
@@ -274,15 +264,20 @@ const MyPresenceCalendar = () => {
                 }}
               />
             </Alert>
-          )}
+          }
 
-          {appState === AppStates.NewCoworking && (
+          {appState === AppStates.NewCoworking && 
             <Alert variant="info">
               <Alert.Heading>Coworking</Alert.Heading>
               <p>You work!</p>
             </Alert>
-          )}
+          }
+          {appState === AppStates.EditDays && 
+          <Alert variant="info">            
+            
+          </Alert>}
         </Row>
+        
 
         <hr />
         <DevRows />

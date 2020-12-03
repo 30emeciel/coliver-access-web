@@ -5,48 +5,55 @@ import Button from "react-bootstrap/Button";
 import db from "../../db";
 import firebase from "../../firebase_config";
 import "../Switch.css";
+import TheCalendar from "./TheCalendar";
+
 
 const ColivingForm = ({
-  arrivalDate,
-  departureDate,
+  daysLoading,
+  pendingDays,
   disabledDays,
   onSubmit,
 }: {
-  arrivalDate: Date | null;
-  departureDate: Date | null;
-  disabledDays: Set<DateTime>;
-  onSubmit: () => void;
+  daysLoading: boolean,
+  pendingDays: Set<number>,
+  disabledDays: Set<DateTime>,
+  onSubmit: () => void,
 }) => {
-  const currentUser = firebase.auth().currentUser!;
-  console.assert(currentUser != null);
+  const currentUser = firebase.auth().currentUser!
+  console.assert(currentUser != null)
 
-  const [isColivingFormSubmitting, setIsColivingFormSubmitting] = useState(
-    false
-  );
-  const [interval, setInterval] = useState<null | Interval>(null);
+  const [isFormSubmitting, setIsFormSubmitting] = useState(false)
+  const [interval, setInterval] = useState<null | Interval>(null)
+  const [calValue, setCalValue] = useState<Date[] | null>(null);
 
   useEffect(() => {
+
+    const twoDays = calValue as Date[]
+    
+    const arrivalDate = twoDays ? twoDays[0] : null
+    const departureDate = twoDays ? twoDays[1] : null
     setInterval(
       !arrivalDate || !departureDate
         ? null
         : Interval.fromDateTimes(arrivalDate, departureDate)
     );
-  }, [arrivalDate, departureDate]);
+  }, [calValue])
 
   const submitColivingRequest = async () => {
-    if (!arrivalDate || !departureDate) {
+
+    if (!interval) {
       return;
     }
-    setIsColivingFormSubmitting(true);
-    const start = DateTime.fromJSDate(arrivalDate);
+    const arrivalDate = interval.start
+    const departureDate = interval.end
 
-    const end = DateTime.fromJSDate(departureDate);
-    const oneDay = Duration.fromObject({ days: 1 });
+    setIsFormSubmitting(true);
+    const oneDay = Duration.fromObject({ days: 1 })
 
     // Get all the days that contains the selected range
     var res: DateTime[] = [];
-    var i = start.plus({}); // clone
-    while (i <= end) {
+    var i = arrivalDate.plus({}); // clone
+    while (i <= departureDate) {
       if (disabledDays.has(i)) {
         continue;
       }
@@ -79,13 +86,24 @@ const ColivingForm = ({
     await Promise.all(promise_arr);
 
     // When all done, reset the UI
-    setIsColivingFormSubmitting(false);
+    setIsFormSubmitting(false);
     onSubmit();
   };
+
+  const onChangeFct = (d:Date | Date[]) => {
+    setCalValue(d as Date[]);  
+  }
 
   const numberOfNights = interval ? interval.count("days") - 1 : null;
   return (
     <>
+      <TheCalendar
+          daysLoading={daysLoading}
+          pendingDays={pendingDays}
+          isRangeMode={true}
+          calValue={calValue}
+          onChange={onChangeFct}          
+        />
       <span>
         {numberOfNights ? (
           <>You are going to stay for {numberOfNights} nights</>
@@ -93,7 +111,7 @@ const ColivingForm = ({
           <>Pick your departure date</>
         )}
       </span>{" "}
-      {isColivingFormSubmitting ? (
+      {isFormSubmitting ? (
         <Button disabled variant="primary">
           Loading...
         </Button>

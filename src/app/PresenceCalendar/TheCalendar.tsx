@@ -6,20 +6,16 @@ import "./Calendar.css";
 import Spinner from "react-bootstrap/Spinner";
 
 const TheCalendar = ({
-  isTestNotAvailable,
-  isFirstTimer,
-  isRangeMode,
-  onClickDay,
+  isRangeMode,  
   onChange,
+  onClickDay,
   calValue,
   daysLoading,
   pendingDays,
 }: {
-  isTestNotAvailable: boolean;
-  isFirstTimer: boolean;
   isRangeMode: boolean;
-  onClickDay: (d: Date) => void;
   onChange: (d: Date | Date[]) => void;
+  onClickDay?: (d: Date) => void;
   calValue: null | Date | Date[];
   daysLoading: boolean;
   pendingDays: Set<number>;
@@ -28,6 +24,9 @@ const TheCalendar = ({
   /******************************************************************************************************************
    * Calendar helper functions
    *****************************************************************************************************************/
+
+   const isTestNotAvailable = false
+   const isFirstTimer = false
 
   const pendingDaysTiles = ({
     activeStartDate,
