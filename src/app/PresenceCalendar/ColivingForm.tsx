@@ -1,6 +1,7 @@
 import admin from "firebase";
 import { DateTime, Duration, Interval } from "luxon";
 import React, { useEffect, useState } from "react";
+import { Alert, Row } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import db from "../../db";
 import firebase from "../../firebase_config";
@@ -24,7 +25,7 @@ const ColivingForm = ({
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false)
   const [interval, setInterval] = useState<null | Interval>(null)
-  const [calValue, setCalValue] = useState<Date[] | null>(null);
+  const [calValue, setCalValue] = useState<Date[] | undefined>();
 
   useEffect(() => {
 
@@ -97,6 +98,7 @@ const ColivingForm = ({
   const numberOfNights = interval ? interval.count("days") - 1 : null;
   return (
     <>
+    <Row>
       <TheCalendar
           daysLoading={daysLoading}
           pendingDays={pendingDays}
@@ -104,6 +106,9 @@ const ColivingForm = ({
           calValue={calValue}
           onChange={onChangeFct}          
         />
+        </Row>
+        <Row>
+                    <Alert variant="info">
       <span>
         {numberOfNights ? (
           <>You are going to stay for {numberOfNights} nights</>
@@ -124,6 +129,8 @@ const ColivingForm = ({
           Submit
         </Button>
       )}
+      </Alert>
+      </Row>
     </>
   );
 };

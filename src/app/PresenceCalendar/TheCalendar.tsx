@@ -13,10 +13,10 @@ const TheCalendar = ({
   daysLoading,
   pendingDays,
 }: {
-  isRangeMode: boolean;
-  onChange: (d: Date | Date[]) => void;
+  isRangeMode?: boolean;
+  onChange?: (d: Date | Date[]) => void;
   onClickDay?: (d: Date) => void;
-  calValue: null | Date | Date[];
+  calValue?: null | Date | Date[];
   daysLoading: boolean;
   pendingDays: Set<number>;
 }) => {
@@ -61,7 +61,7 @@ const TheCalendar = ({
 
   return (
     <>
-      <Row>
+
         {daysLoading ? (
           <>
             <Spinner animation="border" variant="primary" role="status">
@@ -84,7 +84,6 @@ const TheCalendar = ({
             onClickDay={onClickDay}
           />
         )}
-      </Row>
     </>
   );
 };

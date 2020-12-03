@@ -13,7 +13,6 @@ import {
   Container,
   Dropdown,
   DropdownButton,
-  Form,
   Modal,
   ToggleButton,
 } from "react-bootstrap";
@@ -27,48 +26,32 @@ import TheCalendar from "./TheCalendar";
 
 type DocumentData = firebase.firestore.DocumentData;
 
-const ColivingForm = ({
-  arrivalDate,
-  departureDate,
+const CoworkingForm = ({
+  daysLoading,
+  pendingDays,
   disabledDays
 }: {
-  arrivalDate: Date|null;
-  departureDate: Date|null;
+  daysLoading: boolean;
+  pendingDays: Set<number>;
   disabledDays: Set<DateTime>;
 }) => {
 
   const currentUser = firebase.auth().currentUser!;
   console.assert(currentUser != null);
 
-  const [isColivingFormSubmitting, setIsColivingFormSubmitting] = useState(
+  const [isFormSubmitting, setIsColivingFormSubmitting] = useState(
     false
   );
-  const [interval, setInterval] = useState<null|Interval>(null)
+  const [calValue, setCalValue] = useState<undefined|Date>()
 
-  useEffect(() => {
-      setInterval(!arrivalDate || !departureDate ? null : Interval.fromDateTimes(arrivalDate, departureDate))      
-  }, [arrivalDate, departureDate])
 
-  const submitColivingRequest = async () => {
-    if (!arrivalDate || !departureDate) {
+  const submitForm = async () => {
+    if (!calValue) {
         return
     }
     setIsColivingFormSubmitting(true);
-    const start = DateTime.fromJSDate(arrivalDate);
+    const start = DateTime.fromJSDate(calValue);
 
-    const end = DateTime.fromJSDate(departureDate);
-    const oneDay = Duration.fromObject({ days: 1 });
-
-    // Get all the days that contains the selected range
-    var res: DateTime[] = [];
-    var i = start.plus({}); // clone
-    while (i <= end) {
-      if (disabledDays.has(i)) {
-        continue;
-      }
-      res.push(i);
-      i = i.plus(oneDay);
-    }
 
     // Submit the list of days to firestore
     const FieldValue = admin.firestore.FieldValue;
@@ -80,48 +63,58 @@ const ColivingForm = ({
     const request_doc = await db
       .collection(`users/${currentUser.uid}/requests`)
       .add(request_data);
-    const promise_arr = res.map((r) => {
-      return db
+    await db
         .collection(`users/${currentUser.uid}/days`)
-        .doc(r.toISODate())
+        .doc(start.toISODate())
         .set({
-          on: r.toJSDate(),
+          on: start.toJSDate(),
           request: request_doc,
           status: "PENDING_REVIEW",
-          kind: "COLIVING",
+          kind: "COWORKING",
         });
-    });
-
-    await Promise.all(promise_arr);
-
+    
     // When all done, reset the UI
     //        setAppState(AppStates.Normal)
     //        setCalValue(null);
     setIsColivingFormSubmitting(false);
   };
   
-  const numberOfNights = interval ? interval.count("days") - 1 : null;
   return (
     <>
-    <span>
-      {numberOfNights ? <>You are going to stay for {numberOfNights} nights</> : <>Pick your departure date</>}
-      </span>
+    <Row>
+    <TheCalendar
+          daysLoading={daysLoading}
+          pendingDays={pendingDays}
+          isRangeMode={false}
+          calValue={calValue}
+          onChange={(d) => {
+            if (d instanceof Date) {
+              setCalValue(d)
+            }
+          }}          
+        />
+        </Row>
+        <Row>
+          <Alert variant="info">
+    <span>Pick the date you would like to cowork with us</span>
       {" "}
-      {isColivingFormSubmitting ? (
+      {isFormSubmitting ? (
         <Button disabled variant="primary">
           Loading...
         </Button>
       ) : (
         <Button
-          disabled={!numberOfNights || numberOfNights <= 0}
+          disabled={!calValue}
           variant="primary"
-          onClick={submitColivingRequest}
+          onClick={submitForm}
         >
           Submit
         </Button>
       )}
+      </Alert>
+      </Row>
     </>
   );
 };
 
-export default ColivingForm;
+export default CoworkingForm;
