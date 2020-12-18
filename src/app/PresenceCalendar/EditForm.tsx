@@ -6,8 +6,14 @@ import Button from "react-bootstrap/Button";
 import db from "../../db";
 import firebase from "../../firebase_config";
 import "../Switch.css";
+import TheCalendar from "./TheCalendar";
 
-const EditForm = (
+enum EditActions {
+  Add,
+  Remove,
+}
+
+const EditForm = ({
   daysLoading,
   pendingDays,
   disabledDays
@@ -17,7 +23,19 @@ const EditForm = (
   disabledDays: Set<DateTime>;
   }) => {
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
-  const [newDays, setNewDays] = useState(new Set<Date>());
+    
+  const [listEditDays, setListEditDays] = useState(new Map<DateTime, EditActions>());
+
+  const onClickDay = (d:Date) => {
+    let dt = DateTime.fromJSDate(d)
+    let action = listEditDays.get(dt)
+    if (action) {
+      listEditDays.delete(dt)    
+    }
+    else {
+      listEditDays.set(dt, pendingDays.has(dt.toSeconds()) ? EditActions.Remove : EditActions.Add)
+    }
+  }
 
   const submitColivingRequest = async () => {
   
@@ -29,13 +47,8 @@ const EditForm = (
     <TheCalendar
           daysLoading={daysLoading}
           pendingDays={pendingDays}
-          isRangeMode={false}
-          calValue={calValue}
-          onChange={(d) => {
-            if (d instanceof Date) {
-              setCalValue(d)
-            }
-          }}          
+          isRangeMode={false}     
+          onClickDay={onClickDay}     
         />
         </Row>
         <Row>
@@ -55,8 +68,7 @@ const EditForm = (
       )}
       </Row>
     </>
-  );
-  <p>Click on the days to add/remove days</p>;
+  );  
 };
 
 export default EditForm;

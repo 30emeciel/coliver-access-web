@@ -30,6 +30,8 @@ import EditForm from "./EditForm";
 
 type DocumentData = firebase.firestore.DocumentData;
 
+
+
 enum AppStates {
   Normal,
   ShowEmptyForm,
@@ -37,6 +39,21 @@ enum AppStates {
   NewCoworking,
   NewColiving,
   EditDays,
+}
+
+enum DayStates {
+  Free,
+  Full,
+  Pending,
+  Coworking,
+  Coliving,
+  Loading,
+}
+
+type CalendarDays = {
+  days: Map<DateTime, DayStates>,
+  isLoading: boolean
+  setIsLoading: 
 }
 
 const MyPresenceCalendar = () => {
@@ -54,24 +71,26 @@ const MyPresenceCalendar = () => {
     db.collection(`users/${currentUser.uid}/days`).orderBy("on", "asc")
   );
 
-  const [disabledDays, setDisabledDays] = useState<Set<DateTime>>(new Set());
-  const [calValue, setCalValue] = useState<Date | Date[] | null>(null);
+  const [days, setDays] = useState<Map<DateTime, DayStates>>(new Map());
+  const calendarDays = {
+    days: days,
+    setDays: setDays,
+    isLoading: true
+  }
 
-  const [pendingDays, setPendingDays] = useState<Set<number>>(new Set());
-
-  const [listEditDays, setListEditDays] = useState(new Set<Date>());
-
+  
   useEffect(() => {
     if (!days) {
       return;
     }
+    console.log("Refreshing calendar days...")
     const pendingDays = days
       .filter((day) => day.status === "PENDING_REVIEW")
       .map((day) => {
-        return new Date(day.on.seconds * 1000).getTime();
+        return [DateTime.fromMillis(day.on.seconds * 1000), DayStates.Pending] as [DateTime, DayStates]
       });
-    setPendingDays(new Set(pendingDays));
-  }, [days, setPendingDays]);
+    setCalendarDays(new Map(pendingDays));
+  }, [days, setCalendarDays]);
 
   /******************************************************************************************************************
    * Functions
@@ -136,7 +155,6 @@ const MyPresenceCalendar = () => {
           <Button onClick={() => {}}>Cancel reservation</Button>
           <Button
             onClick={() => {
-              setCalValue(null);
               setAppState(AppStates.EditDays);
             }}
           >
@@ -223,10 +241,10 @@ const MyPresenceCalendar = () => {
 
   const onClickDayFct = (d: Date) => {
     if (appState === AppStates.Normal) {
-      if (pendingDays.has(d.getTime())) {
+      let dt = DateTime.fromJSDate(d)
+      if (calendarDays.has(dt)) {
         setAppState(AppStates.ShowOccupiedForm);
-      } else {
-        setCalValue(d);
+      } else {        
         setAppState(AppStates.ShowEmptyForm);
       }
     }
@@ -274,7 +292,6 @@ const MyPresenceCalendar = () => {
             disabledDays={disabledDays}
             onSubmit={() => {
               setAppState(AppStates.Normal);
-              setCalValue(null);
             }}
           />
         )}
