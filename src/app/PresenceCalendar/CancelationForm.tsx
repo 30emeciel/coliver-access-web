@@ -43,8 +43,19 @@ const CancelationForm = ({
     // Submit the list of days to firestore
     const FieldValue = admin.firestore.FieldValue;
 
-    const request_doc = await db
-      .collection(`users/${currentUser.uid}/requests`)
+    var batch = db.batch();
+    const request_ref = db.doc(`users/${currentUser.uid}/requests/${requestSnap.id}`)
+    batch.delete(request_ref)
+
+    const daysQuerySnap = await db
+      .collection(`users/${currentUser.uid}/days`)
+      .where("request", "==", requestSnap.ref).get()
+    
+    daysQuerySnap.forEach((docSnap) => {
+      batch.delete(docSnap.ref)
+    })
+
+    await batch.commit()
 
     // When all done, reset the UI
     setIsFormSubmitting(false);

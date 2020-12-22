@@ -18,7 +18,7 @@ const LoadingButton = ({
 
 ) => {
 
-    return <Button disabled={disabled} variant={variant}>
+    return <Button disabled={disabled} variant={variant} onClick={onClick}>
                 {isLoading ? "Loading..." : children }
             </Button>
 

@@ -298,6 +298,7 @@ const MyPresenceCalendar = () => {
             calendarContext={calendarContext}
             calValue={calValue as Date}
             onSubmit={() => {
+              setCalValue(null)
               setAppState(AppStates.Normal)
             }
             }
