@@ -28,6 +28,8 @@ import ColivingForm from "./ColivingForm";
 import CoworkingForm from "./CoworkingForm";
 import EditForm from "./EditForm";
 
+import {UserDayStates, TCalendarContext, TMapDays, TMapGlobalDays} from "./MyPresenceCalendarTypes";
+
 type DocumentData = firebase.firestore.DocumentData;
 
 
@@ -41,20 +43,8 @@ enum AppStates {
   EditDays,
 }
 
-enum DayStates {
-  Free,
-  Full,
-  Pending,
-  Coworking,
-  Coliving,
-  Loading,
-}
 
-type CalendarDays = {
-  days: Map<DateTime, DayStates>,
-  isLoading: boolean
-  setIsLoading: 
-}
+
 
 const MyPresenceCalendar = () => {
   const currentUser = firebase.auth().currentUser!;
@@ -67,30 +57,39 @@ const MyPresenceCalendar = () => {
   const [isTestNotAvailable, setTestNotAvailable] = useState(false);
   const [appState, setAppState] = useState(AppStates.Normal);
 
-  const [days, daysLoading, daysError] = useCollectionData<DocumentData>(
+  const [listDays, listDaysLoading, listDaysError] = useCollectionData<DocumentData>(
     db.collection(`users/${currentUser.uid}/days`).orderBy("on", "asc")
   );
 
-  const [days, setDays] = useState<Map<DateTime, DayStates>>(new Map());
-  const calendarDays = {
-    days: days,
-    setDays: setDays,
-    isLoading: true
-  }
+  const [userDays, setUserDays] = useState<TMapDays>(new Map());
+  const [globalDays, setGlobalDays] = useState<TMapGlobalDays>(new Map());
 
+  const calendarContext = new TCalendarContext({
+    userDays: userDays,
+    setUserDays: setUserDays,
+
+    globalDays: globalDays,
+    setGlobalDays: setGlobalDays,
+
+    isLoading: listDaysLoading
+  })
   
-  useEffect(() => {
-    if (!days) {
+   useEffect(() => {
+    if (!listDays) {
       return;
     }
+    
     console.log("Refreshing calendar days...")
-    const pendingDays = days
-      .filter((day) => day.status === "PENDING_REVIEW")
-      .map((day) => {
-        return [DateTime.fromMillis(day.on.seconds * 1000), DayStates.Pending] as [DateTime, DayStates]
-      });
-    setCalendarDays(new Map(pendingDays));
-  }, [days, setCalendarDays]);
+    const mapDays = new Map(listDays
+//      .filter((day) => day.status === "PENDING_REVIEW")
+      .map((day) => {        
+        // TODO: #1 DateTime should be TZ insensitive
+        let d = DateTime.fromMillis(day.on.seconds * 1000)
+        console.log("d=" + d)
+        return [d.toMillis(), $enum(UserDayStates).asValueOrThrow(day.status)] as [number, UserDayStates]
+      }));
+      setUserDays(mapDays)
+  }, [listDays, setUserDays]);
 
   /******************************************************************************************************************
    * Functions
@@ -242,7 +241,7 @@ const MyPresenceCalendar = () => {
   const onClickDayFct = (d: Date) => {
     if (appState === AppStates.Normal) {
       let dt = DateTime.fromJSDate(d)
-      if (calendarDays.has(dt)) {
+      if (calendarContext.userDays.has(dt)) {
         setAppState(AppStates.ShowOccupiedForm);
       } else {        
         setAppState(AppStates.ShowEmptyForm);
@@ -276,8 +275,7 @@ const MyPresenceCalendar = () => {
         {new Set([AppStates.Normal, AppStates.ShowEmptyForm, AppStates.ShowOccupiedForm]).has(appState) && (
           <Row>
             <TheCalendar
-              daysLoading={daysLoading}
-              pendingDays={pendingDays}
+              calendarContext={calendarContext}
               isRangeMode={false}
               calValue={null}
               onClickDay={onClickDayFct}
@@ -287,9 +285,7 @@ const MyPresenceCalendar = () => {
 
         {appState === AppStates.NewColiving && (
           <ColivingForm
-            daysLoading={daysLoading}
-            pendingDays={pendingDays}
-            disabledDays={disabledDays}
+            calendarContext={calendarContext}
             onSubmit={() => {
               setAppState(AppStates.Normal);
             }}
@@ -298,9 +294,7 @@ const MyPresenceCalendar = () => {
 
         {appState === AppStates.NewCoworking && (
           <CoworkingForm
-            daysLoading={daysLoading}
-            pendingDays={pendingDays}
-            disabledDays={disabledDays}
+            calendarContext={calendarContext}
           />
         )}
         {appState === AppStates.EditDays && <Alert variant="info"></Alert>}

@@ -4,21 +4,21 @@ import Calendar, { CalendarTileProperties } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./Calendar.css";
 import Spinner from "react-bootstrap/Spinner";
+import { TCalendarContext } from "./MyPresenceCalendarTypes";
+import { DateTime } from "luxon";
 
 const TheCalendar = ({
   isRangeMode,  
   onChange,
   onClickDay,
   calValue,
-  daysLoading,
-  pendingDays,
+  calendarContext,
 }: {
   isRangeMode?: boolean;
   onChange?: (d: Date | Date[]) => void;
   onClickDay?: (d: Date) => void;
   calValue?: null | Date | Date[];
-  daysLoading: boolean;
-  pendingDays: Set<number>;
+  calendarContext: TCalendarContext
 }) => {
   
   /******************************************************************************************************************
@@ -32,8 +32,9 @@ const TheCalendar = ({
     activeStartDate,
     date,
     view,
-  }: CalendarTileProperties) =>
-    pendingDays.has(date.getTime()) ? "reservation-pending" : "";
+  }: CalendarTileProperties) => {
+    return calendarContext.userDays.has(date.getTime()) ? "reservation-pending" : "";
+  }
 
   const disabledTiles = ({
     activeStartDate,
@@ -62,7 +63,7 @@ const TheCalendar = ({
   return (
     <>
 
-        {daysLoading ? (
+        {calendarContext.isLoading ? (
           <>
             <Spinner animation="border" variant="primary" role="status">
               <span className="sr-only">Loading calendar...</span>

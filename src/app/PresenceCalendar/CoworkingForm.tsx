@@ -23,17 +23,14 @@ import firebase from "../../firebase_config";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import Spinner from "react-bootstrap/Spinner";
 import TheCalendar from "./TheCalendar";
+import { TCalendarContext } from "./MyPresenceCalendarTypes";
 
 type DocumentData = firebase.firestore.DocumentData;
 
 const CoworkingForm = ({
-  daysLoading,
-  pendingDays,
-  disabledDays
+  calendarContext,
 }: {
-  daysLoading: boolean;
-  pendingDays: Set<number>;
-  disabledDays: Set<DateTime>;
+  calendarContext: TCalendarContext
 }) => {
 
   const currentUser = firebase.auth().currentUser!;
@@ -83,8 +80,7 @@ const CoworkingForm = ({
     <>
     <Row>
     <TheCalendar
-          daysLoading={daysLoading}
-          pendingDays={pendingDays}
+          calendarContext={calendarContext}
           isRangeMode={false}
           calValue={calValue}
           onChange={(d) => {

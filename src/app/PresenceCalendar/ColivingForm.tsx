@@ -6,18 +6,15 @@ import Button from "react-bootstrap/Button";
 import db from "../../db";
 import firebase from "../../firebase_config";
 import "../Switch.css";
+import { TCalendarContext } from "./MyPresenceCalendarTypes";
 import TheCalendar from "./TheCalendar";
 
 
 const ColivingForm = ({
-  daysLoading,
-  pendingDays,
-  disabledDays,
+  calendarContext,
   onSubmit,
 }: {
-  daysLoading: boolean,
-  pendingDays: Set<number>,
-  disabledDays: Set<DateTime>,
+  calendarContext: TCalendarContext,
   onSubmit: () => void,
 }) => {
   const currentUser = firebase.auth().currentUser!
@@ -55,7 +52,7 @@ const ColivingForm = ({
     var res: DateTime[] = [];
     var i = arrivalDate.plus({}); // clone
     while (i <= departureDate) {
-      if (disabledDays.has(i)) {
+      if (calendarContext.isDisabledDay(i)) {
         continue;
       }
       res.push(i);
@@ -100,8 +97,7 @@ const ColivingForm = ({
     <>
     <Row>
       <TheCalendar
-          daysLoading={daysLoading}
-          pendingDays={pendingDays}
+          calendarContext={calendarContext}          
           isRangeMode={true}
           calValue={calValue}
           onChange={onChangeFct}          

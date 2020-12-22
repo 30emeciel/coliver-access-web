@@ -6,6 +6,7 @@ import Button from "react-bootstrap/Button";
 import db from "../../db";
 import firebase from "../../firebase_config";
 import "../Switch.css";
+import { TCalendarContext } from "./MyPresenceCalendarTypes";
 import TheCalendar from "./TheCalendar";
 
 enum EditActions {
@@ -14,13 +15,9 @@ enum EditActions {
 }
 
 const EditForm = ({
-  daysLoading,
-  pendingDays,
-  disabledDays
+  calendarContext,
 }: {
-  daysLoading: boolean;
-  pendingDays: Set<number>;
-  disabledDays: Set<DateTime>;
+  calendarContext: TCalendarContext;
   }) => {
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
     
@@ -33,7 +30,7 @@ const EditForm = ({
       listEditDays.delete(dt)    
     }
     else {
-      listEditDays.set(dt, pendingDays.has(dt.toSeconds()) ? EditActions.Remove : EditActions.Add)
+      listEditDays.set(dt, calendarContext.userDays.has(dt) ? EditActions.Remove : EditActions.Add)
     }
   }
 
@@ -45,8 +42,7 @@ const EditForm = ({
     <>
     <Row>
     <TheCalendar
-          daysLoading={daysLoading}
-          pendingDays={pendingDays}
+          calendarContext={calendarContext}
           isRangeMode={false}     
           onClickDay={onClickDay}     
         />
