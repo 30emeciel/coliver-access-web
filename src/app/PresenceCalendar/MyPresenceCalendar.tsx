@@ -29,6 +29,7 @@ import CoworkingForm from "./CoworkingForm";
 import EditForm from "./EditForm";
 
 import {UserDayStates, TCalendarContext, TMapDays, TMapGlobalDays} from "./MyPresenceCalendarTypes";
+import CancelationForm from "./CancelationForm";
 
 type DocumentData = firebase.firestore.DocumentData;
 
@@ -41,6 +42,7 @@ enum AppStates {
   NewCoworking,
   NewColiving,
   EditDays,
+  Cancelation,
 }
 
 
@@ -63,6 +65,8 @@ const MyPresenceCalendar = () => {
 
   const [userDays, setUserDays] = useState<TMapDays>(new Map());
   const [globalDays, setGlobalDays] = useState<TMapGlobalDays>(new Map());
+
+  const [calValue, setCalValue] = useState<Date|null>(null)
 
   const calendarContext = new TCalendarContext({
     userDays: userDays,
@@ -151,7 +155,9 @@ const MyPresenceCalendar = () => {
           <Modal.Title>What would you like to do?</Modal.Title>
         </Modal.Header>
         <Modal.Footer>
-          <Button onClick={() => {}}>Cancel reservation</Button>
+          <Button onClick={() => {
+            setAppState(AppStates.Cancelation)
+          }}>Cancel reservation</Button>
           <Button
             onClick={() => {
               setAppState(AppStates.EditDays);
@@ -168,7 +174,10 @@ const MyPresenceCalendar = () => {
     return (
       <>
         <Row>
-          <h2>Dev switches</h2>
+          <h2>Dev pannel</h2>
+        </Row>
+        <Row>
+          <label>calValue = {calValue?.toDateString()}</label>
         </Row>
         <Row>
           <label>
@@ -242,6 +251,7 @@ const MyPresenceCalendar = () => {
     if (appState === AppStates.Normal) {
       let dt = DateTime.fromJSDate(d)
       if (calendarContext.userDays.has(dt.toMillis())) {
+        setCalValue(d)
         setAppState(AppStates.ShowOccupiedForm);
       } else {        
         setAppState(AppStates.ShowEmptyForm);
@@ -277,11 +287,22 @@ const MyPresenceCalendar = () => {
             <TheCalendar
               calendarContext={calendarContext}
               isRangeMode={false}
-              calValue={null}
+              calValue={calValue}
               onClickDay={onClickDayFct}
             />
           </Row>
         )}
+
+          {new Set([AppStates.Cancelation]).has(appState) && (
+          <CancelationForm
+            calendarContext={calendarContext}
+            calValue={calValue as Date}
+            onSubmit={() => {
+              setAppState(AppStates.Normal)
+            }
+            }
+          />
+          )}
 
         {appState === AppStates.NewColiving && (
           <ColivingForm
