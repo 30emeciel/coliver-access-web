@@ -1,4 +1,4 @@
-import React from 'react';
+import { StrictMode } from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.css';
 //import '@forevolve/bootstrap-dark/dist/css/bootstrap-dark.css';
@@ -15,9 +15,9 @@ ReactDOM.render(
     cacheLocation="localstorage"
     useRefreshTokens={true}
 >
-  <React.StrictMode>
+  <StrictMode>
     <App />
-  </React.StrictMode>
+  </StrictMode>
   </Auth0Provider>,
   document.getElementById('root')
 );

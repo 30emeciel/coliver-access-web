@@ -23,3 +23,6 @@ debug.log
 /.firebase
 
 /.env
+
+/.eslintcache
+

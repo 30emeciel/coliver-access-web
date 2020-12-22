@@ -1,6 +1,6 @@
 import admin from "firebase";
 import { DateTime, Duration, Interval } from "luxon";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Row } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import db from "../../db";

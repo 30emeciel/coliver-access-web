@@ -21,16 +21,16 @@ const EditForm = ({
   }) => {
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
     
-  const [listEditDays, setListEditDays] = useState(new Map<DateTime, EditActions>());
+  const [listEditDays, setListEditDays] = useState(new Map<number, EditActions>());
 
   const onClickDay = (d:Date) => {
     let dt = DateTime.fromJSDate(d)
-    let action = listEditDays.get(dt)
+    let action = listEditDays.get(dt.toMillis())
     if (action) {
-      listEditDays.delete(dt)    
+      listEditDays.delete(dt.toMillis())    
     }
     else {
-      listEditDays.set(dt, calendarContext.userDays.has(dt) ? EditActions.Remove : EditActions.Add)
+      listEditDays.set(dt.toMillis(), calendarContext.userDays.has(dt.toMillis()) ? EditActions.Remove : EditActions.Add)
     }
   }
 

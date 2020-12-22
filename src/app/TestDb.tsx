@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import * as React from 'react';
 import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Toast from 'react-bootstrap/Toast'
@@ -96,5 +97,5 @@ const TestDb = () => {
       )
     );
   };
-  
-  export default TestDb;
+
+export default TestDb;
