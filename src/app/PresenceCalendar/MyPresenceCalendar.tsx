@@ -241,7 +241,7 @@ const MyPresenceCalendar = () => {
   const onClickDayFct = (d: Date) => {
     if (appState === AppStates.Normal) {
       let dt = DateTime.fromJSDate(d)
-      if (calendarContext.userDays.has(dt)) {
+      if (calendarContext.userDays.has(dt.toMillis())) {
         setAppState(AppStates.ShowOccupiedForm);
       } else {        
         setAppState(AppStates.ShowEmptyForm);
