@@ -111,16 +111,18 @@ const ColivingForm = ({
       <Row>
         <Col>
           <Alert variant="info">
-            <span>
+            <p>
               {numberOfNights ? (
                 <>You are going to stay for {numberOfNights} nights</>
               ) : (
                 <>Pick your departure date</>
               )}
-            </span>{" "}
+            </p>            
+            <p className="mb-0">
             <Button variant="danger" onClick={onCancel}>
               Cancel
-            </Button>{" "}
+            </Button>
+            {" "}            
             <LoadingButton
               disabled={!numberOfNights || numberOfNights <= 0}
               variant="primary"
@@ -129,7 +131,12 @@ const ColivingForm = ({
             >
               Submit
             </LoadingButton>
+            </p>
           </Alert>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
         </Col>
       </Row>
     </>

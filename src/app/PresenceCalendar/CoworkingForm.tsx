@@ -95,10 +95,11 @@ const CoworkingForm = ({
       <Row>
         <Col>
           <Alert variant="info">
-            <span>
+            <p>
               You would like to cowork with us on{" "}
               {DateTime.fromJSDate(calValue).toLocaleString(DateTime.DATE_FULL)}
-            </span>{" "}
+            </p>
+            <p className="mb-0">
             <Button variant="danger" onClick={onCancel}>
               Cancel
             </Button>{" "}
@@ -110,6 +111,7 @@ const CoworkingForm = ({
             >
               Submit
             </LoadingButton>
+            </p>
           </Alert>
         </Col>
       </Row>

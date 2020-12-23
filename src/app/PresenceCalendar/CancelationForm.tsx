@@ -67,9 +67,10 @@ const CancelationForm = ({
   const Form = () => {
     return <>
     <Alert variant="info">
-      <span>        
+      <p>        
         Would you like to cancel the reservation {!requestSnap ? <Spinner animation="border"/> : <strong>{requestSnap?.id}</strong>}?
-      </span>{" "}
+      </p>
+      <p className="mb-0">
         <Button
           variant="danger"
           onClick={onCancel}>Cancel</Button>
@@ -79,7 +80,9 @@ const CancelationForm = ({
           onClick={submitForm}
           isLoading={isFormSubmitting}
           disabled={isFormLoading}>Confirm</LoadingButton>        
+        </p>
       </Alert>
+      
     </>
   }
  

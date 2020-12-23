@@ -264,7 +264,8 @@ const MyPresenceCalendar = () => {
             <Row>
               <Col>
                 <Alert variant="info">
-                  <span>What would you like to book?</span>{" "}
+                  <p>What would you like to book?</p>
+                  <p className="mb-0">
                   <Button
                     variant="danger"
                     onClick={() => {
@@ -274,12 +275,13 @@ const MyPresenceCalendar = () => {
                   >
                     Cancel
                   </Button>{" "}
-                  <Button onClick={() => setAppState(AppStates.NewCoworking)}>
+                  <Button variant="success" onClick={() => setAppState(AppStates.NewCoworking)}>
                     Coworking
                   </Button>{" "}
                   <Button onClick={() => setAppState(AppStates.ColivingForm)}>
                     Coliving
                   </Button>
+                  </p>
                 </Alert>
               </Col>
             </Row>
@@ -291,8 +293,10 @@ const MyPresenceCalendar = () => {
             <Row>
               <Col>
                 <Alert variant="info">
-                  <span>
-                    What would you like to do?{" "}
+                  <p>
+                    What would you like to do?
+                  </p>
+                  <p className="mb-0">
                     <Button
                       variant="danger"
                       onClick={() => setAppState(AppStates.CancelationForm)}
@@ -302,7 +306,7 @@ const MyPresenceCalendar = () => {
                     <Button onClick={() => setAppState(AppStates.EditDays)}>
                       Change reservation...
                     </Button>
-                  </span>
+                  </p>
                 </Alert>
               </Col>
             </Row>
