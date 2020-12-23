@@ -32,10 +32,12 @@ const CoworkingForm = ({
   calendarContext,
   firstCalValue,
   onSubmit,
+  onCancel,
 }: {
   calendarContext: TCalendarContext;
   firstCalValue: Date;
   onSubmit: () => void;
+  onCancel: () => void;
 }) => {
   const currentUser = firebase.auth().currentUser!;
   console.assert(currentUser != null);
@@ -97,7 +99,7 @@ const CoworkingForm = ({
               You would like to cowork with us on{" "}
               {DateTime.fromJSDate(calValue).toLocaleString(DateTime.DATE_FULL)}
             </span>{" "}
-            <Button variant="danger" onClick={() => onSubmit()}>
+            <Button variant="danger" onClick={onCancel}>
               Cancel
             </Button>{" "}
             <LoadingButton

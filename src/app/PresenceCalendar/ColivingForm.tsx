@@ -14,10 +14,12 @@ const ColivingForm = ({
   calendarContext,
   firstCalValue,
   onSubmit,
+  onCancel,
 }: {
   calendarContext: TCalendarContext;
   firstCalValue: Date | null;
   onSubmit: () => void;
+  onCancel: () => void;
 }) => {
   const currentUser = firebase.auth().currentUser!;
   console.assert(currentUser != null);
@@ -116,7 +118,7 @@ const ColivingForm = ({
                 <>Pick your departure date</>
               )}
             </span>{" "}
-            <Button variant="danger" onClick={() => onSubmit()}>
+            <Button variant="danger" onClick={onCancel}>
               Cancel
             </Button>{" "}
             <LoadingButton

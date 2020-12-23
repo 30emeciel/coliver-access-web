@@ -14,14 +14,14 @@
     45deg,
     #606dbc,
     #606dbc 10px,
-    #ffffff 10px,
-    #ffffff 20px
+    #b9c2ff 10px,
+    #b9c2ff 20px
   );
 }
 
-/* .coliving-pending_review:enabled:hover {
-    background-color: rgb(255, 191, 112);
-} */
+.coliving-pending_review:enabled:hover {
+    background: #e6e6e6;
+}
 
 .coliving-confirmed {
   background-color: #606dbc; /* 465298 */
@@ -38,9 +38,9 @@
       );
 }
 
-/* .coworking-pending_review:enabled:hover {
-    background-color: rgb(0, 68, 255);
-} */
+.coworking-pending_review:enabled:hover {
+    background: #e6e6e6
+}
 
 .coworking-confirmed {
   background-color: #6dbc6d;

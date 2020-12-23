@@ -18,10 +18,12 @@ const CancelationForm = ({
   calendarContext,
   calValue,
   onSubmit,
+  onCancel,
 }: {
   calendarContext: TCalendarContext,
   calValue: Date,
   onSubmit: () => void,
+  onCancel: () => void,
 }) => {
   const currentUser = firebase.auth().currentUser!
   console.assert(currentUser != null)
@@ -70,7 +72,7 @@ const CancelationForm = ({
       </span>{" "}
         <Button
           variant="danger"
-          onClick={onSubmit}>Cancel</Button>
+          onClick={onCancel}>Cancel</Button>
         {' '}
         <LoadingButton
           variant="primary"
