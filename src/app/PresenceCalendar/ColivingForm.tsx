@@ -1,54 +1,54 @@
 import admin from "firebase";
 import { DateTime, Duration, Interval } from "luxon";
 import { useEffect, useState } from "react";
-import { Alert, Row } from "react-bootstrap";
+import { Alert, Col, Row } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import db from "../../db";
 import firebase from "../../firebase_config";
+import LoadingButton from "../Common/LoadingButton";
 import "../Switch.css";
 import { TCalendarContext } from "./MyPresenceCalendarTypes";
 import TheCalendar from "./TheCalendar";
-
 
 const ColivingForm = ({
   calendarContext,
   firstCalValue,
   onSubmit,
 }: {
-  calendarContext: TCalendarContext,
-  firstCalValue: Date | null,
-  onSubmit: () => void,
+  calendarContext: TCalendarContext;
+  firstCalValue: Date | null;
+  onSubmit: () => void;
 }) => {
-  const currentUser = firebase.auth().currentUser!
-  console.assert(currentUser != null)
+  const currentUser = firebase.auth().currentUser!;
+  console.assert(currentUser != null);
 
-  const [isFormSubmitting, setIsFormSubmitting] = useState(false)
-  const [interval, setInterval] = useState<null | Interval>(null)
-  const [calValue, setCalValue] = useState<Date | Date[] | null>(firstCalValue ? firstCalValue : null);
+  const [isFormSubmitting, setIsFormSubmitting] = useState(false);
+  const [interval, setInterval] = useState<null | Interval>(null);
+  const [calValue, setCalValue] = useState<Date | Date[] | null>(
+    firstCalValue ? firstCalValue : null
+  );
 
   useEffect(() => {
+    const twoDays = calValue as Date[];
 
-    const twoDays = calValue as Date[]
-    
-    const arrivalDate = twoDays ? twoDays[0] : null
-    const departureDate = twoDays ? twoDays[1] : null
+    const arrivalDate = twoDays ? twoDays[0] : null;
+    const departureDate = twoDays ? twoDays[1] : null;
     setInterval(
       !arrivalDate || !departureDate
         ? null
         : Interval.fromDateTimes(arrivalDate, departureDate)
     );
-  }, [calValue])
+  }, [calValue]);
 
   const submitColivingRequest = async () => {
-
     if (!interval) {
       return;
     }
-    const arrivalDate = interval.start
-    const departureDate = interval.end
+    const arrivalDate = interval.start;
+    const departureDate = interval.end;
 
     setIsFormSubmitting(true);
-    const oneDay = Duration.fromObject({ days: 1 })
+    const oneDay = Duration.fromObject({ days: 1 });
 
     // Get all the days that contains the selected range
     var res: DateTime[] = [];
@@ -71,11 +71,11 @@ const ColivingForm = ({
     const request_doc = await db
       .collection(`users/${currentUser.uid}/requests`)
       .add(request_data);
-    const promise_arr = res.map((r) => {
-      return db
-        .collection(`users/${currentUser.uid}/days`)
-        .doc(r.toISODate())
-        .set({
+    
+    var batch = db.batch();
+    
+    res.forEach((r) => {
+      batch.set(db.collection(`users/${currentUser.uid}/days`).doc(r.toISODate()), {
           on: r.toJSDate(),
           request: request_doc,
           status: "PENDING_REVIEW",
@@ -83,51 +83,52 @@ const ColivingForm = ({
         });
     });
 
-    await Promise.all(promise_arr);
+    await batch.commit()
 
-    // When all done, reset the UI
-    setIsFormSubmitting(false);
     onSubmit();
   };
 
-  const onChangeFct = (d:Date | Date[]) => {
-    setCalValue(d as Date[]);  
-  }
+  const onChangeFct = (d: Date | Date[]) => {
+    setCalValue(d as Date[]);
+  };
 
   const numberOfNights = interval ? interval.count("days") - 1 : null;
   return (
     <>
-    <Row>
-      <TheCalendar
-          calendarContext={calendarContext}          
-          isRangeMode={true}
-          calValue={calValue}
-          onChange={onChangeFct}          
-        />
-        </Row>
-        <Row>
-                    <Alert variant="info">
-      <span>
-        {numberOfNights ? (
-          <>You are going to stay for {numberOfNights} nights</>
-        ) : (
-          <>Pick your departure date</>
-        )}
-      </span>{" "}
-      {isFormSubmitting ? (
-        <Button disabled variant="primary">
-          Loading...
-        </Button>
-      ) : (
-        <Button
-          disabled={!numberOfNights || numberOfNights <= 0}
-          variant="primary"
-          onClick={submitColivingRequest}
-        >
-          Submit
-        </Button>
-      )}
-      </Alert>
+      <Row>
+        <Col>
+          <TheCalendar
+            calendarContext={calendarContext}
+            isRangeMode={true}
+            calValue={calValue}
+            onChange={onChangeFct}
+          />
+        </Col>
+      </Row>
+      <br />
+      <Row>
+        <Col>
+          <Alert variant="info">
+            <span>
+              {numberOfNights ? (
+                <>You are going to stay for {numberOfNights} nights</>
+              ) : (
+                <>Pick your departure date</>
+              )}
+            </span>{" "}
+            <Button variant="danger" onClick={() => onSubmit()}>
+              Cancel
+            </Button>{" "}
+            <LoadingButton
+              disabled={!numberOfNights || numberOfNights <= 0}
+              variant="primary"
+              onClick={submitColivingRequest}
+              isLoading={isFormSubmitting}
+            >
+              Submit
+            </LoadingButton>
+          </Alert>
+        </Col>
       </Row>
     </>
   );

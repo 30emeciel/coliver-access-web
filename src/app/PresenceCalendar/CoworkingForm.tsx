@@ -24,33 +24,31 @@ import { useCollectionData } from "react-firebase-hooks/firestore";
 import Spinner from "react-bootstrap/Spinner";
 import TheCalendar from "./TheCalendar";
 import { TCalendarContext } from "./MyPresenceCalendarTypes";
+import LoadingButton from "../Common/LoadingButton";
 
 type DocumentData = firebase.firestore.DocumentData;
 
 const CoworkingForm = ({
   calendarContext,
   firstCalValue,
+  onSubmit,
 }: {
-  calendarContext: TCalendarContext
-  firstCalValue: Date | null
+  calendarContext: TCalendarContext;
+  firstCalValue: Date;
+  onSubmit: () => void;
 }) => {
-
   const currentUser = firebase.auth().currentUser!;
   console.assert(currentUser != null);
 
-  const [isFormSubmitting, setIsColivingFormSubmitting] = useState(
-    false
-  );
-  const [calValue, setCalValue] = useState<null|Date>(firstCalValue)
-
+  const [isFormSubmitting, setIsFormSubmitting] = useState(false);
+  const [calValue, setCalValue] = useState<Date>(firstCalValue);
 
   const submitForm = async () => {
     if (!calValue) {
-        return
+      return;
     }
-    setIsColivingFormSubmitting(true);
+    setIsFormSubmitting(true);
     const start = DateTime.fromJSDate(calValue);
-
 
     // Submit the list of days to firestore
     const FieldValue = admin.firestore.FieldValue;
@@ -63,53 +61,55 @@ const CoworkingForm = ({
       .collection(`users/${currentUser.uid}/requests`)
       .add(request_data);
     await db
-        .collection(`users/${currentUser.uid}/days`)
-        .doc(start.toISODate())
-        .set({
-          on: start.toJSDate(),
-          request: request_doc,
-          status: "PENDING_REVIEW",
-          kind: "COWORKING",
-        });
-    
-    // When all done, reset the UI
-    //        setAppState(AppStates.Normal)
-    //        setCalValue(null);
-    //setIsFormSubmitting(false);
+      .collection(`users/${currentUser.uid}/days`)
+      .doc(start.toISODate())
+      .set({
+        on: start.toJSDate(),
+        request: request_doc,
+        status: "PENDING_REVIEW",
+        kind: "COWORKING",
+      });
+
+    onSubmit()
   };
-  
+
   return (
     <>
-    <Row>
-    <TheCalendar
-          calendarContext={calendarContext}
-          isRangeMode={false}
-          calValue={calValue}
-          onChange={(d) => {
-            if (d instanceof Date) {
-              setCalValue(d)
-            }
-          }}          
-        />
-        </Row>
-        <Row>
+      <Row>
+        <Col>
+          <TheCalendar
+            calendarContext={calendarContext}
+            isRangeMode={false}
+            calValue={calValue}
+            onChange={(d) => {
+              if (d instanceof Date) {
+                setCalValue(d);
+              }
+            }}
+          />
+        </Col>
+      </Row>
+      <br />
+      <Row>
+        <Col>
           <Alert variant="info">
-    <span>Pick the date you would like to cowork with us</span>
-      {" "}
-      {isFormSubmitting ? (
-        <Button disabled variant="primary">
-          Loading...
-        </Button>
-      ) : (
-        <Button
-          disabled={!calValue}
-          variant="primary"
-          onClick={submitForm}
-        >
-          Submit
-        </Button>
-      )}
-      </Alert>
+            <span>
+              You would like to cowork with us on{" "}
+              {DateTime.fromJSDate(calValue).toLocaleString(DateTime.DATE_FULL)}
+            </span>{" "}
+            <Button variant="danger" onClick={() => onSubmit()}>
+              Cancel
+            </Button>{" "}
+            <LoadingButton
+              disabled={!calValue}
+              variant="primary"
+              onClick={submitForm}
+              isLoading={isFormSubmitting}
+            >
+              Submit
+            </LoadingButton>
+          </Alert>
+        </Col>
       </Row>
     </>
   );

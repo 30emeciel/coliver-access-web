@@ -38,9 +38,9 @@ enum AppStates {
   ShowEmptyForm,
   ShowOccupiedForm,
   NewCoworking,
-  NewColiving,
+  ColivingForm,
   EditDays,
-  Cancelation,
+  CancelationForm,
 }
 
 const MyPresenceCalendar = () => {
@@ -130,7 +130,7 @@ const MyPresenceCalendar = () => {
           <Button
             variant="primary"
             onClick={() => {
-              setAppState(AppStates.NewColiving);
+              setAppState(AppStates.ColivingForm);
             }}
           >
             Coliving
@@ -151,7 +151,7 @@ const MyPresenceCalendar = () => {
         </Modal.Header>
         <Modal.Footer>
           <Button onClick={() => {
-            setAppState(AppStates.Cancelation)
+            setAppState(AppStates.CancelationForm)
           }}>Cancel reservation</Button>
           <Button
             onClick={() => {
@@ -244,7 +244,7 @@ const MyPresenceCalendar = () => {
   };
 
   const onClickDayFct = (d: Date) => {
-    if (appState === AppStates.Normal) {
+    //if (appState === AppStates.Normal) {
       let dt = DateTime.fromJSDate(d)
       setCalValue(d)
       if (calendarContext.userDays.has(dt.toMillis())) {        
@@ -252,7 +252,7 @@ const MyPresenceCalendar = () => {
       } else {        
         setAppState(AppStates.ShowEmptyForm);
       }
-    }
+    //}
   };
 
   return (
@@ -277,22 +277,53 @@ const MyPresenceCalendar = () => {
         <br />
         {new Set([AppStates.Normal, AppStates.ShowEmptyForm, AppStates.ShowOccupiedForm]).has(appState) && (
           <Row>
+            <Col>
             <TheCalendar
               calendarContext={calendarContext}
               isRangeMode={false}
               calValue={calValue}
               onClickDay={onClickDayFct}
-            />
+              />
+            </Col>
           </Row>
         )}
         {new Set([AppStates.ShowEmptyForm]).has(appState) && (
-          <Row>
-            <span>Book{" "}<Button>Coworking</Button>{" "}<Button>Coliving</Button></span>
-          </Row>
+          <>
+            <br />            
+              <Row>
+                <Col>
+              <Alert variant="info">
+                <span>What would you like to book?
+                {" "}
+                <Button onClick={() => setAppState(AppStates.NewCoworking)}>Coworking</Button>
+                {" "}
+                <Button onClick={() => setAppState(AppStates.ColivingForm)}>Coliving</Button></span>
+                </Alert>
+                </Col>
+              </Row>
+            
+          </>
+        )} 
+        {new Set([AppStates.ShowOccupiedForm]).has(appState) && (
+          <>
+            <br />            
+              <Row>
+                <Col>
+              <Alert variant="info">
+                <span>What would you like to do?
+                {" "}
+                <Button variant="danger" onClick={() => setAppState(AppStates.CancelationForm)}>Cancel reservation...</Button>
+                {" "}
+                <Button onClick={() => setAppState(AppStates.EditDays)}>Change reservation...</Button></span>
+                </Alert>
+                </Col>
+              </Row>
+            
+          </>
         )} 
 
 
-          {new Set([AppStates.Cancelation]).has(appState) && (
+          {new Set([AppStates.CancelationForm]).has(appState) && (
           <CancelationForm
             calendarContext={calendarContext}
             calValue={calValue as Date}
@@ -304,11 +335,12 @@ const MyPresenceCalendar = () => {
           />
           )}
 
-        {appState === AppStates.NewColiving && (
+        {appState === AppStates.ColivingForm && (
           <ColivingForm
             calendarContext={calendarContext}
             firstCalValue={calValue}
             onSubmit={() => {
+              setCalValue(null)
               setAppState(AppStates.Normal);
             }}
           />
@@ -317,7 +349,11 @@ const MyPresenceCalendar = () => {
         {appState === AppStates.NewCoworking && (
           <CoworkingForm
             calendarContext={calendarContext}
-            firstCalValue={calValue}
+            firstCalValue={calValue!}
+            onSubmit={() => {
+              setCalValue(null)
+              setAppState(AppStates.Normal);
+            }}
           />
         )}
         {appState === AppStates.EditDays && <Alert variant="info"></Alert>}
