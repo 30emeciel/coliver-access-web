@@ -12,9 +12,11 @@ import TheCalendar from "./TheCalendar";
 
 const ColivingForm = ({
   calendarContext,
+  firstCalValue,
   onSubmit,
 }: {
   calendarContext: TCalendarContext,
+  firstCalValue: Date | null,
   onSubmit: () => void,
 }) => {
   const currentUser = firebase.auth().currentUser!
@@ -22,7 +24,7 @@ const ColivingForm = ({
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false)
   const [interval, setInterval] = useState<null | Interval>(null)
-  const [calValue, setCalValue] = useState<Date[] | undefined>();
+  const [calValue, setCalValue] = useState<Date | Date[] | null>(firstCalValue ? firstCalValue : null);
 
   useEffect(() => {
 

@@ -33,8 +33,6 @@ import CancelationForm from "./CancelationForm";
 
 type DocumentData = firebase.firestore.DocumentData;
 
-
-
 enum AppStates {
   Normal,
   ShowEmptyForm,
@@ -44,9 +42,6 @@ enum AppStates {
   EditDays,
   Cancelation,
 }
-
-
-
 
 const MyPresenceCalendar = () => {
   const currentUser = firebase.auth().currentUser!;
@@ -178,6 +173,7 @@ const MyPresenceCalendar = () => {
         </Row>
         <Row>
           <label>calValue = {calValue?.toDateString()}</label>
+          <Button size="sm" onClick={() => {setCalValue(null)}}>Reset</Button>
         </Row>
         <Row>
           <label>
@@ -250,8 +246,8 @@ const MyPresenceCalendar = () => {
   const onClickDayFct = (d: Date) => {
     if (appState === AppStates.Normal) {
       let dt = DateTime.fromJSDate(d)
-      if (calendarContext.userDays.has(dt.toMillis())) {
-        setCalValue(d)
+      setCalValue(d)
+      if (calendarContext.userDays.has(dt.toMillis())) {        
         setAppState(AppStates.ShowOccupiedForm);
       } else {        
         setAppState(AppStates.ShowEmptyForm);
@@ -278,9 +274,6 @@ const MyPresenceCalendar = () => {
         </Row>
         {isFirstTimer && <FirstTimerIntro />}
 
-        <EmptyDayModal />
-        <OccupiedDayModal />
-
         <br />
         {new Set([AppStates.Normal, AppStates.ShowEmptyForm, AppStates.ShowOccupiedForm]).has(appState) && (
           <Row>
@@ -292,6 +285,12 @@ const MyPresenceCalendar = () => {
             />
           </Row>
         )}
+        {new Set([AppStates.ShowEmptyForm]).has(appState) && (
+          <Row>
+            <span>Book{" "}<Button>Coworking</Button>{" "}<Button>Coliving</Button></span>
+          </Row>
+        )} 
+
 
           {new Set([AppStates.Cancelation]).has(appState) && (
           <CancelationForm
@@ -308,6 +307,7 @@ const MyPresenceCalendar = () => {
         {appState === AppStates.NewColiving && (
           <ColivingForm
             calendarContext={calendarContext}
+            firstCalValue={calValue}
             onSubmit={() => {
               setAppState(AppStates.Normal);
             }}
@@ -317,6 +317,7 @@ const MyPresenceCalendar = () => {
         {appState === AppStates.NewCoworking && (
           <CoworkingForm
             calendarContext={calendarContext}
+            firstCalValue={calValue}
           />
         )}
         {appState === AppStates.EditDays && <Alert variant="info"></Alert>}

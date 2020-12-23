@@ -29,8 +29,10 @@ type DocumentData = firebase.firestore.DocumentData;
 
 const CoworkingForm = ({
   calendarContext,
+  firstCalValue,
 }: {
   calendarContext: TCalendarContext
+  firstCalValue: Date | null
 }) => {
 
   const currentUser = firebase.auth().currentUser!;
@@ -39,7 +41,7 @@ const CoworkingForm = ({
   const [isFormSubmitting, setIsColivingFormSubmitting] = useState(
     false
   );
-  const [calValue, setCalValue] = useState<undefined|Date>()
+  const [calValue, setCalValue] = useState<null|Date>(firstCalValue)
 
 
   const submitForm = async () => {

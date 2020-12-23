@@ -6,6 +6,7 @@ import "./Calendar.css";
 import Spinner from "react-bootstrap/Spinner";
 import { TCalendarContext } from "./MyPresenceCalendarTypes";
 import { DateTime } from "luxon";
+import { Popover } from "react-bootstrap";
 
 const TheCalendar = ({
   isRangeMode,  
@@ -62,11 +63,10 @@ const TheCalendar = ({
 
   return (
     <>
-
         {calendarContext.isLoading ? (
           <>
             <Spinner animation="border" variant="primary" role="status">
-              <span className="sr-only">Loading calendar...</span>
+              <span className="sr-only"> Loading calendar...</span>
             </Spinner>{" "}
             <div>Loading calendar...</div>
           </>
