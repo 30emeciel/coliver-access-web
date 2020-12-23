@@ -34,7 +34,11 @@ const TheCalendar = ({
     date,
     view,
   }: CalendarTileProperties) => {
-    return calendarContext.userDays.has(date.getTime()) ? "reservation-pending" : "";
+    let day = calendarContext.userDays.get(date.getTime())
+    if (!day) {
+      return ""
+    }
+    return `${day.kind}-${day.status}`.toLowerCase()
   }
 
   const disabledTiles = ({

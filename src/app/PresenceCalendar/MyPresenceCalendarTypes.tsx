@@ -1,36 +1,43 @@
 import { DateTime, Duration, Interval } from "luxon";
 
 export enum UserDayStates {
-    PendingReview = "PENDING_REVIEW",
-    Coworking = "COWORKING",
-    Coliving = "COLIVING",
-  }
+  PendingReview = "PENDING_REVIEW",
+  Confirmed = "CONFIRMED",
+}
 
-  export enum GlobalDayStates {    
-    Disabled,
-  }
+export enum ReservationKinds {
+  Coworking = "COWORKING",
+  Coliving = "COLIVING",
+}
 
-export type TMapDays = Map<number, UserDayStates>
-export type TMapGlobalDays = Map<number, GlobalDayStates>
+export enum GlobalDayStates {
+  Disabled,
+}
+
+export interface TUserDay {
+  on: any
+  kind: ReservationKinds
+  status: UserDayStates
+}
+
+export type TMapDays = Map<number, TUserDay>;
+export type TMapGlobalDays = Map<number, GlobalDayStates>;
 
 export class TCalendarContext {
-    userDays!: TMapDays
-    setUserDays!: (arg0: TMapDays) => void
+  userDays!: TMapDays;
+  setUserDays!: (arg0: TMapDays) => void;
 
-    globalDays!: TMapGlobalDays
-    setGlobalDays!: (arg0: TMapGlobalDays) => void
+  globalDays!: TMapGlobalDays;
+  setGlobalDays!: (arg0: TMapGlobalDays) => void;
 
-    isLoading!: boolean
+  isLoading!: boolean;
 
-    
-    public constructor(init?: Partial<TCalendarContext>) {
-        Object.assign(this, init);
-    }
-
-    isDisabledDay(dt:DateTime) {
-        let ds = this.globalDays.get(dt.toMillis())
-        return ds === GlobalDayStates.Disabled
-    }
-
+  public constructor(init?: Partial<TCalendarContext>) {
+    Object.assign(this, init);
   }
 
+  isDisabledDay(dt: DateTime) {
+    let ds = this.globalDays.get(dt.toMillis());
+    return ds === GlobalDayStates.Disabled;
+  }
+}

@@ -28,7 +28,7 @@ import ColivingForm from "./ColivingForm";
 import CoworkingForm from "./CoworkingForm";
 import EditForm from "./EditForm";
 
-import {UserDayStates, TCalendarContext, TMapDays, TMapGlobalDays} from "./MyPresenceCalendarTypes";
+import {UserDayStates, TCalendarContext, TMapDays, TMapGlobalDays, TUserDay} from "./MyPresenceCalendarTypes";
 import CancelationForm from "./CancelationForm";
 
 type DocumentData = firebase.firestore.DocumentData;
@@ -54,7 +54,7 @@ const MyPresenceCalendar = () => {
   const [isTestNotAvailable, setTestNotAvailable] = useState(false);
   const [appState, setAppState] = useState(AppStates.Normal);
 
-  const [listDays, listDaysLoading, listDaysError] = useCollectionData<DocumentData>(
+  const [listDays, listDaysLoading, listDaysError] = useCollectionData<TUserDay>(
     db.collection(`users/${currentUser.uid}/days`).orderBy("on", "asc")
   );
 
@@ -83,9 +83,13 @@ const MyPresenceCalendar = () => {
 //      .filter((day) => day.status === "PENDING_REVIEW")
       .map((day) => {        
         // TODO: #1 DateTime should be TZ insensitive
-        let d = DateTime.fromMillis(day.on.seconds * 1000)
-        console.log("d=" + d)
-        return [d.toMillis(), $enum(UserDayStates).asValueOrThrow(day.status)] as [number, UserDayStates]
+        let d = DateTime.fromMillis(day.on.seconds * 1000) 
+        let status =  $enum(UserDayStates).asValueOrThrow(day.status)      
+        let ud = {
+          kind: day.kind,
+          status: status
+        }
+        return [d.toMillis(), ud ] as [number, TUserDay]
       }));
       setUserDays(mapDays)
   }, [listDays, setUserDays]);
@@ -109,61 +113,6 @@ const MyPresenceCalendar = () => {
     );
   };
 
-  const EmptyDayModal = () => {
-    return (
-      <Modal
-        show={appState === AppStates.ShowEmptyForm}
-        onHide={() => setAppState(AppStates.Normal)}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>What would you like to book?</Modal.Title>
-        </Modal.Header>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setAppState(AppStates.NewCoworking);
-            }}
-          >
-            Coworking
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              setAppState(AppStates.ColivingForm);
-            }}
-          >
-            Coliving
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    );
-  };
-
-  const OccupiedDayModal = () => {
-    return (
-      <Modal
-        show={appState === AppStates.ShowOccupiedForm}
-        onHide={() => setAppState(AppStates.Normal)}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>What would you like to do?</Modal.Title>
-        </Modal.Header>
-        <Modal.Footer>
-          <Button onClick={() => {
-            setAppState(AppStates.CancelationForm)
-          }}>Cancel reservation</Button>
-          <Button
-            onClick={() => {
-              setAppState(AppStates.EditDays);
-            }}
-          >
-            Add/remove days
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    );
-  };
 
   const DevRows = () => {
     return (
