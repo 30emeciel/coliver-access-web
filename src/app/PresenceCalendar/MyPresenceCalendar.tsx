@@ -265,8 +265,9 @@ const MyPresenceCalendar = () => {
               <Col>
                 <Alert variant="info">
                   <p>What would you like to book?</p>
-                  <p className="mb-0">
+                  <div className="">
                   <Button
+                    className="mr-1"
                     variant="danger"
                     onClick={() => {
                       setCalValue(null);
@@ -274,14 +275,14 @@ const MyPresenceCalendar = () => {
                     }}
                   >
                     Cancel
-                  </Button>{" "}
-                  <Button variant="success" onClick={() => setAppState(AppStates.NewCoworking)}>
+                  </Button>
+                  <Button className="mr-1" variant="success" onClick={() => setAppState(AppStates.NewCoworking)}>
                     Coworking
-                  </Button>{" "}
+                  </Button>
                   <Button onClick={() => setAppState(AppStates.ColivingForm)}>
                     Coliving
                   </Button>
-                  </p>
+                  </div>
                 </Alert>
               </Col>
             </Row>
@@ -296,17 +297,20 @@ const MyPresenceCalendar = () => {
                   <p>
                     What would you like to do?
                   </p>
-                  <p className="mb-0">
+                  <div className="">
                     <Button
+                      className="mr-1"
                       variant="danger"
                       onClick={() => setAppState(AppStates.CancelationForm)}
                     >
                       Cancel reservation...
-                    </Button>{" "}
-                    <Button onClick={() => setAppState(AppStates.EditDays)}>
+                    </Button>
+                    <Button
+                      className="mr-1"
+                      onClick={() => setAppState(AppStates.EditDays)}>
                       Change reservation...
                     </Button>
-                  </p>
+                  </div>
                 </Alert>
               </Col>
             </Row>
