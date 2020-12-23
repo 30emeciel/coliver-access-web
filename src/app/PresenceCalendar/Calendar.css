@@ -24,7 +24,7 @@
 }
 
 .coliving-confirmed {
-  background-color: #606dbc; /* 465298 */
+  background-color: #606dbc;
 }
 
 .coworking-pending_review,
@@ -46,9 +46,9 @@
   background-color: #6dbc6d;
 }
 
-/* .coworking-confirmed:enabled:hover {
-    background-color: rgb(0, 68, 255);
-} */
+.calendar-legend-box {
+    padding: 0px 10px 0px 10px;
+}
 
 .react-calendar-container {
   display: flex;

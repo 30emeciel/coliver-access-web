@@ -6,7 +6,7 @@ import "./Calendar.css";
 import Spinner from "react-bootstrap/Spinner";
 import { TCalendarContext } from "./MyPresenceCalendarTypes";
 import { DateTime } from "luxon";
-import { Popover } from "react-bootstrap";
+import { Col, Popover } from "react-bootstrap";
 
 const TheCalendar = ({
   isRangeMode,  
@@ -75,6 +75,7 @@ const TheCalendar = ({
             <div>Loading calendar...</div>
           </>
         ) : (
+          <>
           <Calendar
             selectRange={isRangeMode}
             view="month"
@@ -88,6 +89,19 @@ const TheCalendar = ({
             onChange={onChange}
             onClickDay={onClickDay}
           />
+          <br />
+          <Row>
+            <Col>
+            <span className="calendar-legend-box coliving-pending_review"></span>{" "}<span>Coliving Pending review</span>
+            {" "}
+            <span className="calendar-legend-box coliving-confirmed"></span>{" "}<span>Coliving Confirmed</span>
+            <br />
+            <span className="calendar-legend-box coworking-pending_review"></span>{" "}<span>Coworking Pending review</span>
+            {" "}
+            <span className="calendar-legend-box coworking-confirmed"></span>{" "}<span>Coworking Confirmed</span>
+            </Col>
+          </Row>
+          </>
         )}
     </>
   );
