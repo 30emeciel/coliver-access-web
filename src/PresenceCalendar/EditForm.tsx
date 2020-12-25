@@ -3,9 +3,9 @@ import { DateTime, Duration, Interval } from "luxon";
 import React, { useEffect, useState } from "react";
 import { Row } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
-import db from "../../db";
-import firebase from "../../firebase_config";
-import "../Switch.css";
+import db from "src/core/db";
+import firebase from "src/core/firebase_config";
+import "src/core/Switch.css";
 import { TCalendarContext } from "./MyPresenceCalendarTypes";
 import TheCalendar from "./TheCalendar";
 

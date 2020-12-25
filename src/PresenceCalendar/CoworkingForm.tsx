@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
-import "../Switch.css";
+import "src/core/Switch.css";
 import { DateTime, Duration, Interval } from "luxon";
 import { $enum } from "ts-enum-util";
 
@@ -17,14 +17,14 @@ import {
   ToggleButton,
 } from "react-bootstrap";
 import Switch from "react-switch";
-import db from "../../db";
+import db from "src/core/db";
 import admin from "firebase";
-import firebase from "../../firebase_config";
+import firebase from "src/core/firebase_config";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import Spinner from "react-bootstrap/Spinner";
 import TheCalendar from "./TheCalendar";
 import { TCalendarContext } from "./MyPresenceCalendarTypes";
-import LoadingButton from "../Common/LoadingButton";
+import LoadingButton from "src/core/LoadingButton";
 
 type DocumentData = firebase.firestore.DocumentData;
 

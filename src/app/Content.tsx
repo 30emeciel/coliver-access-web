@@ -5,11 +5,11 @@ import Navbar from "react-bootstrap/Navbar"
 import Nav from "react-bootstrap/Nav"
 import NavDropdown from "react-bootstrap/NavDropdown"
 import Form from "react-bootstrap/Form"
-import LogoutButton from '../LogoutButton';
 import Col from 'react-bootstrap/Col';
-import MyPresenceCalendar from './PresenceCalendar/MyPresenceCalendar'
+import MyPresenceCalendar from '../PresenceCalendar/MyPresenceCalendar'
 import { useAuth0 } from "@auth0/auth0-react";
-import firebase from "../firebase_config";
+import firebase from "src/core/firebase_config";
+import OnBoarding from "../PresenceCalendar/OnBoarding"
 
 
 function Content() {

@@ -10,7 +10,7 @@ const LoadingButton = ({
 {
     disabled?: boolean,
     variant?: string,
-    onClick: () => void,
+    onClick?: () => void,
     isLoading: boolean,
     children: string
 
