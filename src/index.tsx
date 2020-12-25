@@ -2,10 +2,10 @@ import { StrictMode } from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.css';
 //import '@forevolve/bootstrap-dark/dist/css/bootstrap-dark.css';
-import App from './App';
 //import * as serviceWorker from './serviceWorker';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import { Auth0Provider } from "@auth0/auth0-react";
+import Content from './app/Content';
 
 ReactDOM.render(
   <Auth0Provider
@@ -16,7 +16,7 @@ ReactDOM.render(
     useRefreshTokens={true}
 >
   <StrictMode>
-    <App />
+    <Content />
   </StrictMode>
   </Auth0Provider>,
   document.getElementById('root')

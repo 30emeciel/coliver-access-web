@@ -1,27 +1,39 @@
-import { Button } from "react-bootstrap"
+import { Button, Spinner } from "react-bootstrap";
 
 const LoadingButton = ({
-    disabled,
-    variant,
-    onClick,
-    isLoading,
-    children,
-} :
-{
-    disabled?: boolean,
-    variant?: string,
-    onClick?: () => void,
-    isLoading: boolean,
-    children: string
+  className,
+  disabled,
+  variant,
+  onClick,
+  isLoading,
+  children,
+}: {
+  className?: string;
+  disabled?: boolean;
+  variant?: string;
+  onClick?: () => void;
+  isLoading: boolean;
+  children: any;
+}) => {
+  return (
+    <Button className={className} disabled={disabled} variant={variant} onClick={onClick}>
+      {isLoading ? (
+        <>
+          {" "}
+          <Spinner
+            as="span"
+            animation="border"
+            size="sm"
+            role="status"
+            aria-hidden="true"
+          />{" "}
+          Loading...
+        </>
+      ) : (
+        children
+      )}
+    </Button>
+  );
+};
 
-}
-
-) => {
-
-    return <Button disabled={disabled} variant={variant} onClick={onClick}>
-                {isLoading ? "Loading..." : children }
-            </Button>
-
-}
-
-export default LoadingButton
+export default LoadingButton;
