@@ -9,7 +9,7 @@ import Col from "react-bootstrap/Col";
 import MyPresenceCalendar from "../PresenceCalendar/MyPresenceCalendar";
 import { useAuth0 } from "@auth0/auth0-react";
 import firebase from "src/core/firebase_config";
-import OnBoarding from "../PresenceCalendar/OnBoarding";
+import OnBoarding from "../OnBoarding/OnBoarding";
 import useUser, { User, UserStates } from "src/core/useUser";
 import { Jumbotron, Spinner } from "react-bootstrap";
 import LoadingButton from "src/core/LoadingButton";
@@ -54,11 +54,11 @@ const NoUserContent = ({isUserLoading}:{isUserLoading:boolean}) => {
 }
 
 const UserContent = ({user}:{user:User}) => {
-  if (user.state === UserStates.Validated) {
+  if (user.state === UserStates.Confirmed) {
     return  <div>OK</div>
   }
   else {
-    return <OnBoarding/>
+    return <OnBoarding user={user}/>
   }
 }
 
@@ -76,7 +76,7 @@ const Content = () => {
           </span>{" "}
           Coliv'app
         </Navbar.Brand>
-        { (user && user.state === UserStates.Validated) && <>
+        { (user && user.state === UserStates.Confirmed) && <>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />        
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">

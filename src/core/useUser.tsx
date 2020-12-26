@@ -10,12 +10,13 @@ const auth0_options = {
 };
 
 export enum UserStates {
-  Registered,
-  Validated,
+  Authenticated = "AUTHENTICATED",
+  Registered = "REGISTERED",
+  Confirmed = "CONFIRMED",
 }
 
 export interface User {
-  uid: string
+  sub: string
   state?: UserStates
 }
 
