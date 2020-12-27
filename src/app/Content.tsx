@@ -61,7 +61,7 @@ const UserContent = () => {
   }
 
   if (user.state === UserStates.Confirmed) {
-    return  <div>OK</div>
+    return <MyPresenceCalendar />
   }
   else {
     return <OnBoarding/>
