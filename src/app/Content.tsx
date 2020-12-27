@@ -11,10 +11,11 @@ import { useAuth0 } from "@auth0/auth0-react";
 import firebase from "src/core/firebase_config";
 import OnBoarding from "../OnBoarding/OnBoarding";
 import useUser, { User, UserStates } from "src/core/useUser";
-import { Jumbotron, Spinner } from "react-bootstrap";
+import { Image, Jumbotron, Spinner } from "react-bootstrap";
 import LoadingButton from "src/core/LoadingButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignInAlt, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import glb from "src/core/glb";
 
 const NoUserContent = ({isUserLoading}:{isUserLoading:boolean}) => {
   const {
@@ -53,18 +54,26 @@ const NoUserContent = ({isUserLoading}:{isUserLoading:boolean}) => {
 </Container>
 }
 
-const UserContent = ({user}:{user:User}) => {
+const UserContent = () => {
+  const user = glb.user
+  if (!user) {
+    throw Error("user is empty!")
+  }
+
   if (user.state === UserStates.Confirmed) {
     return  <div>OK</div>
   }
   else {
-    return <OnBoarding user={user}/>
+    return <OnBoarding/>
   }
 }
 
 const Content = () => {
   const { logout } = useAuth0();
-  const [isUserLoading, user] = useUser()
+  const {isLoading: isUserLoading, isAuthenticated, userDetails: user, docRef: userDocRef} = useUser()
+  glb.user = user
+  glb.isLoading = isUserLoading
+  glb.ref = userDocRef
 
   return (
     <div>
@@ -76,35 +85,36 @@ const Content = () => {
           </span>{" "}
           Coliv'app
         </Navbar.Brand>
-        { (user && user.state === UserStates.Confirmed) && <>
+        
         <Navbar.Toggle aria-controls="basic-navbar-nav" />        
         <Navbar.Collapse id="basic-navbar-nav">
+        
           <Nav className="mr-auto">
+          { (user && user.state === UserStates.Confirmed) && <>
             <Nav.Link href="#home">Reservation</Nav.Link>
             <Nav.Link href="#link">Contribute</Nav.Link>
+            </>
+          }
           </Nav>
-          <NavDropdown title="Alyosha" id="basic-nav-dropdown">
-            <NavDropdown.Item href="#action/3.1">Profile</NavDropdown.Item>
-            <NavDropdown.Item href="#action/3.2">
-              Another action
-            </NavDropdown.Item>
-            <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
-            <NavDropdown.Divider />
+        
+          { isAuthenticated && 
+          <NavDropdown title={<><Image width="32" alt="Selfie" thumbnail={false} roundedCircle src={user?.picture}/><span className="ml-2">Alyosha</span></>} id="basic-nav-dropdown">                     
             <NavDropdown.Item
               onClick={() => {
                 firebase.auth().signOut();
                 logout({ returnTo: window.location.origin });
               }}
-            >
+            >              
               Logout
             </NavDropdown.Item>
-          </NavDropdown>           
+          </NavDropdown>       
+          }    
         </Navbar.Collapse>
-        </>
-        }
+        
+        
       </Navbar>
       <br />
-      { user ? <UserContent user={user}/> : <NoUserContent isUserLoading={isUserLoading}/>} 
+      { !isUserLoading && isAuthenticated ? <UserContent/> : <NoUserContent isUserLoading={isUserLoading}/>} 
     </div>
   );
 }

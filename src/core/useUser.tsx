@@ -1,7 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { useDebugValue, useEffect, useState } from "react";
+import { useAuthState as useFirebaseAuthState } from "react-firebase-hooks/auth";
 import { useDocument, useDocumentData } from "react-firebase-hooks/firestore";
 import firebase from "src/core/firebase_config";
 
@@ -18,32 +18,34 @@ export enum UserStates {
 export interface User {
   sub: string
   state?: UserStates
+  picture?: string
 }
 
 const useUser = () => {
   const {
-    user,
-    isLoading,
+    user: auth0User,
+    isLoading: auth0IsLoading,
 //    isAuthenticated,
     getAccessTokenSilently,
+    error: auth0Error
   } = useAuth0();
   const [
     firebaseAuthUser,
     firebaseAuthIsloading,
-//    firebaseAuthError,
-  ] = useAuthState(firebase.auth());
-  const [auth0Token, setAuth0Token] = useState<string | null>(null);
+    firebaseAuthError,
+  ] = useFirebaseAuthState(firebase.auth());
 
-  const [isUserLoading, setIsUserLoading] = useState(true);
+  const [auth0Token, setAuth0Token] = useState<string | null>(null);
+  
 
   useEffect(() => {
-    if (!user) {
+    if (auth0IsLoading || !auth0User) {
       return;
     }
     getAccessTokenSilently(auth0_options).then((auth0_token) =>
       setAuth0Token(auth0_token)
     );
-  }, [user, getAccessTokenSilently]);
+  }, [auth0IsLoading, auth0User, getAccessTokenSilently]);
 
   
   useEffect(() => {
@@ -57,7 +59,7 @@ const useUser = () => {
       return;
     }
 
-    if (!user || !auth0Token) {
+    if (!auth0User || !auth0Token) {
       //auth0 not ready yet, stop here and wait
       return;
     }
@@ -65,7 +67,7 @@ const useUser = () => {
     // exchange auth0 token to firebase auth token
     axios
       .post(
-        "https://europe-west3-trentiemeciel.cloudfunctions.net/create_session",
+        "https://europe-west3-trentiemeciel.cloudfunctions.net/auth0-firebase-token-exchange",
         { access_token: auth0Token }
       )
       .then((exchange_token_response) =>
@@ -73,9 +75,9 @@ const useUser = () => {
           .auth()
           .signInWithCustomToken(exchange_token_response.data.firebase_token)
       );
-  }, [firebaseAuthUser, firebaseAuthIsloading, user, auth0Token]);
+  }, [firebaseAuthUser, firebaseAuthIsloading, auth0User, auth0Token]);
 
-  const [userDocRef, setUserDocRef] = useState<firebase.firestore.DocumentReference | null>(null);
+  const [userDocRef, setUserDocRef] = useState<firebase.firestore.DocumentReference>();
 
   useEffect(() => {
     if (!firebaseAuthUser) {
@@ -86,14 +88,16 @@ const useUser = () => {
   }, [firebaseAuthUser]);
 
   const [userDoc, isUserDocLoading, userDocError] = useDocumentData<User>(userDocRef);
-
+  const [isUserLoading, setIsUserLoading] = useState(true);
   useEffect(
-    () =>
-      setIsUserLoading(isLoading || firebaseAuthIsloading || isUserDocLoading),
-    [isLoading, firebaseAuthIsloading, isUserDocLoading]
+    () => { 
+      setIsUserLoading(auth0IsLoading || firebaseAuthIsloading || isUserDocLoading)
+    },
+    [auth0IsLoading, firebaseAuthIsloading, isUserDocLoading]
   );
-
-
-  return [isUserLoading, userDoc] as [boolean, User | undefined];
+  
+  const ret = {isLoading: isUserLoading, isAuthenticated: auth0User != null && firebaseAuthUser != null, userDetails: userDoc, docRef: userDocRef, error: auth0Error || firebaseAuthError || userDocError}
+  useDebugValue(ret)
+  return ret;
 };
 export default useUser;

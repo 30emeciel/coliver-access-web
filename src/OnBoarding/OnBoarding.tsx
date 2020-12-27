@@ -2,18 +2,21 @@ import "rc-steps/assets/index.css";
 import Steps, { Step } from "rc-steps";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faCoffee } from "@fortawesome/free-solid-svg-icons";
-import { Col, Container, Row } from "react-bootstrap";
+import { Button, Col, Container, Row } from "react-bootstrap";
 import useUser, { User, UserStates } from "src/core/useUser";
 import { useEffect, useRef } from "react";
+import glb from "src/core/glb";
 
 declare namespace Cognito {
   function load(s: string, options: any, callbacks?: any): void;
   function prefill(arg: any): void
 }
 
+declare function ExoJQuery(arg: any): any;
 
 const CognitoFormSeamless = ({entry, onSubmit}:{entry: any, onSubmit: () => void}) => {
   const ref = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const current = ref.current;
     if (!current) {
@@ -21,14 +24,20 @@ const CognitoFormSeamless = ({entry, onSubmit}:{entry: any, onSubmit: () => void
     }
 
     Cognito.load("forms", { id: 9, entry: entry }, {success: () => {
-      document.addEventListener("afterSubmit.cognito", onSubmit)
-    }});    
+//      ExoJQuery(function() {
+        
+        //if (!ref.current) return () => {};
+        
+      //})
+    }})
+
+    ExoJQuery(document).on('afterSubmit.cognito', onSubmit)
 
     return () => {
       while (current.firstChild) {
         current.removeChild(current.firstChild);
       }
-      document.removeEventListener("afterSubmit.cognito", onSubmit)
+      ExoJQuery(document).on("afterSubmit.cognito", null)
     };
   }, [entry, onSubmit]);
 
@@ -53,15 +62,23 @@ const CognitoFormIframe = ({ entry }: { entry: any }) => {
     />
   );
 };
-const OnBoarding = ({ user }: { user: User }) => {
+const OnBoarding = () => {
+  const user = glb.user!
   const statesToStepsMapping = new Map([
-    [UserStates.Authenticated, 1],
     [UserStates.Registered, 2],
     [UserStates.Confirmed, 3],
   ]);
 
+  
+  const onSubmitFct = () => {
+    console.log("onSubmit")
+    const userDocRef = glb.ref!
+    userDocRef.update({"state": "REGISTERED"})
+  }
+
+
   const cognitoFormEntry = {
-    Uid: user.sub,
+    Uid: user!.sub,
   };
   const cognitoFormUrl = `https://www.cognitoforms.com/_30%C3%A8meCiel/CoworkingColiving30%C3%A8meCielRegistration?entry=${encodeURIComponent(
     JSON.stringify(cognitoFormEntry)
@@ -78,9 +95,7 @@ const OnBoarding = ({ user }: { user: User }) => {
         <Row>
           <Col>
             <Steps
-              current={statesToStepsMapping.get(
-                user.state ? user.state : UserStates.Authenticated
-              )}
+              current={!user.state ? 1 : 2}
               icons={icons}
             >
               <Step
@@ -93,11 +108,7 @@ const OnBoarding = ({ user }: { user: User }) => {
               />
               <Step
                 title="Confirmation"
-                description="Je confirme ton inscription"
-              />
-              <Step
-                title="C'est parti !"
-                description="Tu reçois un e-mail de confirmation 😀"
+                description="Je confirme ton inscription"                
               />
             </Steps>
           </Col>
@@ -105,6 +116,7 @@ const OnBoarding = ({ user }: { user: User }) => {
         <br />
         <Row>
           <Col>
+            {!user.state && <>
             <h2>Inscription</h2>
             <p>
               Avant de venir, <FontAwesomeIcon icon={faCoffee} /> j'ai besoin
@@ -114,9 +126,15 @@ const OnBoarding = ({ user }: { user: User }) => {
             </p>
             <CognitoFormSeamless
               entry={cognitoFormEntry}
-              onSubmit={() => {
-                console.log("onSubmit")
-              }}/>
+              onSubmit={onSubmitFct}/>
+              </>
+            }
+            {user.state === UserStates.Registered && <>
+            <h2>Confirmation</h2>
+            <p>Attends que le rôle <strong>Participante</strong> confirme ton inscription.</p>
+            </>
+            }
+
           </Col>
         </Row>
       </Container>
