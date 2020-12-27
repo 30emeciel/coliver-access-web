@@ -18,6 +18,7 @@ import { faSignInAlt, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import glb from "src/core/glb";
 import { ErrorBoundary } from "react-error-boundary";
 import cassé from "./cassé.jpg"
+import { useEffect } from "react";
 
 const NoUserContent = ({ isUserLoading }: { isUserLoading: boolean }) => {
   const { loginWithRedirect } = useAuth0();
@@ -102,9 +103,21 @@ const Content = () => {
     userDetails: user,
     docRef: userDocRef,
   } = useUser();
-  glb.user = user;
-  glb.isLoading = isUserLoading;
-  glb.ref = userDocRef;
+
+  useEffect(() => {
+    if (isUserLoading) {
+      return
+    }
+    glb.user = user
+  }, [user, isUserLoading])
+
+  useEffect(() => {
+    glb.ref = userDocRef
+  }, [userDocRef])
+
+  useEffect(() => {
+    glb.isLoading = isUserLoading
+  }, [isUserLoading])
 
   return (
     <div>
@@ -132,22 +145,23 @@ const Content = () => {
             <NavDropdown
               title={
                 <>
-                  <Image
+                  {user?.picture && <Image
                     width="32"
                     alt="Selfie"
                     thumbnail={false}
                     roundedCircle
                     src={user?.picture}
                   />
+                  }
                   <span className="ml-2">Alyosha</span>
                 </>
               }
               id="basic-nav-dropdown"
             >
               <NavDropdown.Item
-                onClick={() => {
-                  firebase.auth().signOut();
-                  logout({ returnTo: window.location.origin });
+                onClick={async () => {                  
+                    await firebase.auth().signOut();
+                    logout({ returnTo: window.location.origin });
                 }}
               >
                 Logout
