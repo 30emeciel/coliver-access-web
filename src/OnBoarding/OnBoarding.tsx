@@ -4,8 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faCoffee } from "@fortawesome/free-solid-svg-icons";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import useUser, { User, UserStates } from "src/core/useUser";
-import { useEffect, useRef } from "react";
-import glb from "src/core/glb";
+import { useContext, useEffect, useRef } from "react";
+import UserContext from "src/core/userContext";
 
 declare namespace Cognito {
   function load(s: string, options: any, callbacks?: any): void;
@@ -63,23 +63,19 @@ const CognitoFormIframe = ({ entry }: { entry: any }) => {
   );
 };
 const OnBoarding = () => {
-  const user = glb.user!
-  const statesToStepsMapping = new Map([
-    [UserStates.Registered, 2],
-    [UserStates.Confirmed, 3],
-  ]);
-
+  const uc = useContext(UserContext)
   
   const onSubmitFct = () => {
     console.log("onSubmit")
-    const userDocRef = glb.ref!
+    const userDocRef = uc.ref!
     userDocRef.update({"state": "REGISTERED"})
   }
 
 
   const cognitoFormEntry = {
-    Uid: user!.sub,
+    Uid: uc.doc!.sub,
   };
+
   const cognitoFormUrl = `https://www.cognitoforms.com/_30%C3%A8meCiel/CoworkingColiving30%C3%A8meCielRegistration?entry=${encodeURIComponent(
     JSON.stringify(cognitoFormEntry)
   )}`;
@@ -95,7 +91,7 @@ const OnBoarding = () => {
         <Row>
           <Col>
             <Steps
-              current={!user.state ? 1 : 2}
+              current={uc.doc!.state ? 1 : 2}
               icons={icons}
             >
               <Step
@@ -116,7 +112,7 @@ const OnBoarding = () => {
         <br />
         <Row>
           <Col>
-            {!user.state && <>
+            {uc.doc!.state && <>
             <h2>Inscription</h2>
             <p>
               Avant de venir, <FontAwesomeIcon icon={faCoffee} /> j'ai besoin
@@ -129,7 +125,7 @@ const OnBoarding = () => {
               onSubmit={onSubmitFct}/>
               </>
             }
-            {user.state === UserStates.Registered && <>
+            {uc.doc!.state === UserStates.Registered && <>
             <h2>Confirmation</h2>
             <p>Attends que le rôle <strong>Participante</strong> confirme ton inscription.</p>
             </>

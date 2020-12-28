@@ -15,10 +15,10 @@ import { Alert, Image, Jumbotron, Spinner } from "react-bootstrap";
 import LoadingButton from "src/core/LoadingButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignInAlt, faUserPlus } from "@fortawesome/free-solid-svg-icons";
-import glb from "src/core/glb";
 import { ErrorBoundary } from "react-error-boundary";
 import cassé from "./cassé.jpg"
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
+import UserContext, { TUserContext } from "src/core/userContext";
 
 const NoUserContent = ({ isUserLoading }: { isUserLoading: boolean }) => {
   const { loginWithRedirect } = useAuth0();
@@ -63,12 +63,13 @@ const NoUserContent = ({ isUserLoading }: { isUserLoading: boolean }) => {
 };
 
 const UserContent = () => {
-  const user = glb.user;
-  if (!user) {
+  const uc = useContext(UserContext)
+
+  if (!uc.doc) {
     throw Error("user is empty!");
   }
 
-  if (user.state === UserStates.Confirmed) {
+  if (uc.doc.state === UserStates.Confirmed) {
     return <MyPresenceCalendar />;
   } else {
     return <OnBoarding />;
@@ -99,28 +100,20 @@ const Content = () => {
   const { logout } = useAuth0();
   const {
     isLoading: isUserLoading,
-    isAuthenticated,
-    userDetails: user,
+    isAuthenticated: isUserAuthenticated,
+    userData: userDoc,
     docRef: userDocRef,
   } = useUser();
 
-  useEffect(() => {
-    if (isUserLoading) {
-      return
-    }
-    glb.user = user
-  }, [user, isUserLoading])
-
-  useEffect(() => {
-    glb.ref = userDocRef
-  }, [userDocRef])
-
-  useEffect(() => {
-    glb.isLoading = isUserLoading
-  }, [isUserLoading])
+  const userContextValue:TUserContext = {
+    isLoading: isUserLoading,
+    doc: userDoc,
+    ref: userDocRef
+  }
 
   return (
-    <div>
+    <>
+      <UserContext.Provider value={userContextValue}>        
       <Navbar bg="dark" variant="dark" expand="lg">
         <Navbar.Brand href="#home">
           30ème Ciel{" "}
@@ -133,7 +126,7 @@ const Content = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
-            {user && user.state === UserStates.Confirmed && (
+            {userDoc && userDoc.state === UserStates.Confirmed && (
               <>
                 <Nav.Link href="#home">Reservation</Nav.Link>
                 <Nav.Link href="#link">Contribute</Nav.Link>
@@ -141,16 +134,16 @@ const Content = () => {
             )}
           </Nav>
 
-          {isAuthenticated && (
+          {isUserAuthenticated && (
             <NavDropdown
               title={
                 <>
-                  {user?.picture && <Image
+                  {userDoc?.picture && <Image
                     width="32"
                     alt="Selfie"
                     thumbnail={false}
                     roundedCircle
-                    src={user?.picture}
+                    src={userDoc?.picture}
                   />
                   }
                   <span className="ml-2">Alyosha</span>
@@ -173,13 +166,14 @@ const Content = () => {
       <br />
       <ErrorBoundary
         FallbackComponent={ErrorFallback}        
-      >{!isUserLoading && isAuthenticated ? (
+      >{!isUserLoading && isUserAuthenticated ? (
         <UserContent />
       ) : (
         <NoUserContent isUserLoading={isUserLoading} />
       )}
       </ErrorBoundary>
-    </div>
+      </UserContext.Provider>
+    </>
   );
 };
 
