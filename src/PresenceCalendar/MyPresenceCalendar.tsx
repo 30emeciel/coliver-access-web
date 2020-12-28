@@ -28,8 +28,6 @@ import TheCalendar from "./TheCalendar";
 import ColivingForm from "./ColivingForm";
 import CoworkingForm from "./CoworkingForm";
 import EditForm from "./EditForm";
-import { useFormik } from 'formik';
-import * as yup from 'yup';
 
 import {
   UserDayStates,
@@ -39,7 +37,6 @@ import {
   TUserDay,
 } from "./MyPresenceCalendarTypes";
 import CancelationForm from "./CancelationForm";
-import { Field, Formik, FormikHelpers, FormikValues } from "formik";
 
 
 type DocumentData = firebase.firestore.DocumentData;
@@ -213,7 +210,7 @@ const MyPresenceCalendar = () => {
         </Row>
       </>
     );
-  };  
+  };
 
   const onClickDayFct = (d: Date) => {
     //if (appState === AppStates.Normal) {
@@ -227,17 +224,15 @@ const MyPresenceCalendar = () => {
     //}
   };
 
-
   return (
     <>
       <Container>
         <Row>
           <h1>My presence calendar</h1>
         </Row>
-        <Row><Col>
-        
-
-     </Col></Row>
+        <Row>
+          <Col></Col>
+        </Row>
         <br />
         <Row>
           <Alert variant="info">
@@ -257,17 +252,17 @@ const MyPresenceCalendar = () => {
           AppStates.ShowEmptyForm,
           AppStates.ShowOccupiedForm,
         ]).has(appState) && (
-            <Row>
-              <Col>
-                <TheCalendar
-                  calendarContext={calendarContext}
-                  isRangeMode={false}
-                  calValue={calValue}
-                  onClickDay={onClickDayFct}
-                />
-              </Col>
-            </Row>
-          )}
+          <Row>
+            <Col>
+              <TheCalendar
+                calendarContext={calendarContext}
+                isRangeMode={false}
+                calValue={calValue}
+                onClickDay={onClickDayFct}
+              />
+            </Col>
+          </Row>
+        )}
         {new Set([AppStates.ShowEmptyForm]).has(appState) && (
           <>
             <br />
@@ -276,22 +271,26 @@ const MyPresenceCalendar = () => {
                 <Alert variant="info">
                   <p>What would you like to book?</p>
                   <div className="">
-                  <Button
-                    className="mr-1"
-                    variant="danger"
-                    onClick={() => {
-                      setCalValue(null);
-                      setAppState(AppStates.Normal);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button className="mr-1" variant="success" onClick={() => setAppState(AppStates.NewCoworking)}>
-                    Coworking
-                  </Button>
-                  <Button onClick={() => setAppState(AppStates.ColivingForm)}>
-                    Coliving
-                  </Button>
+                    <Button
+                      className="mr-1"
+                      variant="danger"
+                      onClick={() => {
+                        setCalValue(null);
+                        setAppState(AppStates.Normal);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      className="mr-1"
+                      variant="success"
+                      onClick={() => setAppState(AppStates.NewCoworking)}
+                    >
+                      Coworking
+                    </Button>
+                    <Button onClick={() => setAppState(AppStates.ColivingForm)}>
+                      Coliving
+                    </Button>
                   </div>
                 </Alert>
               </Col>
@@ -304,9 +303,7 @@ const MyPresenceCalendar = () => {
             <Row>
               <Col>
                 <Alert variant="info">
-                  <p>
-                    What would you like to do?
-                  </p>
+                  <p>What would you like to do?</p>
                   <div className="">
                     <Button
                       className="mr-1"
@@ -317,7 +314,8 @@ const MyPresenceCalendar = () => {
                     </Button>
                     <Button
                       className="mr-1"
-                      onClick={() => setAppState(AppStates.EditDays)}>
+                      onClick={() => setAppState(AppStates.EditDays)}
+                    >
                       Change reservation...
                     </Button>
                   </div>
