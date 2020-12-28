@@ -59,6 +59,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-router-dom": "^5.1.6",
     "@types/typeform__embed": "^0.22.2"
   }
 }

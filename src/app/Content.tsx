@@ -17,9 +17,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignInAlt, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { ErrorBoundary } from "react-error-boundary";
 import cassé from "./cassé.jpg"
-import { useContext, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import UserContext, { TUserContext } from "src/core/userContext";
 
+import {
+  Switch,
+  Route,
+  BrowserRouter,
+  NavLink, 
+  useHistory
+} from "react-router-dom";
+import ListColivers from "src/Overall/ListColivers";
 const NoUserContent = ({ isUserLoading }: { isUserLoading: boolean }) => {
   const { loginWithRedirect } = useAuth0();
 
@@ -64,16 +72,24 @@ const NoUserContent = ({ isUserLoading }: { isUserLoading: boolean }) => {
 
 const UserContent = () => {
   const uc = useContext(UserContext)
-
+  
   if (!uc.doc) {
     throw Error("user is empty!");
   }
 
-  if (uc.doc.state === UserStates.Confirmed) {
-    return <MyPresenceCalendar />;
-  } else {
-    return <OnBoarding />;
-  }
+  return (
+    <Switch>
+      <Route exact path="/">
+        { uc.doc.state === UserStates.Confirmed ?
+          <MyPresenceCalendar /> : <OnBoarding />
+        }
+      </Route>
+      <Route path="/list">
+        <ListColivers />
+      </Route>
+    </Switch>
+  )
+
 };
 
 const ErrorFallback = ({ error }: { error: Error }) => {
@@ -96,6 +112,19 @@ const ErrorFallback = ({ error }: { error: Error }) => {
   );
 };
 
+const NavLinks = () => {
+
+  const history = useHistory()  
+
+  function handleClick() {
+    history.push("/list");
+  }
+  return <>
+    <Nav.Link onClick={() => history.push("/")}>Ma présence</Nav.Link>
+    <Nav.Link onClick={handleClick}>Liste des colivers</Nav.Link>
+  </>
+}
+
 const Content = () => {
   const { logout } = useAuth0();
   const {
@@ -111,8 +140,11 @@ const Content = () => {
     ref: userDocRef
   }
 
+
+
   return (
     <>
+    <BrowserRouter>
       <UserContext.Provider value={userContextValue}>        
       <Navbar bg="dark" variant="dark" expand="lg">
         <Navbar.Brand href="#home">
@@ -127,10 +159,7 @@ const Content = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
             {userDoc && userDoc.state === UserStates.Confirmed && (
-              <>
-                <Nav.Link href="#home">Reservation</Nav.Link>
-                <Nav.Link href="#link">Contribute</Nav.Link>
-              </>
+              <NavLinks />
             )}
           </Nav>
 
@@ -173,6 +202,7 @@ const Content = () => {
       )}
       </ErrorBoundary>
       </UserContext.Provider>
+      </BrowserRouter>
     </>
   );
 };
