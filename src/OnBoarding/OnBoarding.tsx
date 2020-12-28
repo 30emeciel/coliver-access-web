@@ -91,7 +91,7 @@ const OnBoarding = () => {
         <Row>
           <Col>
             <Steps
-              current={uc.doc!.state ? 1 : 2}
+              current={uc.doc!.state === UserStates.Registered ? 2 : 1}
               icons={icons}
             >
               <Step
@@ -112,7 +112,7 @@ const OnBoarding = () => {
         <br />
         <Row>
           <Col>
-            {uc.doc!.state && <>
+            {!uc.doc!.state && <>
             <h2>Inscription</h2>
             <p>
               Avant de venir, <FontAwesomeIcon icon={faCoffee} /> j'ai besoin
