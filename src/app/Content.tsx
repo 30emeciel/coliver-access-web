@@ -86,7 +86,7 @@ const MyPresenceCalendarLoader = () => {
     return <MyPresenceCalendar user={user} />
   }
   else {
-    return <Spinner animation="border" />
+    return <Container><Spinner animation="border" /></Container>
   }
 }
 const UserContent = () => {
