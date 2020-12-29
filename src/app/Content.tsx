@@ -25,9 +25,12 @@ import {
   Route,
   BrowserRouter,
   NavLink, 
-  useHistory
+  useHistory,
+  useParams
 } from "react-router-dom";
 import ColiversList from "src/Overall/ColiversList";
+import { useDocumentData } from "react-firebase-hooks/firestore";
+import db from "src/core/db";
 const NoUserContent = ({ isUserLoading }: { isUserLoading: boolean }) => {
   const { loginWithRedirect } = useAuth0();
 
@@ -70,12 +73,30 @@ const NoUserContent = ({ isUserLoading }: { isUserLoading: boolean }) => {
   );
 };
 
+type ColiverParams = {
+  id: string
+}
+const MyPresenceCalendarLoader = () => {
+  const {id: userId} = useParams<ColiverParams>()
+  const [user, isLoading, error] = useDocumentData<User>(db.doc(`users/${userId}`))
+  if (error) {
+    throw error
+  }  
+  if (user) {
+    return <MyPresenceCalendar user={user} />
+  }
+  else {
+    return <Spinner animation="border" />
+  }
+}
 const UserContent = () => {
   const uc = useContext(UserContext)
   
   if (!uc.doc) {
     throw Error("user is empty!");
   }
+
+  
 
   return (
     <Switch>
@@ -84,8 +105,11 @@ const UserContent = () => {
           <MyPresenceCalendar /> : <OnBoarding />
         }
       </Route>
-      <Route path="/colivers">
+      <Route exact path="/colivers">
         <ColiversList />
+      </Route>
+      <Route exact path="/colivers/:id">
+        <MyPresenceCalendarLoader />
       </Route>
     </Switch>
   )
