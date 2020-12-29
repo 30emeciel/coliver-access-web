@@ -92,13 +92,13 @@ const TheCalendar = ({
           <br />
           <Row>
             <Col>
-            <span className="calendar-legend-box coliving-pending_review"></span>{" "}<span>Coliving Pending review</span>
+            <span className="calendar-legend-box coliving-pending_review mr-1"></span><span>Coliving Pending review</span>
             {" "}
-            <span className="calendar-legend-box coliving-confirmed"></span>{" "}<span>Coliving Confirmed</span>
+            <span className="calendar-legend-box coliving-confirmed mr-1"></span><span>Coliving Confirmed</span>
             <br />
-            <span className="calendar-legend-box coworking-pending_review"></span>{" "}<span>Coworking Pending review</span>
+            <span className="calendar-legend-box coworking-pending_review mr-1"></span><span>Coworking Pending review</span>
             {" "}
-            <span className="calendar-legend-box coworking-confirmed"></span>{" "}<span>Coworking Confirmed</span>
+            <span className="calendar-legend-box coworking-confirmed mr-1"></span><span>Coworking Confirmed</span>
             </Col>
           </Row>
           </>

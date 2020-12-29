@@ -1,3 +1,5 @@
+import { faUsers } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Container, Image, ListGroup, Row, Spinner } from "react-bootstrap"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
@@ -24,7 +26,7 @@ const ColiversList = () => {
   })
   
   return <Container>
-    <h2>Liste des colivers</h2>
+    <h2><FontAwesomeIcon icon={faUsers}/> Liste des colivers</h2>
     
     <ListGroup>
       {listItems}

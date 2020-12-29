@@ -1,3 +1,5 @@
+import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import admin from "firebase";
 import { DateTime, Duration, Interval } from "luxon";
 import { useEffect, useState } from "react";
@@ -72,13 +74,13 @@ const CancelationForm = ({
       <p className="mb-0">
         <Button
           variant="danger"
-          onClick={onCancel}>Cancel</Button>
+          onClick={onCancel}><FontAwesomeIcon icon={faExclamationCircle}/>Cancel</Button>
         {' '}
         <LoadingButton
           variant="primary"
           onClick={submitForm}
           isLoading={isFormSubmitting}
-          disabled={isFormLoading}>Confirm</LoadingButton>        
+          disabled={isFormLoading}><FontAwesomeIcon icon={faCheckCircle}/>Confirm</LoadingButton>        
         </p>
       </Alert>
       

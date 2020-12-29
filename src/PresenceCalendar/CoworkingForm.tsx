@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
 import "src/core/Switch.css";
@@ -25,6 +25,8 @@ import Spinner from "react-bootstrap/Spinner";
 import TheCalendar from "./TheCalendar";
 import { TCalendarContext } from "./MyPresenceCalendarTypes";
 import LoadingButton from "src/core/LoadingButton";
+import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type DocumentData = firebase.firestore.DocumentData;
 
@@ -100,15 +102,14 @@ const CoworkingForm = ({
             </p>
             <p className="mb-0">
             <Button variant="danger" onClick={onCancel}>
-              Cancel
+            <FontAwesomeIcon icon={faExclamationCircle}/> Cancel
             </Button>{" "}
             <LoadingButton
               disabled={!calValue}
               variant="primary"
               onClick={submitForm}
               isLoading={isFormSubmitting}
-            >
-              Submit
+            ><FontAwesomeIcon icon={faCheckCircle}/> Submit
             </LoadingButton>
             </p>
           </Alert>

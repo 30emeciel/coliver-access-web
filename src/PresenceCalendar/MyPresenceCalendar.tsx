@@ -39,6 +39,8 @@ import {
 import CancelationForm from "./CancelationForm";
 import useUser, { User } from "src/core/useUser";
 import UserContext from "src/core/userContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBed, faExclamationCircle, faLaptopHouse, faUserClock, faUserEdit } from "@fortawesome/free-solid-svg-icons";
 
 
 type DocumentData = firebase.firestore.DocumentData;
@@ -233,7 +235,7 @@ const MyPresenceCalendar = ({user}:{user?:User}) => {
     <>
       <Container>
         <Row>
-          <h1>My presence calendar</h1>
+          <h2><FontAwesomeIcon icon={faUserClock}/> Calendrier de présence{!(user === currentUserData) && <> de {user.name}</>}</h2>
         </Row>
         <Row>
           <Col></Col>
@@ -283,18 +285,16 @@ const MyPresenceCalendar = ({user}:{user?:User}) => {
                         setCalValue(null);
                         setAppState(AppStates.Normal);
                       }}
-                    >
-                      Cancel
-                    </Button>
+                    ><FontAwesomeIcon icon={faExclamationCircle}/> Cancel</Button>
                     <Button
                       className="mr-1"
                       variant="success"
                       onClick={() => setAppState(AppStates.NewCoworking)}
                     >
-                      Coworking
+                      <FontAwesomeIcon icon={faLaptopHouse}/> Coworking
                     </Button>
                     <Button onClick={() => setAppState(AppStates.ColivingForm)}>
-                      Coliving
+                    <FontAwesomeIcon icon={faBed}/> Coliving
                     </Button>
                   </div>
                 </Alert>
@@ -310,18 +310,26 @@ const MyPresenceCalendar = ({user}:{user?:User}) => {
                 <Alert variant="info">
                   <p>What would you like to do?</p>
                   <div className="">
-                    <Button
+                  <Button
                       className="mr-1"
                       variant="danger"
+                      onClick={() => {
+                        setCalValue(null);
+                        setAppState(AppStates.Normal);
+                      }}
+                    ><FontAwesomeIcon icon={faExclamationCircle}/> Cancel
+                    </Button>
+                    <Button
+                      className="mr-1"
+                      variant="warning"
                       onClick={() => setAppState(AppStates.CancelationForm)}
-                    >
-                      Cancel reservation...
+                    ><FontAwesomeIcon icon={faExclamationCircle}/> Annuler ma réservation...
                     </Button>
                     <Button
                       className="mr-1"
                       onClick={() => setAppState(AppStates.EditDays)}
                     >
-                      Change reservation...
+                      <FontAwesomeIcon icon={faUserEdit}/> Modifier ma réservation...
                     </Button>
                   </div>
                 </Alert>
@@ -373,8 +381,6 @@ const MyPresenceCalendar = ({user}:{user?:User}) => {
         )}
         {appState === AppStates.EditDays && <Alert variant="info"></Alert>}
 
-        <hr />
-        <DevRows />
       </Container>
     </>
   );

@@ -14,7 +14,7 @@ import useUser, { User, UserStates } from "src/core/useUser";
 import { Alert, Image, Jumbotron, Spinner } from "react-bootstrap";
 import LoadingButton from "src/core/LoadingButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSignInAlt, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { faCalendar, faPeopleCarry, faSignInAlt, faSignOutAlt, faUserClock, faUserPlus, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { ErrorBoundary } from "react-error-boundary";
 import cassé from "./cassé.jpg"
 import React, { useContext, useEffect } from "react";
@@ -144,8 +144,8 @@ const NavLinks = () => {
     history.push("/colivers");
   }
   return <>
-    <Nav.Link onClick={() => history.push("/")}>Ma présence</Nav.Link>
-    <Nav.Link onClick={handleClick}>Liste des colivers</Nav.Link>
+    <Nav.Link onClick={() => history.push("/")}><FontAwesomeIcon icon={faUserClock}/> Ma présence</Nav.Link>
+    <Nav.Link onClick={handleClick}><FontAwesomeIcon icon={faUsers}/> Liste des colivers</Nav.Link>
   </>
 }
 
@@ -210,7 +210,7 @@ const Content = () => {
                     logout({ returnTo: window.location.origin });
                 }}
               >
-                Logout
+                <FontAwesomeIcon icon={faSignOutAlt}/> Logout
               </NavDropdown.Item>
             </NavDropdown>
           )}
