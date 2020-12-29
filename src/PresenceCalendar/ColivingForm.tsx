@@ -21,8 +21,7 @@ const ColivingForm = ({
   onSubmit: () => void;
   onCancel: () => void;
 }) => {
-  const currentUser = firebase.auth().currentUser!;
-  console.assert(currentUser != null);
+  const currentUser = calendarContext.user
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
   const [interval, setInterval] = useState<null | Interval>(null);
@@ -71,13 +70,13 @@ const ColivingForm = ({
       status: "PENDING_REVIEW",
     };
     const request_doc = await db
-      .collection(`users/${currentUser.uid}/requests`)
+      .collection(`users/${currentUser.sub}/requests`)
       .add(request_data);
     
     var batch = db.batch();
     
     res.forEach((r) => {
-      batch.set(db.collection(`users/${currentUser.uid}/days`).doc(r.toISODate()), {
+      batch.set(db.collection(`users/${currentUser.sub}/days`).doc(r.toISODate()), {
           on: r.toJSDate(),
           request: request_doc,
           status: "PENDING_REVIEW",

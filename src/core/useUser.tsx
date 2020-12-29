@@ -18,6 +18,7 @@ export enum UserStates {
 
 export interface User {
   sub: string
+  name: string
   state?: UserStates
   picture?: string
 }

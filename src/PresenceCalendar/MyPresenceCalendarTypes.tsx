@@ -1,4 +1,5 @@
 import { DateTime, Duration, Interval } from "luxon";
+import { User } from "src/core/useUser";
 
 export enum UserDayStates {
   PendingReview = "PENDING_REVIEW",
@@ -31,6 +32,8 @@ export class TCalendarContext {
   setGlobalDays!: (arg0: TMapGlobalDays) => void;
 
   isLoading!: boolean;
+
+  user!: User
 
   public constructor(init?: Partial<TCalendarContext>) {
     Object.assign(this, init);

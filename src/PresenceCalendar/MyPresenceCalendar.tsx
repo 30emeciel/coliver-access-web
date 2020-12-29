@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
 import "src/core/Switch.css";
@@ -37,6 +37,8 @@ import {
   TUserDay,
 } from "./MyPresenceCalendarTypes";
 import CancelationForm from "./CancelationForm";
+import useUser, { User } from "src/core/useUser";
+import UserContext from "src/core/userContext";
 
 
 type DocumentData = firebase.firestore.DocumentData;
@@ -51,9 +53,11 @@ enum AppStates {
   CancelationForm,
 }
 
-const MyPresenceCalendar = () => {
-  const currentUser = firebase.auth().currentUser!;
-  console.assert(currentUser != null);
+const MyPresenceCalendar = ({user}:{user?:User}) => {
+  const {doc: currentUserData} = useContext(UserContext)
+  if (!user) {
+    user = currentUserData!
+  }
 
   /******************************************************************************************************************
    * States
@@ -67,7 +71,7 @@ const MyPresenceCalendar = () => {
     listDaysLoading,
     listDaysError,
   ] = useCollectionData<TUserDay>(
-    db.collection(`users/${currentUser.uid}/days`).orderBy("on", "asc")
+    db.collection(`users/${user.sub}/days`).orderBy("on", "asc")
   );
 
   const [userDays, setUserDays] = useState<TMapDays>(new Map());
@@ -83,6 +87,7 @@ const MyPresenceCalendar = () => {
     setGlobalDays: setGlobalDays,
 
     isLoading: listDaysLoading,
+    user: user
   });
 
   useEffect(() => {

@@ -39,8 +39,7 @@ const CoworkingForm = ({
   onSubmit: () => void;
   onCancel: () => void;
 }) => {
-  const currentUser = firebase.auth().currentUser!;
-  console.assert(currentUser != null);
+  const currentUser = calendarContext.user
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
   const [calValue, setCalValue] = useState<Date>(firstCalValue);
@@ -60,10 +59,10 @@ const CoworkingForm = ({
       status: "PENDING_REVIEW",
     };
     const request_doc = await db
-      .collection(`users/${currentUser.uid}/requests`)
+      .collection(`users/${currentUser.sub}/requests`)
       .add(request_data);
     await db
-      .collection(`users/${currentUser.uid}/days`)
+      .collection(`users/${currentUser.sub}/days`)
       .doc(start.toISODate())
       .set({
         on: start.toJSDate(),

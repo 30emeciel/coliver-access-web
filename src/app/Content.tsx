@@ -27,7 +27,7 @@ import {
   NavLink, 
   useHistory
 } from "react-router-dom";
-import ListColivers from "src/Overall/ListColivers";
+import ColiversList from "src/Overall/ColiversList";
 const NoUserContent = ({ isUserLoading }: { isUserLoading: boolean }) => {
   const { loginWithRedirect } = useAuth0();
 
@@ -84,8 +84,8 @@ const UserContent = () => {
           <MyPresenceCalendar /> : <OnBoarding />
         }
       </Route>
-      <Route path="/list">
-        <ListColivers />
+      <Route path="/colivers">
+        <ColiversList />
       </Route>
     </Switch>
   )
@@ -117,7 +117,7 @@ const NavLinks = () => {
   const history = useHistory()  
 
   function handleClick() {
-    history.push("/list");
+    history.push("/colivers");
   }
   return <>
     <Nav.Link onClick={() => history.push("/")}>Ma présence</Nav.Link>
