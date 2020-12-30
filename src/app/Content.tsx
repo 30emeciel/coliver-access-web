@@ -31,6 +31,7 @@ import {
 import ColiversList from "src/Overall/ColiversList";
 import { useDocumentData } from "react-firebase-hooks/firestore";
 import db from "src/core/db";
+import PresenceList from "src/Overall/PresenceList";
 const NoUserContent = ({ isUserLoading }: { isUserLoading: boolean }) => {
   const { loginWithRedirect } = useAuth0();
 
@@ -111,6 +112,10 @@ const UserContent = () => {
       <Route exact path="/colivers/:id">
         <MyPresenceCalendarLoader />
       </Route>
+      <Route exact path="/presences">
+        <PresenceList />
+      </Route>
+
     </Switch>
   )
 
@@ -140,12 +145,10 @@ const NavLinks = () => {
 
   const history = useHistory()  
 
-  function handleClick() {
-    history.push("/colivers");
-  }
   return <>
     <Nav.Link onClick={() => history.push("/")}><FontAwesomeIcon icon={faUserClock}/> Ma présence</Nav.Link>
-    <Nav.Link onClick={handleClick}><FontAwesomeIcon icon={faUsers}/> Liste des colivers</Nav.Link>
+    <Nav.Link onClick={() => history.push("/colivers")}><FontAwesomeIcon icon={faUsers}/> Liste des colivers</Nav.Link>
+    <Nav.Link onClick={() => history.push("/presences")}><FontAwesomeIcon icon={faUsers}/> Tableau des présences</Nav.Link>
   </>
 }
 
