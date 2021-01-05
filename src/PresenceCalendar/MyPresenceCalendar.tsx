@@ -1,49 +1,33 @@
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  faBed,
+  faExclamationCircle,
+  faLaptopHouse,
+  faUserClock,
+  faUserEdit,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { DateTime } from "luxon";
+import { useContext, useEffect, useState } from "react";
+import { Alert, Col, Container } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
-import "src/core/Switch.css";
-import { DateTime, Duration, Interval } from "luxon";
-import { $enum } from "ts-enum-util";
-
-import {
-  Alert,
-  ButtonGroup,
-  Card,
-  Col,
-  Container,
-  Dropdown,
-  DropdownButton,
-  Form,
-  InputGroup,
-  Modal,
-  ToggleButton,
-} from "react-bootstrap";
-import Switch from "react-switch";
-import db from "src/core/db";
-import admin from "firebase";
-import firebase from "src/core/firebase_config";
 import { useCollectionData } from "react-firebase-hooks/firestore";
-import Spinner from "react-bootstrap/Spinner";
-import TheCalendar from "./TheCalendar";
+import db from "src/core/db";
+import "src/core/Switch.css";
+import UserContext from "src/core/userContext";
+import { User } from "src/core/useUser";
+import { $enum } from "ts-enum-util";
+import CancelationForm from "./CancelationForm";
 import ColivingForm from "./ColivingForm";
 import CoworkingForm from "./CoworkingForm";
-import EditForm from "./EditForm";
-
 import {
-  UserDayStates,
   TCalendarContext,
   TMapDays,
   TMapGlobalDays,
   TUserDay,
+  UserDayStates,
 } from "./MyPresenceCalendarTypes";
-import CancelationForm from "./CancelationForm";
-import useUser, { User } from "src/core/useUser";
-import UserContext from "src/core/userContext";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBed, faExclamationCircle, faLaptopHouse, faUserClock, faUserEdit } from "@fortawesome/free-solid-svg-icons";
-
-
-type DocumentData = firebase.firestore.DocumentData;
+import TheCalendar from "./TheCalendar";
 
 enum AppStates {
   Normal,
@@ -55,17 +39,16 @@ enum AppStates {
   CancelationForm,
 }
 
-const MyPresenceCalendar = ({user}:{user?:User}) => {
-  const {doc: currentUserData} = useContext(UserContext)
+const MyPresenceCalendar = ({ user }: { user?: User }) => {
+  const { doc: currentUserData } = useContext(UserContext);
   if (!user) {
-    user = currentUserData!
+    user = currentUserData!;
   }
 
   /******************************************************************************************************************
    * States
    *****************************************************************************************************************/
   const [isFirstTimer, setIsFirstTimer] = useState(false);
-  const [isTestNotAvailable, setTestNotAvailable] = useState(false);
   const [appState, setAppState] = useState(AppStates.Normal);
 
   const [
@@ -89,7 +72,7 @@ const MyPresenceCalendar = ({user}:{user?:User}) => {
     setGlobalDays: setGlobalDays,
 
     isLoading: listDaysLoading,
-    user: user
+    user: user,
   });
 
   useEffect(() => {
@@ -134,91 +117,6 @@ const MyPresenceCalendar = ({user}:{user?:User}) => {
     );
   };
 
-  const DevRows = () => {
-    return (
-      <>
-        <Row>
-          <h2>Dev pannel</h2>
-        </Row>
-        <Row>
-          <label>calValue = {calValue?.toDateString()}</label>
-          <Button
-            size="sm"
-            onClick={() => {
-              setCalValue(null);
-            }}
-          >
-            Reset
-          </Button>
-        </Row>
-        <Row>
-          <label>
-            <span>First timer test Meriem</span>
-            <Switch
-              className="react-switch"
-              checked={isFirstTimer}
-              onChange={(checked) => {
-                setIsFirstTimer(checked);
-                if (checked) {
-                  setAppState(AppStates.Normal);
-                }
-              }}
-            />
-          </label>
-        </Row>
-        <Row>
-          <label>
-            <span>Test Not available</span>
-            <Switch
-              className="react-switch"
-              checked={isTestNotAvailable}
-              onChange={(checked) => {
-                setTestNotAvailable(checked);
-              }}
-            />
-          </label>
-        </Row>
-        <Row>
-          {/*           <label>
-            <span>Off</span>
-            <Switch
-              disabled={isFirstTimer}
-              className="react-switch"
-              onChange={(checked) => setIsCoworkingMode(checked)}
-              checked={isCoworkingMode}
-              //              uncheckedIcon={false}
-              //              checkedIcon={false}
-              onColor="#3F7FBF"
-              //              offColor="#32CD32"
-            />
-            <span>Coworking</span>
-          </label> */}
-        </Row>
-        <Row>
-          <ButtonGroup toggle>
-            {$enum(AppStates).map((value, key, wrappedEnum, index) => (
-              <ToggleButton
-                key={index}
-                type="radio"
-                //variant="secondary"
-                name="radio"
-                value={key}
-                checked={appState === value}
-                onChange={(e) =>
-                  setAppState(
-                    $enum(AppStates).getValueOrThrow(e.currentTarget.value)
-                  )
-                }
-              >
-                {key}
-              </ToggleButton>
-            ))}
-          </ButtonGroup>
-        </Row>
-      </>
-    );
-  };
-
   const onClickDayFct = (d: Date) => {
     //if (appState === AppStates.Normal) {
     let dt = DateTime.fromJSDate(d);
@@ -235,7 +133,10 @@ const MyPresenceCalendar = ({user}:{user?:User}) => {
     <>
       <Container>
         <Row>
-          <h2><FontAwesomeIcon icon={faUserClock}/> Calendrier de présence{!(user === currentUserData) && <> de {user.name}</>}</h2>
+          <h2>
+            <FontAwesomeIcon icon={faUserClock} /> Calendrier de présence
+            {!(user === currentUserData) && <> de {user.name}</>}
+          </h2>
         </Row>
         <Row>
           <Col></Col>
@@ -285,16 +186,18 @@ const MyPresenceCalendar = ({user}:{user?:User}) => {
                         setCalValue(null);
                         setAppState(AppStates.Normal);
                       }}
-                    ><FontAwesomeIcon icon={faExclamationCircle}/> Cancel</Button>
+                    >
+                      <FontAwesomeIcon icon={faExclamationCircle} /> Cancel
+                    </Button>
                     <Button
                       className="mr-1"
                       variant="success"
                       onClick={() => setAppState(AppStates.NewCoworking)}
                     >
-                      <FontAwesomeIcon icon={faLaptopHouse}/> Coworking
+                      <FontAwesomeIcon icon={faLaptopHouse} /> Coworking
                     </Button>
                     <Button onClick={() => setAppState(AppStates.ColivingForm)}>
-                    <FontAwesomeIcon icon={faBed}/> Coliving
+                      <FontAwesomeIcon icon={faBed} /> Coliving
                     </Button>
                   </div>
                 </Alert>
@@ -310,26 +213,30 @@ const MyPresenceCalendar = ({user}:{user?:User}) => {
                 <Alert variant="info">
                   <p>What would you like to do?</p>
                   <div className="">
-                  <Button
+                    <Button
                       className="mr-1"
                       variant="danger"
                       onClick={() => {
                         setCalValue(null);
                         setAppState(AppStates.Normal);
                       }}
-                    ><FontAwesomeIcon icon={faExclamationCircle}/> Cancel
+                    >
+                      <FontAwesomeIcon icon={faExclamationCircle} /> Cancel
                     </Button>
                     <Button
                       className="mr-1"
                       variant="warning"
                       onClick={() => setAppState(AppStates.CancelationForm)}
-                    ><FontAwesomeIcon icon={faExclamationCircle}/> Annuler ma réservation...
+                    >
+                      <FontAwesomeIcon icon={faExclamationCircle} /> Annuler ma
+                      réservation...
                     </Button>
                     <Button
                       className="mr-1"
                       onClick={() => setAppState(AppStates.EditDays)}
                     >
-                      <FontAwesomeIcon icon={faUserEdit}/> Modifier ma réservation...
+                      <FontAwesomeIcon icon={faUserEdit} /> Modifier ma
+                      réservation...
                     </Button>
                   </div>
                 </Alert>
@@ -380,7 +287,6 @@ const MyPresenceCalendar = ({user}:{user?:User}) => {
           />
         )}
         {appState === AppStates.EditDays && <Alert variant="info"></Alert>}
-
       </Container>
     </>
   );

@@ -1,15 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Col } from "react-bootstrap";
 import Row from "react-bootstrap/Row";
+import Spinner from "react-bootstrap/Spinner";
 import Calendar, { CalendarTileProperties } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./Calendar.css";
-import Spinner from "react-bootstrap/Spinner";
 import { TCalendarContext } from "./MyPresenceCalendarTypes";
-import { DateTime } from "luxon";
-import { Col, Popover } from "react-bootstrap";
 
 const TheCalendar = ({
-  isRangeMode,  
+  isRangeMode,
   onChange,
   onClickDay,
   calValue,
@@ -19,27 +17,26 @@ const TheCalendar = ({
   onChange?: (d: Date | Date[]) => void;
   onClickDay?: (d: Date) => void;
   calValue?: null | Date | Date[];
-  calendarContext: TCalendarContext
+  calendarContext: TCalendarContext;
 }) => {
-  
   /******************************************************************************************************************
    * Calendar helper functions
    *****************************************************************************************************************/
 
-   const isTestNotAvailable = false
-   const isFirstTimer = false
+  const isTestNotAvailable = false;
+  const isFirstTimer = false;
 
   const pendingDaysTiles = ({
     activeStartDate,
     date,
     view,
   }: CalendarTileProperties) => {
-    let day = calendarContext.userDays.get(date.getTime())
+    let day = calendarContext.userDays.get(date.getTime());
     if (!day) {
-      return ""
+      return "";
     }
-    return `${day.kind}-${day.status}`.toLowerCase()
-  }
+    return `${day.kind}-${day.status}`.toLowerCase();
+  };
 
   const disabledTiles = ({
     activeStartDate,
@@ -67,15 +64,15 @@ const TheCalendar = ({
 
   return (
     <>
-        {calendarContext.isLoading ? (
-          <>
-            <Spinner animation="border" variant="primary" role="status">
-              <span className="sr-only"> Loading calendar...</span>
-            </Spinner>{" "}
-            <div>Loading calendar...</div>
-          </>
-        ) : (
-          <>
+      {calendarContext.isLoading ? (
+        <>
+          <Spinner animation="border" variant="primary" role="status">
+            <span className="sr-only"> Loading calendar...</span>
+          </Spinner>{" "}
+          <div>Loading calendar...</div>
+        </>
+      ) : (
+        <>
           <Calendar
             selectRange={isRangeMode}
             view="month"
@@ -92,17 +89,19 @@ const TheCalendar = ({
           <br />
           <Row>
             <Col>
-            <span className="calendar-legend-box coliving-pending_review mr-1"></span><span>Coliving Pending review</span>
-            {" "}
-            <span className="calendar-legend-box coliving-confirmed mr-1"></span><span>Coliving Confirmed</span>
-            <br />
-            <span className="calendar-legend-box coworking-pending_review mr-1"></span><span>Coworking Pending review</span>
-            {" "}
-            <span className="calendar-legend-box coworking-confirmed mr-1"></span><span>Coworking Confirmed</span>
+              <span className="calendar-legend-box coliving-pending_review mr-1"></span>
+              <span>Coliving Pending review</span>{" "}
+              <span className="calendar-legend-box coliving-confirmed mr-1"></span>
+              <span>Coliving Confirmed</span>
+              <br />
+              <span className="calendar-legend-box coworking-pending_review mr-1"></span>
+              <span>Coworking Pending review</span>{" "}
+              <span className="calendar-legend-box coworking-confirmed mr-1"></span>
+              <span>Coworking Confirmed</span>
             </Col>
           </Row>
-          </>
-        )}
+        </>
+      )}
     </>
   );
 };

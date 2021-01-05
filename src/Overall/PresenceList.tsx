@@ -1,36 +1,33 @@
 import { faUsers } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { DateTime } from "luxon"
-import { Container, Image, ListGroup, Row, Spinner } from "react-bootstrap"
-import { useCollectionData } from "react-firebase-hooks/firestore"
+import { DateTime, Duration, Interval } from "luxon"
+import { Container, Spinner } from "react-bootstrap"
+import { useCollection } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
 import db from "src/core/db"
-import { User } from "src/core/useUser"
+import firebase from "src/core/firebase_config"
 
-const WithContent = ({coliversDocs}:{coliversDocs:any[]}) => {
+
+const WithContent = ({coliversSnap}:{coliversSnap:firebase.firestore.QuerySnapshot}) => {
+  let startPeriod = DateTime.local().minus({days: 1})
+  const int = Interval.after(startPeriod, Duration.fromObject({days: 7}))
+  const row = int.splitBy({days: 1}).map((i) => i.start)
   
   const history = useHistory()
 
-  const listItems = coliversDocs?.map((coliverDoc) => {    
-    return <ListGroup.Item action onClick={() => history.push(`/colivers/${coliverDoc.sub}`)} key={coliverDoc.on}>{coliverDoc?.picture && <Image
-      width="32"
-      alt="selfie"
-      thumbnail={false}
-      roundedCircle
-      src={coliverDoc?.picture}
-    />}{" "}{coliverDoc.on && DateTime.fromMillis(coliverDoc.on?.seconds * 1000).toLocaleString()}</ListGroup.Item>
-  })
-  
-  return <ListGroup>{listItems}</ListGroup>    
+  const grouped = coliversSnap.docs.reduce<Map<string, string>>((previousValue, currentValue) => previousValue, new Map<string, string>())
+
+  return <div/>
+
 }
 
 const PresenceList = () => {
 
-  const [coliversDocs, coliversDocLoading, coliverDocsError] = useCollectionData(db.collectionGroup("days").orderBy("on", "asc"))
+  const [coliversDocs, coliversDocLoading, coliverDocsError] = useCollection(db.collectionGroup("days").orderBy("on", "asc"))
   
   return <Container>
       <h2><FontAwesomeIcon icon={faUsers}/> Répertoire</h2>
-      {!coliversDocs ? <Spinner animation="border"/>: <WithContent coliversDocs={coliversDocs}/>}
+      {!coliversDocs ? <Spinner animation="border"/>: <WithContent coliversSnap={coliversDocs}/>}
       </Container>  
   
 }
