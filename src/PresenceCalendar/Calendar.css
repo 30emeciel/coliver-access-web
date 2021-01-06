@@ -10,17 +10,11 @@
 
 .coliving-pending_review,
 .coliving-pending_review:enabled:focus {
-  background: repeating-linear-gradient(
-    45deg,
-    #606dbc,
-    #606dbc 10px,
-    #b9c2ff 10px,
-    #b9c2ff 20px
-  );
+  background: repeating-linear-gradient(45deg, #606dbc, #606dbc 10px, #b9c2ff 10px, #b9c2ff 20px);
 }
 
 .coliving-pending_review:enabled:hover {
-    background: #e6e6e6;
+  background: #e6e6e6;
 }
 
 .coliving-confirmed {
@@ -29,17 +23,11 @@
 
 .coworking-pending_review,
 .coworking-pending_review:enabled:focus {
-    background: repeating-linear-gradient(
-        45deg,
-        #6dbc6d,
-        #6dbc6d 10px,
-        #46984a 10px,
-        #46984a 20px
-      );
+  background: repeating-linear-gradient(45deg, #6dbc6d, #6dbc6d 10px, #46984a 10px, #46984a 20px);
 }
 
 .coworking-pending_review:enabled:hover {
-    background: #e6e6e6
+  background: #e6e6e6;
 }
 
 .coworking-confirmed {
@@ -47,7 +35,7 @@
 }
 
 .calendar-legend-box {
-    padding: 0px 10px 0px 10px;
+  padding: 0px 10px 0px 10px;
 }
 
 .react-calendar-container {

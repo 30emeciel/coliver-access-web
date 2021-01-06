@@ -1,33 +1,21 @@
-import {
-  faBed,
-  faExclamationCircle,
-  faLaptopHouse,
-  faUserClock,
-  faUserEdit,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { DateTime } from "luxon";
-import { useContext, useEffect, useState } from "react";
-import { Alert, Col, Container } from "react-bootstrap";
-import Button from "react-bootstrap/Button";
-import Row from "react-bootstrap/Row";
-import { useCollectionData } from "react-firebase-hooks/firestore";
-import db from "src/core/db";
-import "src/core/Switch.css";
-import UserContext from "src/core/userContext";
-import { User } from "src/core/useUser";
-import { $enum } from "ts-enum-util";
-import CancelationForm from "./CancelationForm";
-import ColivingForm from "./ColivingForm";
-import CoworkingForm from "./CoworkingForm";
-import {
-  TCalendarContext,
-  TMapDays,
-  TMapGlobalDays,
-  TUserDay,
-  UserDayStates,
-} from "./MyPresenceCalendarTypes";
-import TheCalendar from "./TheCalendar";
+import { faBed, faExclamationCircle, faLaptopHouse, faUserClock, faUserEdit } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { DateTime } from "luxon"
+import { useContext, useEffect, useState } from "react"
+import { Alert, Col, Container } from "react-bootstrap"
+import Button from "react-bootstrap/Button"
+import Row from "react-bootstrap/Row"
+import { useCollectionData } from "react-firebase-hooks/firestore"
+import db from "src/core/db"
+import "src/core/Switch.css"
+import UserContext from "src/core/userContext"
+import { User } from "src/core/useUser"
+import { $enum } from "ts-enum-util"
+import CancelationForm from "./CancelationForm"
+import ColivingForm from "./ColivingForm"
+import CoworkingForm from "./CoworkingForm"
+import { TCalendarContext, TMapDays, TMapGlobalDays, TUserDay, UserDayStates } from "./MyPresenceCalendarTypes"
+import TheCalendar from "./TheCalendar"
 
 enum AppStates {
   Normal,
@@ -40,29 +28,25 @@ enum AppStates {
 }
 
 const MyPresenceCalendar = ({ user }: { user?: User }) => {
-  const { doc: currentUserData } = useContext(UserContext);
+  const { doc: currentUserData } = useContext(UserContext)
   if (!user) {
-    user = currentUserData!;
+    user = currentUserData!
   }
 
   /******************************************************************************************************************
    * States
    *****************************************************************************************************************/
-  const [isFirstTimer, setIsFirstTimer] = useState(false);
-  const [appState, setAppState] = useState(AppStates.Normal);
+  const [isFirstTimer, setIsFirstTimer] = useState(false)
+  const [appState, setAppState] = useState(AppStates.Normal)
 
-  const [
-    listDays,
-    listDaysLoading,
-    listDaysError,
-  ] = useCollectionData<TUserDay>(
+  const [listDays, listDaysLoading, listDaysError] = useCollectionData<TUserDay>(
     db.collection(`users/${user.sub}/days`).orderBy("on", "asc")
-  );
+  )
 
-  const [userDays, setUserDays] = useState<TMapDays>(new Map());
-  const [globalDays, setGlobalDays] = useState<TMapGlobalDays>(new Map());
+  const [userDays, setUserDays] = useState<TMapDays>(new Map())
+  const [globalDays, setGlobalDays] = useState<TMapGlobalDays>(new Map())
 
-  const [calValue, setCalValue] = useState<Date | null>(null);
+  const [calValue, setCalValue] = useState<Date | null>(null)
 
   const calendarContext = new TCalendarContext({
     userDays: userDays,
@@ -73,30 +57,30 @@ const MyPresenceCalendar = ({ user }: { user?: User }) => {
 
     isLoading: listDaysLoading,
     user: user,
-  });
+  })
 
   useEffect(() => {
     if (!listDays) {
-      return;
+      return
     }
 
-    console.log("Refreshing calendar days...");
+    console.log("Refreshing calendar days...")
     const mapDays = new Map(
       listDays
         //      .filter((day) => day.status === "PENDING_REVIEW")
         .map((day) => {
           // TODO: #1 DateTime should be TZ insensitive
-          let d = DateTime.fromMillis(day.on.seconds * 1000);
-          let status = $enum(UserDayStates).asValueOrThrow(day.status);
+          let d = DateTime.fromMillis(day.on.seconds * 1000)
+          let status = $enum(UserDayStates).asValueOrThrow(day.status)
           let ud = {
             kind: day.kind,
             status: status,
-          };
-          return [d.toMillis(), ud] as [number, TUserDay];
+          }
+          return [d.toMillis(), ud] as [number, TUserDay]
         })
-    );
-    setUserDays(mapDays);
-  }, [listDays, setUserDays]);
+    )
+    setUserDays(mapDays)
+  }, [listDays, setUserDays])
 
   /******************************************************************************************************************
    * Functions
@@ -110,24 +94,23 @@ const MyPresenceCalendar = ({ user }: { user?: User }) => {
     return (
       <Row>
         <Alert variant="warning">
-          You are a new! Welcome 👋😀. For ease of integration, you recommand
-          you to book a Coworking day on any Monday.
+          You are a new! Welcome 👋😀. For ease of integration, you recommand you to book a Coworking day on any Monday.
         </Alert>
       </Row>
-    );
-  };
+    )
+  }
 
   const onClickDayFct = (d: Date) => {
     //if (appState === AppStates.Normal) {
-    let dt = DateTime.fromJSDate(d);
-    setCalValue(d);
+    let dt = DateTime.fromJSDate(d)
+    setCalValue(d)
     if (calendarContext.userDays.has(dt.toMillis())) {
-      setAppState(AppStates.ShowOccupiedForm);
+      setAppState(AppStates.ShowOccupiedForm)
     } else {
-      setAppState(AppStates.ShowEmptyForm);
+      setAppState(AppStates.ShowEmptyForm)
     }
     //}
-  };
+  }
 
   return (
     <>
@@ -144,22 +127,16 @@ const MyPresenceCalendar = ({ user }: { user?: User }) => {
         <br />
         <Row>
           <Alert variant="info">
-            Click on a day you would like to book. Your request will be reviewed
-            by the <strong>Participante role</strong> and you will received an
-            email with the decision.
+            Click on a day you would like to book. Your request will be reviewed by the{" "}
+            <strong>Participante role</strong> and you will received an email with the decision.
             <br />
-            Some days may not be available if the gender equity is not reached
-            or there is not anymore spot available.
+            Some days may not be available if the gender equity is not reached or there is not anymore spot available.
           </Alert>
         </Row>
         {isFirstTimer && <FirstTimerIntro />}
 
         <br />
-        {new Set([
-          AppStates.Normal,
-          AppStates.ShowEmptyForm,
-          AppStates.ShowOccupiedForm,
-        ]).has(appState) && (
+        {new Set([AppStates.Normal, AppStates.ShowEmptyForm, AppStates.ShowOccupiedForm]).has(appState) && (
           <Row>
             <Col>
               <TheCalendar
@@ -183,17 +160,13 @@ const MyPresenceCalendar = ({ user }: { user?: User }) => {
                       className="mr-1"
                       variant="danger"
                       onClick={() => {
-                        setCalValue(null);
-                        setAppState(AppStates.Normal);
+                        setCalValue(null)
+                        setAppState(AppStates.Normal)
                       }}
                     >
                       <FontAwesomeIcon icon={faExclamationCircle} /> Cancel
                     </Button>
-                    <Button
-                      className="mr-1"
-                      variant="success"
-                      onClick={() => setAppState(AppStates.NewCoworking)}
-                    >
+                    <Button className="mr-1" variant="success" onClick={() => setAppState(AppStates.NewCoworking)}>
                       <FontAwesomeIcon icon={faLaptopHouse} /> Coworking
                     </Button>
                     <Button onClick={() => setAppState(AppStates.ColivingForm)}>
@@ -217,26 +190,17 @@ const MyPresenceCalendar = ({ user }: { user?: User }) => {
                       className="mr-1"
                       variant="danger"
                       onClick={() => {
-                        setCalValue(null);
-                        setAppState(AppStates.Normal);
+                        setCalValue(null)
+                        setAppState(AppStates.Normal)
                       }}
                     >
                       <FontAwesomeIcon icon={faExclamationCircle} /> Cancel
                     </Button>
-                    <Button
-                      className="mr-1"
-                      variant="warning"
-                      onClick={() => setAppState(AppStates.CancelationForm)}
-                    >
-                      <FontAwesomeIcon icon={faExclamationCircle} /> Annuler ma
-                      réservation...
+                    <Button className="mr-1" variant="warning" onClick={() => setAppState(AppStates.CancelationForm)}>
+                      <FontAwesomeIcon icon={faExclamationCircle} /> Annuler ma réservation...
                     </Button>
-                    <Button
-                      className="mr-1"
-                      onClick={() => setAppState(AppStates.EditDays)}
-                    >
-                      <FontAwesomeIcon icon={faUserEdit} /> Modifier ma
-                      réservation...
+                    <Button className="mr-1" onClick={() => setAppState(AppStates.EditDays)}>
+                      <FontAwesomeIcon icon={faUserEdit} /> Modifier ma réservation...
                     </Button>
                   </div>
                 </Alert>
@@ -250,11 +214,11 @@ const MyPresenceCalendar = ({ user }: { user?: User }) => {
             calendarContext={calendarContext}
             calValue={calValue as Date}
             onSubmit={() => {
-              setCalValue(null);
-              setAppState(AppStates.Normal);
+              setCalValue(null)
+              setAppState(AppStates.Normal)
             }}
             onCancel={() => {
-              setAppState(AppStates.ShowOccupiedForm);
+              setAppState(AppStates.ShowOccupiedForm)
             }}
           />
         )}
@@ -264,11 +228,11 @@ const MyPresenceCalendar = ({ user }: { user?: User }) => {
             calendarContext={calendarContext}
             firstCalValue={calValue}
             onSubmit={() => {
-              setCalValue(null);
-              setAppState(AppStates.Normal);
+              setCalValue(null)
+              setAppState(AppStates.Normal)
             }}
             onCancel={() => {
-              setAppState(AppStates.ShowEmptyForm);
+              setAppState(AppStates.ShowEmptyForm)
             }}
           />
         )}
@@ -278,18 +242,18 @@ const MyPresenceCalendar = ({ user }: { user?: User }) => {
             calendarContext={calendarContext}
             firstCalValue={calValue!}
             onSubmit={() => {
-              setCalValue(null);
-              setAppState(AppStates.Normal);
+              setCalValue(null)
+              setAppState(AppStates.Normal)
             }}
             onCancel={() => {
-              setAppState(AppStates.ShowEmptyForm);
+              setAppState(AppStates.ShowEmptyForm)
             }}
           />
         )}
         {appState === AppStates.EditDays && <Alert variant="info"></Alert>}
       </Container>
     </>
-  );
-};
+  )
+}
 
-export default MyPresenceCalendar;
+export default MyPresenceCalendar

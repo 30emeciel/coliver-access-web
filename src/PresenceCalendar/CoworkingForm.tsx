@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import Button from "react-bootstrap/Button";
-import Row from "react-bootstrap/Row";
-import "src/core/Switch.css";
-import { DateTime, Duration, Interval } from "luxon";
-import { $enum } from "ts-enum-util";
+import React, { useCallback, useEffect, useMemo, useState } from "react"
+import Button from "react-bootstrap/Button"
+import Row from "react-bootstrap/Row"
+import "src/core/Switch.css"
+import { DateTime, Duration, Interval } from "luxon"
+import { $enum } from "ts-enum-util"
 
 import {
   Alert,
@@ -15,20 +15,20 @@ import {
   DropdownButton,
   Modal,
   ToggleButton,
-} from "react-bootstrap";
-import Switch from "react-switch";
-import db from "src/core/db";
-import admin from "firebase";
-import firebase from "src/core/firebase_config";
-import { useCollectionData } from "react-firebase-hooks/firestore";
-import Spinner from "react-bootstrap/Spinner";
-import TheCalendar from "./TheCalendar";
-import { TCalendarContext } from "./MyPresenceCalendarTypes";
-import LoadingButton from "src/core/LoadingButton";
-import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+} from "react-bootstrap"
+import Switch from "react-switch"
+import db from "src/core/db"
+import admin from "firebase"
+import firebase from "src/core/firebase_config"
+import { useCollectionData } from "react-firebase-hooks/firestore"
+import Spinner from "react-bootstrap/Spinner"
+import TheCalendar from "./TheCalendar"
+import { TCalendarContext } from "./MyPresenceCalendarTypes"
+import LoadingButton from "src/core/LoadingButton"
+import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
-type DocumentData = firebase.firestore.DocumentData;
+type DocumentData = firebase.firestore.DocumentData
 
 const CoworkingForm = ({
   calendarContext,
@@ -36,45 +36,40 @@ const CoworkingForm = ({
   onSubmit,
   onCancel,
 }: {
-  calendarContext: TCalendarContext;
-  firstCalValue: Date;
-  onSubmit: () => void;
-  onCancel: () => void;
+  calendarContext: TCalendarContext
+  firstCalValue: Date
+  onSubmit: () => void
+  onCancel: () => void
 }) => {
   const currentUser = calendarContext.user
 
-  const [isFormSubmitting, setIsFormSubmitting] = useState(false);
-  const [calValue, setCalValue] = useState<Date>(firstCalValue);
+  const [isFormSubmitting, setIsFormSubmitting] = useState(false)
+  const [calValue, setCalValue] = useState<Date>(firstCalValue)
 
   const submitForm = async () => {
     if (!calValue) {
-      return;
+      return
     }
-    setIsFormSubmitting(true);
-    const start = DateTime.fromJSDate(calValue);
+    setIsFormSubmitting(true)
+    const start = DateTime.fromJSDate(calValue)
 
     // Submit the list of days to firestore
-    const FieldValue = admin.firestore.FieldValue;
+    const FieldValue = admin.firestore.FieldValue
 
     const request_data = {
       created: FieldValue.serverTimestamp(),
       status: "PENDING_REVIEW",
-    };
-    const request_doc = await db
-      .collection(`users/${currentUser.sub}/requests`)
-      .add(request_data);
-    await db
-      .collection(`users/${currentUser.sub}/days`)
-      .doc(start.toISODate())
-      .set({
-        on: start.toJSDate(),
-        request: request_doc,
-        status: "PENDING_REVIEW",
-        kind: "COWORKING",
-      });
+    }
+    const request_doc = await db.collection(`users/${currentUser.sub}/requests`).add(request_data)
+    await db.collection(`users/${currentUser.sub}/days`).doc(start.toISODate()).set({
+      on: start.toJSDate(),
+      request: request_doc,
+      status: "PENDING_REVIEW",
+      kind: "COWORKING",
+    })
 
     onSubmit()
-  };
+  }
 
   return (
     <>
@@ -86,7 +81,7 @@ const CoworkingForm = ({
             calValue={calValue}
             onChange={(d) => {
               if (d instanceof Date) {
-                setCalValue(d);
+                setCalValue(d)
               }
             }}
           />
@@ -97,26 +92,21 @@ const CoworkingForm = ({
         <Col>
           <Alert variant="info">
             <p>
-              You would like to cowork with us on{" "}
-              {DateTime.fromJSDate(calValue).toLocaleString(DateTime.DATE_FULL)}
+              You would like to cowork with us on {DateTime.fromJSDate(calValue).toLocaleString(DateTime.DATE_FULL)}
             </p>
             <p className="mb-0">
-            <Button variant="danger" onClick={onCancel}>
-            <FontAwesomeIcon icon={faExclamationCircle}/> Cancel
-            </Button>{" "}
-            <LoadingButton
-              disabled={!calValue}
-              variant="primary"
-              onClick={submitForm}
-              isLoading={isFormSubmitting}
-            ><FontAwesomeIcon icon={faCheckCircle}/> Submit
-            </LoadingButton>
+              <Button variant="danger" onClick={onCancel}>
+                <FontAwesomeIcon icon={faExclamationCircle} /> Cancel
+              </Button>{" "}
+              <LoadingButton disabled={!calValue} variant="primary" onClick={submitForm} isLoading={isFormSubmitting}>
+                <FontAwesomeIcon icon={faCheckCircle} /> Submit
+              </LoadingButton>
             </p>
           </Alert>
         </Col>
       </Row>
     </>
-  );
-};
+  )
+}
 
-export default CoworkingForm;
+export default CoworkingForm
