@@ -48,23 +48,6 @@ const CognitoFormSeamless = ({ entry, onSubmit }: { entry: any; onSubmit: () => 
   return <div ref={ref} className="cognito"></div>
 }
 
-const CognitoFormIframe = ({ entry }: { entry: any }) => {
-  useEffect(() => {
-    Cognito.prefill(entry)
-  })
-
-  return (
-    <iframe
-      title="Formulaire d'inscription"
-      src="https://www.cognitoforms.com/f/4kbxQ9QOqUC84JAu8PU9xA?id=9"
-      frameBorder="0"
-      scrolling="yes"
-      seamless={true}
-      height="3363"
-      width="100%"
-    />
-  )
-}
 const OnBoarding = () => {
   const uc = useContext(UserContext)
 
@@ -104,7 +87,7 @@ const OnBoarding = () => {
           <Col>
             {!uc.doc!.state && (
               <>
-                <h2>Inscription</h2>
+                <h3>Inscription</h3>
                 <p>
                   Avant de venir, <FontAwesomeIcon icon={faCoffee} /> j'ai besoin d'en savoir un peu plus sur toi.
                   Est-ce que tu peux remplir ce formulaire ? Le rôle <strong>Participante</strong> va revenir vers toi
@@ -115,7 +98,7 @@ const OnBoarding = () => {
             )}
             {uc.doc!.state === UserStates.Registered && (
               <>
-                <h2>Confirmation</h2>
+                <h3>Confirmation</h3>
                 <p>
                   Attends que le rôle <strong>Participante</strong> confirme ton inscription.
                 </p>
