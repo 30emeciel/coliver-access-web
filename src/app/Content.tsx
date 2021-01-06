@@ -1,5 +1,6 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import {
+  faCalendarCheck,
   faSignInAlt,
   faSignOutAlt,
   faUserClock,
@@ -155,7 +156,7 @@ const NavLinks = () => {
         <FontAwesomeIcon icon={faUsers} /> Liste des colivers
       </Nav.Link>
       <Nav.Link onClick={() => history.push("/presences")}>
-        <FontAwesomeIcon icon={faUsers} /> Tableau des présences
+        <FontAwesomeIcon icon={faCalendarCheck} /> Tableau des présences
       </Nav.Link>
     </>
   );
