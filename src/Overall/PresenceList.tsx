@@ -1,25 +1,21 @@
-import {
-  faBed,
-  faCalendar,
-  faCalendarCheck,
-  faCheck,
-  faUsers,
-  faUsersCog,
-  faUsersSlash,
-} from "@fortawesome/free-solid-svg-icons"
+import { faBed, faCalendarCheck } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import loglevel from "loglevel"
 import { DateTime, Duration, Interval } from "luxon"
-import { Col, Container, Dropdown, Form, Image, Spinner, Table } from "react-bootstrap"
-import { useCollection, useCollectionData, useDocumentData } from "react-firebase-hooks/firestore"
+import { useState } from "react"
+import { Col, Container, Form, Image, Spinner, Table } from "react-bootstrap"
+import { useCollection, useDocumentData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
 import db from "src/core/db"
 import firebase from "src/core/firebase_config"
-import loglevel from "loglevel"
 import { User } from "src/core/useUser"
-
-import "react-datepicker/dist/react-datepicker.css"
-import DatePicker from "react-datepicker"
-import { createElement, forwardRef, useState } from "react"
+import DateRangePicker from "react-bootstrap-daterangepicker"
+// you will need the css that comes with bootstrap@3. if you are using
+// a tool like webpack, you can do the following:
+import "bootstrap/dist/css/bootstrap.css"
+// you will also need the css that comes with bootstrap-daterangepicker
+import "bootstrap-daterangepicker/daterangepicker.css"
+import moment, { Moment } from "moment"
 
 const log = loglevel.getLogger("PresenceList")
 
@@ -40,17 +36,20 @@ const UserField = ({ coliverId }: { coliverId: string }) => {
     return <Spinner animation="border" />
   }
 }
+
+const zeroTime = (d:DateTime) => d.set({hour: 0, minute: 0, second: 0, millisecond: 0})
+
 const WithContent = ({
-  startPeriod,
-  periodLength,
+  period,
   coliversSnap,
 }: {
-  startPeriod: DateTime
-  periodLength: number
+  period: [DateTime, DateTime]
   coliversSnap: firebase.firestore.QuerySnapshot
 }) => {
-  const int = Interval.after(startPeriod, Duration.fromObject({ days: periodLength }))
+  log.debug(`period[0]=${period[0]} period[1]=${period[1]}`)
+  const int = Interval.fromDateTimes(period[0], period[1])
   const row = int.splitBy({ days: 1 }).map((i) => i.start.toMillis())
+  const periodLength = row.length
 
   const history = useHistory()
 
@@ -59,7 +58,7 @@ const WithContent = ({
       const userId = daySnap.ref.parent!.parent!.id
       const data = daySnap.data()
       if (data.status !== "CONFIRMED") {
-        return
+        //return
       }
       const dt = DateTime.fromMillis(data.on.seconds * 1000).toMillis()
       let barr = previousValue.get(userId)
@@ -115,17 +114,13 @@ const PresenceList = () => {
   const [coliversDocs, coliversDocLoading, coliverDocsError] = useCollection(
     db.collectionGroup("days").orderBy("on", "asc")
   )
-  const [startPeriod, setStartPeriod] = useState(
-    DateTime.local().set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-  )
-  const [periodLength, setPeriodLength] = useState(14)
+  const [period, setPeriod] = useState<[DateTime, DateTime]>([DateTime.local().startOf("month"), DateTime.local().endOf("month")])
 
-  const customInput = forwardRef(({ value, onClick }: { value: any; onClick: any }, ref) => (
-    <Form.Group ref={ref} as={Col} controlId="formGridEmail">
-      <Form.Label>Début de la période</Form.Label>
-      <Form.Control onChange={() => {}} onClick={onClick} value={value} />
-    </Form.Group>
-  ))
+  const handleCallback = (start: Moment, end: Moment, label: String | undefined) => {
+    log.debug(`start ${start} end: ${end} label: ${label}`)
+    setPeriod([DateTime.fromJSDate(start.toDate()), DateTime.fromJSDate(end.toDate())])
+    //setEndPeriod(end)
+  }
 
   return (
     <Container fluid>
@@ -134,35 +129,64 @@ const PresenceList = () => {
       </h2>
       <Container>
         <Form>
-          <Form.Row>
-            <DatePicker
-              selected={startPeriod.toJSDate()}
-              onChange={(d) => setStartPeriod(DateTime.fromJSDate(d as Date))}
-              customInput={createElement(customInput)}
-            />
-
-            <Form.Group as={Col} controlId="formGridState">
-              <Form.Label>Durée de la période</Form.Label>
-              <Form.Control
-                as="select"
-                value={periodLength}
-                onChange={(event) => {
-                  setPeriodLength(Number(event.target.value))
-                }}
-              >
-                <option value={7}>1 semaine</option>
-                <option value={7 * 2}>2 semaines</option>
-                <option value={7 * 4}>4 semaines</option>
-                <option value={7 * 6}>6 semaines</option>
-              </Form.Control>
-            </Form.Group>
-          </Form.Row>
+          <Form.Group controlId="exampleForm.ControlInput1">
+            <Form.Label>Période</Form.Label>
+            <DateRangePicker
+              onCallback={handleCallback}
+              initialSettings={{
+                autoApply: false,
+                alwaysShowCalendars: true,
+                ranges: {
+                  "Les 7 derniers jours": [moment().subtract(6, "days"), moment()],
+                  "Les 30 derniers jours": [moment().subtract(29, "days"), moment()],
+                  "Ce mois-ci": [moment().startOf("month"), moment().endOf("month")],
+                  "Le mois dernier": [
+                    moment().subtract(1, "month").startOf("month"),
+                    moment().subtract(1, "month").endOf("month"),
+                  ],
+                },
+                locale: {
+                  format: "DD/MM/YYYY",
+                  separator: " - ",
+                  applyLabel: "Appliquer",
+                  cancelLabel: "Annuler",
+                  fromLabel: "De",
+                  toLabel: "A",
+                  customRangeLabel: "Autre",
+                  weekLabel: "S",
+                  daysOfWeek: ["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"],
+                  monthNames: [
+                    "Janvier",
+                    "Fevrier",
+                    "Mars",
+                    "Avril",
+                    "Mai",
+                    "Juin",
+                    "Juillet",
+                    "Août",
+                    "Septembre",
+                    "Octobre",
+                    "Novembre",
+                    "Décembre",
+                  ],
+                  firstDay: 1,
+                },
+                startDate: period[0].toJSDate(),
+                endDate: period[1].toJSDate(),
+              }}
+            >
+              <input type="text" className="form-control" />
+            </DateRangePicker>
+          </Form.Group>
         </Form>
       </Container>
       {!coliversDocs ? (
         <Spinner animation="border" />
       ) : (
-        <WithContent startPeriod={startPeriod} periodLength={periodLength} coliversSnap={coliversDocs} />
+        <WithContent
+          period={period}
+          coliversSnap={coliversDocs}
+        />
       )}
     </Container>
   )
