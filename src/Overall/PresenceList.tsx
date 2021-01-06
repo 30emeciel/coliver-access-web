@@ -1,4 +1,4 @@
-import { faBed, faCalendarCheck } from "@fortawesome/free-solid-svg-icons"
+import { faBed, faBriefcase, faCalendarCheck } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import loglevel from "loglevel"
 import { DateTime, Duration, Interval } from "luxon"
@@ -16,6 +16,8 @@ import "bootstrap/dist/css/bootstrap.css"
 // you will also need the css that comes with bootstrap-daterangepicker
 import "bootstrap-daterangepicker/daterangepicker.css"
 import moment, { Moment } from "moment"
+import { $enum } from "ts-enum-util"
+import { ReservationKinds } from "src/PresenceCalendar/MyPresenceCalendarTypes"
 
 const log = loglevel.getLogger("PresenceList")
 
@@ -37,7 +39,6 @@ const UserField = ({ coliverId }: { coliverId: string }) => {
   }
 }
 
-const zeroTime = (d:DateTime) => d.set({hour: 0, minute: 0, second: 0, millisecond: 0})
 
 const WithContent = ({
   period,
@@ -53,7 +54,7 @@ const WithContent = ({
 
   const history = useHistory()
 
-  const grouped = coliversSnap.docs.reduce<Map<string, boolean[]>>((previousValue, daySnap) => {
+  const grouped = coliversSnap.docs.reduce<Map<string, (ReservationKinds|null)[]>>((previousValue, daySnap) => {
     ;(() => {
       const userId = daySnap.ref.parent!.parent!.id
       const data = daySnap.data()
@@ -62,22 +63,22 @@ const WithContent = ({
       }
       const dt = DateTime.fromMillis(data.on.seconds * 1000).toMillis()
       let barr = previousValue.get(userId)
-      const t = row.indexOf(dt)
-      if (t === -1) {
+      const index = row.indexOf(dt)
+      if (index === -1) {
         return
       }
       if (!barr) {
-        barr = new Array<boolean>(periodLength).fill(false)
+        barr = new Array<ReservationKinds|null>(periodLength).fill(null)
         previousValue.set(userId, barr)
       }
 
-      barr[t] = true
+      barr[index] = $enum(ReservationKinds).asValueOrThrow(data.kind)
     })()
     return previousValue
   }, new Map())
 
   const trList = Array.from(grouped.entries()).map(([userId, barr]) => {
-    const tdList = barr.map((i, index) => <td key={`${userId}${index}`}>{i && <FontAwesomeIcon icon={faBed} />}</td>)
+    const tdList = barr.map((i, index) => <td key={`${userId}${index}`}>{i && <FontAwesomeIcon icon={i === ReservationKinds.Coliving ? faBed : faBriefcase} />}</td>)
     return (
       <tr key={userId}>
         <td>
