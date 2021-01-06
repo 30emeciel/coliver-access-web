@@ -1,4 +1,4 @@
-import { faBed, faBriefcase, faCalendarCheck } from "@fortawesome/free-solid-svg-icons"
+import { faBed, faBriefcase, faCalendarCheck, IconDefinition } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import loglevel from "loglevel"
 import { DateTime, Duration, Interval } from "luxon"
@@ -77,8 +77,14 @@ const WithContent = ({
     return previousValue
   }, new Map())
 
+  const tdFct = (i:any) => {
+    if (!i) return <></>
+    const r:[string, IconDefinition] = i === ReservationKinds.Coliving ? ['#606dbc', faBed] : ['#6dbc6d', faBriefcase]
+    return <FontAwesomeIcon style={{color: r[0]}} icon={r[1]} />
+  }
+
   const trList = Array.from(grouped.entries()).map(([userId, barr]) => {
-    const tdList = barr.map((i, index) => <td key={`${userId}${index}`}>{i && <FontAwesomeIcon icon={i === ReservationKinds.Coliving ? faBed : faBriefcase} />}</td>)
+    const tdList = barr.map((i, index) => <td key={`${userId}${index}`}>{tdFct(i)}</td>)
     return (
       <tr key={userId}>
         <td>

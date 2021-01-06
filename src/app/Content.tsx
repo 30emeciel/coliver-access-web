@@ -1,8 +1,10 @@
 import { useAuth0 } from "@auth0/auth0-react"
 import {
   faCalendarCheck,
+  faEye,
   faSignInAlt,
   faSignOutAlt,
+  faSuperscript,
   faUserClock,
   faUserPlus,
   faUsers,
@@ -134,12 +136,14 @@ const NavLinks = () => {
       <Nav.Link onClick={() => history.push("/")}>
         <FontAwesomeIcon icon={faUserClock} /> Ma présence
       </Nav.Link>
-      <Nav.Link onClick={() => history.push("/colivers")}>
-        <FontAwesomeIcon icon={faUsers} /> Liste des colivers
-      </Nav.Link>
-      <Nav.Link onClick={() => history.push("/presences")}>
-        <FontAwesomeIcon icon={faCalendarCheck} /> Tableau des présences
-      </Nav.Link>
+      <NavDropdown title={<><FontAwesomeIcon icon={faEye}/>{" "}<span>Supervisaire</span></>} id="basic-nav-dropdown">
+        <NavDropdown.Item onClick={() => history.push("/colivers")}>
+          <FontAwesomeIcon icon={faUsers} /> Liste des colivers
+        </NavDropdown.Item>
+        <NavDropdown.Item onClick={() => history.push("/presences")}>
+          <FontAwesomeIcon icon={faCalendarCheck} /> Tableau des présences
+        </NavDropdown.Item>
+      </NavDropdown>
     </>
   )
 }
