@@ -34,7 +34,6 @@ const Account = ({ paxId }: { paxId?: string }) => {
                   className="mr-2"
                   type="radio"
                   variant={paxDoc.state === value ? "success" : "secondary"}
-                  name="radio"
                   value={key}
                   checked={paxDoc.state === value}
                   onChange={(e) =>
@@ -44,6 +43,32 @@ const Account = ({ paxId }: { paxId?: string }) => {
                   }
                 >
                   {key}
+                </ToggleButton>
+              ))}
+            </ButtonGroup>
+          </div>
+        </Form.Group>
+        <Form.Group controlId="exampleForm.ControlSelect3">
+          <Form.Label>Supervisaire ?</Form.Label>
+          <div className="mb-3">
+            <ButtonGroup toggle>
+              {[true, false].map((value, index) => (
+                <ToggleButton
+                  key={index}
+                  className="mr-2"
+                  type="radio"
+                  variant={!!paxDoc.isSupervisor === value ? "success" : "secondary"}
+                  value={value}
+                  checked={!!paxDoc.isSupervisor === value}
+                  onChange={(e) => {
+                    const d = {
+                      isSupervisor: value,
+                    }
+                    paxDocRef.update(d)
+                  }
+                  }
+                >
+                  {value ? "Oui" : "Non"}
                 </ToggleButton>
               ))}
             </ButtonGroup>

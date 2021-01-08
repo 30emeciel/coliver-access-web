@@ -33,7 +33,7 @@ import cassé from "./cassé.jpg"
 import Account from "src/Account/Account"
 
 const NoUserContent = ({ isUserLoading }: { isUserLoading: boolean }) => {
-  const { loginWithRedirect } = useAuth0()
+  const { loginWithRedirect, isLoading } = useAuth0()
 
   return (
     <Container>
@@ -49,13 +49,13 @@ const NoUserContent = ({ isUserLoading }: { isUserLoading: boolean }) => {
         ) : (
           <>
             <Row className="justify-content-md-center" lg={2}>
-              <LoadingButton variant="success" isLoading={false} onClick={() => loginWithRedirect(/*auth0_options*/)}>
+              <LoadingButton variant="success" isLoading={isLoading} onClick={() => loginWithRedirect(/*auth0_options*/)}>
                 <FontAwesomeIcon icon={faSignInAlt} /> Me connecter avec mon compte PaxID
               </LoadingButton>
             </Row>
             <br />
             <Row className="justify-content-md-center" lg={2}>
-              <LoadingButton isLoading={false}>
+              <LoadingButton isLoading={isLoading} onClick={() => loginWithRedirect(/*auth0_options*/)}>
                 <FontAwesomeIcon icon={faUserPlus} /> Je suis nouveau, je veux créer mon compte PaxID
               </LoadingButton>
             </Row>
@@ -137,22 +137,38 @@ const ErrorFallback = ({ error }: { error: Error }) => {
   )
 }
 
+const SupervisorLinks = () => {
+  const history = useHistory()
+
+  return (
+    <NavDropdown
+      title={
+        <>
+          <FontAwesomeIcon icon={faEye} /> <span>Supervisaire</span>
+        </>
+      }
+      id="basic-nav-dropdown"
+    >
+      <NavDropdown.Item onClick={() => history.push("/pax")}>
+        <FontAwesomeIcon icon={faUsers} /> Répertoire des pax
+      </NavDropdown.Item>
+      <NavDropdown.Item onClick={() => history.push("/presences")}>
+        <FontAwesomeIcon icon={faCalendarCheck} /> Tableau des présences
+      </NavDropdown.Item>
+    </NavDropdown>
+  )
+}
+
 const NavLinks = () => {
   const history = useHistory()
+  const paxContext = useContext(PaxContext)
 
   return (
     <>
       <Nav.Link onClick={() => history.push("/")}>
         <FontAwesomeIcon icon={faUserClock} /> Ma présence
       </Nav.Link>
-      <NavDropdown title={<><FontAwesomeIcon icon={faEye}/>{" "}<span>Supervisaire</span></>} id="basic-nav-dropdown">
-        <NavDropdown.Item onClick={() => history.push("/pax")}>
-          <FontAwesomeIcon icon={faUsers} /> Répertoire des pax
-        </NavDropdown.Item>
-        <NavDropdown.Item onClick={() => history.push("/presences")}>
-          <FontAwesomeIcon icon={faCalendarCheck} /> Tableau des présences
-        </NavDropdown.Item>
-      </NavDropdown>
+      {paxContext.doc?.isSupervisor && <SupervisorLinks />}
     </>
   )
 }

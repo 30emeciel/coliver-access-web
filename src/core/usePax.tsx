@@ -21,6 +21,7 @@ export interface Pax {
   name: string
   state?: PaxStates
   picture?: string
+  isSupervisor?: boolean
 }
 
 const log = loglevel.getLogger("useUser")

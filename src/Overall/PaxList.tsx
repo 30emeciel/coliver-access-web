@@ -9,9 +9,9 @@ import { Pax } from "src/core/usePax"
 const WithContent = ({ paxDocs }: { paxDocs: Pax[] }) => {
   const history = useHistory()
 
-  const listItems = paxDocs?.map((paxDoc) => {
+  const listItems = paxDocs?.map((paxDoc, index) => {
     return (
-      <tr>
+      <tr key={index}>
         <td>
             {paxDoc?.picture && <Image width="32" alt="selfie" thumbnail={false} roundedCircle src={paxDoc?.picture} />}{" "}
             {paxDoc.name}
