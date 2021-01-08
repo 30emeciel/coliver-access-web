@@ -17,7 +17,7 @@ const WithContent = ({ paxDocs }: { paxDocs: Pax[] }) => {
             {paxDoc.name}
           </td>
           <td className="d-flex justify-content-end">
-            <Button><FontAwesomeIcon icon={faUser}/> Compte</Button>
+            <Button onClick={() => history.push(`/pax/account/${paxDoc.sub}`)}><FontAwesomeIcon icon={faUser}/> Compte</Button>
             <Button onClick={() => history.push(`/pax/${paxDoc.sub}`)} className="ml-2"><FontAwesomeIcon icon={faUserClock}/> Présence</Button>
           </td>
         </tr>
@@ -42,7 +42,7 @@ const PaxList = () => {
   return (
     <Container>
       <h2>
-        <FontAwesomeIcon icon={faUsers} /> Répertoire des participantes
+        <FontAwesomeIcon icon={faUsers} /> Répertoire des pax
       </h2>
       {!paxDocs ? <Spinner animation="border" /> : <WithContent paxDocs={paxDocs} />}
     </Container>

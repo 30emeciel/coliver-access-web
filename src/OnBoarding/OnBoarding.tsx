@@ -3,9 +3,9 @@ import Steps, { Step } from "rc-steps"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCheck, faCoffee } from "@fortawesome/free-solid-svg-icons"
 import { Button, Col, Container, Row } from "react-bootstrap"
-import useUser, { Pax, UserStates } from "src/core/usePax"
+import useUser, { Pax, PaxStates } from "src/core/usePax"
 import { useContext, useEffect, useRef } from "react"
-import UserContext from "src/core/userContext"
+import PaxContext from "src/core/paxContext"
 
 declare namespace Cognito {
   function load(s: string, options: any, callbacks?: any): void
@@ -49,7 +49,7 @@ const CognitoFormSeamless = ({ entry, onSubmit }: { entry: any; onSubmit: () => 
 }
 
 const OnBoarding = () => {
-  const uc = useContext(UserContext)
+  const uc = useContext(PaxContext)
 
   const onSubmitFct = () => {
     console.log("onSubmit")
@@ -75,7 +75,7 @@ const OnBoarding = () => {
       <Container>
         <Row>
           <Col>
-            <Steps current={uc.doc!.state === UserStates.Registered ? 2 : 1} icons={icons}>
+            <Steps current={uc.doc!.state === PaxStates.Registered ? 2 : 1} icons={icons}>
               <Step title="Identification" description="Tu créés un compte PaxID" />
               <Step title="Inscription" description="Aide-moi à mieux te connaître" />
               <Step title="Confirmation" description="Je confirme ton inscription" />
@@ -96,7 +96,7 @@ const OnBoarding = () => {
                 <CognitoFormSeamless entry={cognitoFormEntry} onSubmit={onSubmitFct} />
               </>
             )}
-            {uc.doc!.state === UserStates.Registered && (
+            {uc.doc!.state === PaxStates.Registered && (
               <>
                 <h3>Confirmation</h3>
                 <p>

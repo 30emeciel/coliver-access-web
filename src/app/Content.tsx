@@ -23,13 +23,14 @@ import { BrowserRouter, Route, Switch, useHistory, useParams } from "react-route
 import db from "src/core/db"
 import firebase from "src/core/firebase_config"
 import LoadingButton from "src/core/LoadingButton"
-import UserContext, { TUserContext } from "src/core/userContext"
-import useUser, { Pax, UserStates } from "src/core/usePax"
+import PaxContext, { TPaxContext } from "src/core/paxContext"
+import useUser, { Pax, PaxStates } from "src/core/usePax"
 import PaxList from "src/Overall/PaxList"
 import PresenceList from "src/Overall/PresenceList"
 import OnBoarding from "../OnBoarding/OnBoarding"
 import MyPresenceCalendar from "../PresenceCalendar/MyPresenceCalendar"
 import cassé from "./cassé.jpg"
+import Account from "src/Account/Account"
 
 const NoUserContent = ({ isUserLoading }: { isUserLoading: boolean }) => {
   const { loginWithRedirect } = useAuth0()
@@ -84,8 +85,13 @@ const MyPresenceCalendarLoader = () => {
     )
   }
 }
+
+const AccountLoader = () => {
+  const { id: userId } = useParams<PaxParams>()
+  return <Account paxId={userId} />
+}
 const UserContent = () => {
-  const uc = useContext(UserContext)
+  const uc = useContext(PaxContext)
 
   if (!uc.doc) {
     throw Error("pax is empty!")
@@ -94,13 +100,16 @@ const UserContent = () => {
   return (
     <Switch>
       <Route exact path="/">
-        {uc.doc.state === UserStates.Confirmed ? <MyPresenceCalendar /> : <OnBoarding />}
+        {uc.doc.state === PaxStates.Confirmed ? <MyPresenceCalendar /> : <OnBoarding />}
       </Route>
       <Route exact path="/pax">
         <PaxList />
       </Route>
       <Route exact path="/pax/:id">
         <MyPresenceCalendarLoader />
+      </Route>
+      <Route exact path="/pax/account/:id">
+        <AccountLoader />
       </Route>
       <Route exact path="/presences">
         <PresenceList />
@@ -138,7 +147,7 @@ const NavLinks = () => {
       </Nav.Link>
       <NavDropdown title={<><FontAwesomeIcon icon={faEye}/>{" "}<span>Supervisaire</span></>} id="basic-nav-dropdown">
         <NavDropdown.Item onClick={() => history.push("/pax")}>
-          <FontAwesomeIcon icon={faUsers} /> Liste des pax
+          <FontAwesomeIcon icon={faUsers} /> Répertoire des pax
         </NavDropdown.Item>
         <NavDropdown.Item onClick={() => history.push("/presences")}>
           <FontAwesomeIcon icon={faCalendarCheck} /> Tableau des présences
@@ -157,7 +166,7 @@ const Content = () => {
     docRef: userDocRef,
   } = useUser()
 
-  const userContextValue: TUserContext = {
+  const userContextValue: TPaxContext = {
     isLoading: isUserLoading,
     doc: userDoc,
     ref: userDocRef,
@@ -166,7 +175,7 @@ const Content = () => {
   return (
     <>
       <BrowserRouter>
-        <UserContext.Provider value={userContextValue}>
+        <PaxContext.Provider value={userContextValue}>
           <Navbar bg="dark" variant="dark" expand="lg">
             <Navbar.Brand href="#home">
               <span role="img" aria-label="rainbow">
@@ -177,7 +186,7 @@ const Content = () => {
 
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
-              <Nav className="mr-auto">{userDoc && userDoc.state === UserStates.Confirmed && <NavLinks />}</Nav>
+              <Nav className="mr-auto">{userDoc && userDoc.state === PaxStates.Confirmed && <NavLinks />}</Nav>
 
               {isUserAuthenticated && (
                 <NavDropdown
@@ -207,7 +216,7 @@ const Content = () => {
           <ErrorBoundary FallbackComponent={ErrorFallback}>
             {!isUserLoading && isUserAuthenticated ? <UserContent /> : <NoUserContent isUserLoading={isUserLoading} />}
           </ErrorBoundary>
-        </UserContext.Provider>
+        </PaxContext.Provider>
       </BrowserRouter>
     </>
   )

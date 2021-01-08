@@ -8,7 +8,7 @@ import Row from "react-bootstrap/Row"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import "src/core/Switch.css"
-import UserContext from "src/core/userContext"
+import PaxContext from "src/core/paxContext"
 import { Pax } from "src/core/usePax"
 import { $enum } from "ts-enum-util"
 import CancelationForm from "./CancelationForm"
@@ -28,7 +28,7 @@ enum AppStates {
 }
 
 const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
-  const { doc: currentUserData } = useContext(UserContext)
+  const { doc: currentUserData } = useContext(PaxContext)
   if (!pax) {
     pax = currentUserData!
   }

@@ -2,12 +2,12 @@ import { Pax } from "./usePax"
 import firebase from "src/core/firebase_config"
 import React from "react"
 
-export interface TUserContext {
+export interface TPaxContext {
   isLoading: boolean
   doc?: Pax
   ref?: firebase.firestore.DocumentReference
 }
 
-const UserContext = React.createContext<TUserContext>({ isLoading: true })
+const PaxContext = React.createContext<TPaxContext>({ isLoading: true })
 
-export default UserContext
+export default PaxContext

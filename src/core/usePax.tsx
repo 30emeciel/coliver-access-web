@@ -11,7 +11,7 @@ const auth0_options = {
   scope: "openid profile email",
 }
 
-export enum UserStates {
+export enum PaxStates {
   Registered = "REGISTERED",
   Confirmed = "CONFIRMED",
 }
@@ -19,7 +19,7 @@ export enum UserStates {
 export interface Pax {
   sub: string
   name: string
-  state?: UserStates
+  state?: PaxStates
   picture?: string
 }
 
