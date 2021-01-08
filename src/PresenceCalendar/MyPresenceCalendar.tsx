@@ -9,7 +9,7 @@ import { useCollectionData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import "src/core/Switch.css"
 import UserContext from "src/core/userContext"
-import { User } from "src/core/useUser"
+import { Pax } from "src/core/usePax"
 import { $enum } from "ts-enum-util"
 import CancelationForm from "./CancelationForm"
 import ColivingForm from "./ColivingForm"
@@ -27,10 +27,10 @@ enum AppStates {
   CancelationForm,
 }
 
-const MyPresenceCalendar = ({ user }: { user?: User }) => {
+const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
   const { doc: currentUserData } = useContext(UserContext)
-  if (!user) {
-    user = currentUserData!
+  if (!pax) {
+    pax = currentUserData!
   }
 
   /******************************************************************************************************************
@@ -40,7 +40,7 @@ const MyPresenceCalendar = ({ user }: { user?: User }) => {
   const [appState, setAppState] = useState(AppStates.Normal)
 
   const [listDays, listDaysLoading, listDaysError] = useCollectionData<TUserDay>(
-    db.collection(`users/${user.sub}/days`).orderBy("on", "asc")
+    db.collection(`pax/${pax.sub}/days`).orderBy("on", "asc")
   )
 
   const [userDays, setUserDays] = useState<TMapDays>(new Map())
@@ -56,7 +56,7 @@ const MyPresenceCalendar = ({ user }: { user?: User }) => {
     setGlobalDays: setGlobalDays,
 
     isLoading: listDaysLoading,
-    user: user,
+    pax: pax,
   })
 
   useEffect(() => {
@@ -118,7 +118,7 @@ const MyPresenceCalendar = ({ user }: { user?: User }) => {
         <Row>
           <h2>
             <FontAwesomeIcon icon={faUserClock} /> Calendrier de présence
-            {!(user === currentUserData) && <> de {user.name}</>}
+            {!(pax === currentUserData) && <> de {pax.name}</>}
           </h2>
         </Row>
         <Row>

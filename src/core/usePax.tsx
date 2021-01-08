@@ -2,7 +2,7 @@ import { useAuth0 } from "@auth0/auth0-react"
 import axios from "axios"
 import { useDebugValue, useEffect, useState } from "react"
 import { useAuthState as useFirebaseAuthState } from "react-firebase-hooks/auth"
-import { useDocument, useDocumentData } from "react-firebase-hooks/firestore"
+import { useDocument } from "react-firebase-hooks/firestore"
 import firebase from "src/core/firebase_config"
 import loglevel from "loglevel"
 loglevel.setLevel("debug")
@@ -16,7 +16,7 @@ export enum UserStates {
   Confirmed = "CONFIRMED",
 }
 
-export interface User {
+export interface Pax {
   sub: string
   name: string
   state?: UserStates
@@ -58,7 +58,7 @@ const useUser = () => {
     }
 
     if (firebaseAuthUser) {
-      // if user is already authenticated, nothing to do
+      // if pax is already authenticated, nothing to do
       return
     }
 
@@ -87,7 +87,7 @@ const useUser = () => {
       return
     }
     log.debug("setUserDocRef")
-    setUserDocRef(firebase.firestore().doc(`users/${firebaseAuthUser.uid}`))
+    setUserDocRef(firebase.firestore().doc(`pax/${firebaseAuthUser.uid}`))
     setFirestoreIsTokenLoading(false)
   }, [firebaseAuthUser, setUserDocRef, setFirestoreIsTokenLoading])
 
@@ -118,7 +118,7 @@ const useUser = () => {
     isAuthenticated: isAuthenticated,
     userSnap: userDocSnap,
     userDataExists: userDocSnap?.exist,
-    userData: userDocSnap?.data() as User,
+    userData: userDocSnap?.data() as Pax,
     docRef: userDocRef,
     error: error,
   }

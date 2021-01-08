@@ -1,10 +1,10 @@
-import { User } from "./useUser"
+import { Pax } from "./usePax"
 import firebase from "src/core/firebase_config"
 import React from "react"
 
 export interface TUserContext {
   isLoading: boolean
-  doc?: User
+  doc?: Pax
   ref?: firebase.firestore.DocumentReference
 }
 

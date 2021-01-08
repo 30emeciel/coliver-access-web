@@ -41,7 +41,7 @@ const CoworkingForm = ({
   onSubmit: () => void
   onCancel: () => void
 }) => {
-  const currentUser = calendarContext.user
+  const currentUser = calendarContext.pax
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false)
   const [calValue, setCalValue] = useState<Date>(firstCalValue)
@@ -60,8 +60,8 @@ const CoworkingForm = ({
       created: FieldValue.serverTimestamp(),
       status: "PENDING_REVIEW",
     }
-    const request_doc = await db.collection(`users/${currentUser.sub}/requests`).add(request_data)
-    await db.collection(`users/${currentUser.sub}/days`).doc(start.toISODate()).set({
+    const request_doc = await db.collection(`pax/${currentUser.sub}/requests`).add(request_data)
+    await db.collection(`pax/${currentUser.sub}/days`).doc(start.toISODate()).set({
       on: start.toJSDate(),
       request: request_doc,
       status: "PENDING_REVIEW",

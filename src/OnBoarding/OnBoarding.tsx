@@ -3,7 +3,7 @@ import Steps, { Step } from "rc-steps"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCheck, faCoffee } from "@fortawesome/free-solid-svg-icons"
 import { Button, Col, Container, Row } from "react-bootstrap"
-import useUser, { User, UserStates } from "src/core/useUser"
+import useUser, { Pax, UserStates } from "src/core/usePax"
 import { useContext, useEffect, useRef } from "react"
 import UserContext from "src/core/userContext"
 

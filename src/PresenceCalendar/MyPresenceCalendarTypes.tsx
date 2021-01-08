@@ -1,5 +1,5 @@
 import { DateTime, Duration, Interval } from "luxon"
-import { User } from "src/core/useUser"
+import { Pax } from "src/core/usePax"
 
 export enum UserDayStates {
   PendingReview = "PENDING_REVIEW",
@@ -33,7 +33,7 @@ export class TCalendarContext {
 
   isLoading!: boolean
 
-  user!: User
+  pax!: Pax
 
   public constructor(init?: Partial<TCalendarContext>) {
     Object.assign(this, init)

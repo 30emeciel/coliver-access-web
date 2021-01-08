@@ -9,8 +9,8 @@ import Content from "./app/Content"
 
 ReactDOM.render(
   <Auth0Provider
-    domain="30emeciel.eu.auth0.com"
-    clientId="OfVR9fU5mxH6OqsV5ziH19xtN3t7e6rv"
+    domain="paxid.eu.auth0.com"
+    clientId="0d48PVLBsB3aFRtotDH26s9HW7m0FTrS"
     redirectUri={window.location.origin}
     cacheLocation="localstorage"
     useRefreshTokens={true}

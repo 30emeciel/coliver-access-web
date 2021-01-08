@@ -8,7 +8,7 @@ import { useCollection, useDocumentData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
 import db from "src/core/db"
 import firebase from "src/core/firebase_config"
-import { User } from "src/core/useUser"
+import { Pax } from "src/core/usePax"
 import DateRangePicker from "react-bootstrap-daterangepicker"
 // you will need the css that comes with bootstrap@3. if you are using
 // a tool like webpack, you can do the following:
@@ -21,17 +21,17 @@ import { ReservationKinds } from "src/PresenceCalendar/MyPresenceCalendarTypes"
 
 const log = loglevel.getLogger("PresenceList")
 
-const UserField = ({ coliverId }: { coliverId: string }) => {
-  const coliverDocRef = db.doc(`users/${coliverId}`)
-  const [coliverData, isLoading, error] = useDocumentData<User>(coliverDocRef)
+const UserField = ({ paxId }: { paxId: string }) => {
+  const paxDocRef = db.doc(`pax/${paxId}`)
+  const [paxData, isLoading, error] = useDocumentData<Pax>(paxDocRef)
 
-  if (coliverData) {
+  if (paxData) {
     return (
       <>
-        {coliverData.picture && (
-          <Image width="32" alt="selfie" thumbnail={false} roundedCircle src={coliverData.picture} />
+        {paxData.picture && (
+          <Image width="32" alt="selfie" thumbnail={false} roundedCircle src={paxData.picture} />
         )}{" "}
-        {coliverData.name}
+        {paxData.name}
       </>
     )
   } else {
@@ -42,10 +42,10 @@ const UserField = ({ coliverId }: { coliverId: string }) => {
 
 const WithContent = ({
   period,
-  coliversSnap,
+  paxSnap,
 }: {
   period: [DateTime, DateTime]
-  coliversSnap: firebase.firestore.QuerySnapshot
+  paxSnap: firebase.firestore.QuerySnapshot
 }) => {
   log.debug(`period[0]=${period[0]} period[1]=${period[1]}`)
   const int = Interval.fromDateTimes(period[0], period[1])
@@ -54,7 +54,7 @@ const WithContent = ({
 
   const history = useHistory()
 
-  const grouped = coliversSnap.docs.reduce<Map<string, (ReservationKinds|null)[]>>((previousValue, daySnap) => {
+  const grouped = paxSnap.docs.reduce<Map<string, (ReservationKinds|null)[]>>((previousValue, daySnap) => {
     ;(() => {
       const userId = daySnap.ref.parent!.parent!.id
       const data = daySnap.data()
@@ -88,7 +88,7 @@ const WithContent = ({
     return (
       <tr key={userId}>
         <td>
-          <UserField coliverId={userId} />
+          <UserField paxId={userId} />
         </td>
         {tdList}
       </tr>
@@ -108,7 +108,7 @@ const WithContent = ({
     <Table striped bordered hover responsive size="sm">
       <thead>
         <tr>
-          <th>Coliver</th>
+          <th>Pax</th>
           {headerList}
         </tr>
       </thead>
@@ -118,7 +118,7 @@ const WithContent = ({
 }
 
 const PresenceList = () => {
-  const [coliversDocs, coliversDocLoading, coliverDocsError] = useCollection(
+  const [paxDocs, paxDocLoading, paxDocsError] = useCollection(
     db.collectionGroup("days").orderBy("on", "asc")
   )
   const [period, setPeriod] = useState<[DateTime, DateTime]>([DateTime.local().startOf("month"), DateTime.local().endOf("month")])
@@ -187,12 +187,12 @@ const PresenceList = () => {
           </Form.Group>
         </Form>
       </Container>
-      {!coliversDocs ? (
+      {!paxDocs ? (
         <Spinner animation="border" />
       ) : (
         <WithContent
           period={period}
-          coliversSnap={coliversDocs}
+          paxSnap={paxDocs}
         />
       )}
     </Container>

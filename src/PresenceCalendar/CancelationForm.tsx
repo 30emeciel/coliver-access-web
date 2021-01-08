@@ -26,12 +26,12 @@ const CancelationForm = ({
   onSubmit: () => void
   onCancel: () => void
 }) => {
-  const currentUser = calendarContext.user
+  const currentUser = calendarContext.pax
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false)
   const docDayRef = firebase
     .firestore()
-    .doc(`users/${currentUser.sub}/days/${DateTime.fromJSDate(calValue).toISODate()}`)
+    .doc(`pax/${currentUser.sub}/days/${DateTime.fromJSDate(calValue).toISODate()}`)
   const [dayDoc, dayDocLoading, dayDocError] = useDocumentDataOnce<DocumentData>(docDayRef)
   const [requestSnap, requestSnapLoading, requestSnapError] = useDocumentOnce(dayDoc?.request)
 
@@ -47,11 +47,11 @@ const CancelationForm = ({
     const FieldValue = admin.firestore.FieldValue
 
     var batch = db.batch()
-    const request_ref = db.doc(`users/${currentUser.sub}/requests/${requestSnap.id}`)
+    const request_ref = db.doc(`pax/${currentUser.sub}/requests/${requestSnap.id}`)
     batch.delete(request_ref)
 
     const daysQuerySnap = await db
-      .collection(`users/${currentUser.sub}/days`)
+      .collection(`pax/${currentUser.sub}/days`)
       .where("request", "==", requestSnap.ref)
       .get()
 

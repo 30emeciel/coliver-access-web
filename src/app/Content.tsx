@@ -24,8 +24,8 @@ import db from "src/core/db"
 import firebase from "src/core/firebase_config"
 import LoadingButton from "src/core/LoadingButton"
 import UserContext, { TUserContext } from "src/core/userContext"
-import useUser, { User, UserStates } from "src/core/useUser"
-import ColiversList from "src/Overall/ColiversList"
+import useUser, { Pax, UserStates } from "src/core/usePax"
+import PaxList from "src/Overall/PaxList"
 import PresenceList from "src/Overall/PresenceList"
 import OnBoarding from "../OnBoarding/OnBoarding"
 import MyPresenceCalendar from "../PresenceCalendar/MyPresenceCalendar"
@@ -65,17 +65,17 @@ const NoUserContent = ({ isUserLoading }: { isUserLoading: boolean }) => {
   )
 }
 
-type ColiverParams = {
+type PaxParams = {
   id: string
 }
 const MyPresenceCalendarLoader = () => {
-  const { id: userId } = useParams<ColiverParams>()
-  const [user, isLoading, error] = useDocumentData<User>(db.doc(`users/${userId}`))
+  const { id: userId } = useParams<PaxParams>()
+  const [pax, isLoading, error] = useDocumentData<Pax>(db.doc(`pax/${userId}`))
   if (error) {
     throw error
   }
-  if (user) {
-    return <MyPresenceCalendar user={user} />
+  if (pax) {
+    return <MyPresenceCalendar pax={pax} />
   } else {
     return (
       <Container>
@@ -88,7 +88,7 @@ const UserContent = () => {
   const uc = useContext(UserContext)
 
   if (!uc.doc) {
-    throw Error("user is empty!")
+    throw Error("pax is empty!")
   }
 
   return (
@@ -96,10 +96,10 @@ const UserContent = () => {
       <Route exact path="/">
         {uc.doc.state === UserStates.Confirmed ? <MyPresenceCalendar /> : <OnBoarding />}
       </Route>
-      <Route exact path="/colivers">
-        <ColiversList />
+      <Route exact path="/pax">
+        <PaxList />
       </Route>
-      <Route exact path="/colivers/:id">
+      <Route exact path="/pax/:id">
         <MyPresenceCalendarLoader />
       </Route>
       <Route exact path="/presences">
@@ -137,8 +137,8 @@ const NavLinks = () => {
         <FontAwesomeIcon icon={faUserClock} /> Ma présence
       </Nav.Link>
       <NavDropdown title={<><FontAwesomeIcon icon={faEye}/>{" "}<span>Supervisaire</span></>} id="basic-nav-dropdown">
-        <NavDropdown.Item onClick={() => history.push("/colivers")}>
-          <FontAwesomeIcon icon={faUsers} /> Liste des colivers
+        <NavDropdown.Item onClick={() => history.push("/pax")}>
+          <FontAwesomeIcon icon={faUsers} /> Liste des pax
         </NavDropdown.Item>
         <NavDropdown.Item onClick={() => history.push("/presences")}>
           <FontAwesomeIcon icon={faCalendarCheck} /> Tableau des présences
@@ -169,7 +169,6 @@ const Content = () => {
         <UserContext.Provider value={userContextValue}>
           <Navbar bg="dark" variant="dark" expand="lg">
             <Navbar.Brand href="#home">
-              30ème Ciel{" "}
               <span role="img" aria-label="rainbow">
                 🌈
               </span>{" "}
@@ -187,7 +186,7 @@ const Content = () => {
                       {userDoc?.picture && (
                         <Image width="32" alt="Selfie" thumbnail={false} roundedCircle src={userDoc?.picture} />
                       )}
-                      <span className="ml-2">Alyosha</span>
+                      <span className="ml-2">{userDoc ? userDoc.name : "NoName"}</span>
                     </>
                   }
                   id="basic-nav-dropdown"

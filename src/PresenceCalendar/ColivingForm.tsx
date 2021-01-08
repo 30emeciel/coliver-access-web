@@ -23,7 +23,7 @@ const ColivingForm = ({
   onSubmit: () => void
   onCancel: () => void
 }) => {
-  const currentUser = calendarContext.user
+  const currentUser = calendarContext.pax
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false)
   const [interval, setInterval] = useState<null | Interval>(null)
@@ -65,12 +65,12 @@ const ColivingForm = ({
       created: FieldValue.serverTimestamp(),
       status: "PENDING_REVIEW",
     }
-    const request_doc = await db.collection(`users/${currentUser.sub}/requests`).add(request_data)
+    const request_doc = await db.collection(`pax/${currentUser.sub}/requests`).add(request_data)
 
     var batch = db.batch()
 
     res.forEach((r) => {
-      batch.set(db.collection(`users/${currentUser.sub}/days`).doc(r.toISODate()), {
+      batch.set(db.collection(`pax/${currentUser.sub}/days`).doc(r.toISODate()), {
         on: r.toJSDate(),
         request: request_doc,
         status: "PENDING_REVIEW",
