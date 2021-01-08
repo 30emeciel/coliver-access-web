@@ -134,7 +134,6 @@ const PresenceList = () => {
       <h2>
         <FontAwesomeIcon icon={faCalendarCheck} /> Tableau des présences
       </h2>
-      <Container>
         <Form>
           <Form.Group controlId="exampleForm.ControlInput1">
             <Form.Label>Période</Form.Label>
@@ -186,7 +185,6 @@ const PresenceList = () => {
             </DateRangePicker>
           </Form.Group>
         </Form>
-      </Container>
       {!paxDocs ? (
         <Spinner animation="border" />
       ) : (
