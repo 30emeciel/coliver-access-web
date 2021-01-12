@@ -1,6 +1,4 @@
-import { Col } from "react-bootstrap"
-import Row from "react-bootstrap/Row"
-import Spinner from "react-bootstrap/Spinner"
+import { Col, Row, Spin } from "antd"
 import Calendar, { CalendarTileProperties } from "react-calendar"
 import "react-calendar/dist/Calendar.css"
 import "./Calendar.css"
@@ -44,9 +42,9 @@ const TheCalendar = ({
     <>
       {calendarContext.isLoading ? (
         <>
-          <Spinner animation="border" variant="primary" role="status">
+          <Spin>
             <span className="sr-only"> Loading calendar...</span>
-          </Spinner>{" "}
+          </Spin>{" "}
           <div>Loading calendar...</div>
         </>
       ) : (

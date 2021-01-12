@@ -1,10 +1,9 @@
 import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Button, Row, Spin } from "antd"
 import admin from "firebase"
 import { DateTime, Duration, Interval } from "luxon"
 import { useEffect, useState } from "react"
-import { Alert, Row, Spinner } from "react-bootstrap"
-import Button from "react-bootstrap/Button"
 import { useDocumentDataOnce, useDocumentOnce } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import firebase from "src/core/firebase_config"
@@ -69,22 +68,22 @@ const CancelationForm = ({
   const Form = () => {
     return (
       <>
-        <Alert variant="info">
+        <div>
           <p>
             Would you like to cancel the reservation{" "}
-            {!requestSnap ? <Spinner animation="border" /> : <strong>{requestSnap?.id}</strong>}?
+            {!requestSnap ? <Spin /> : <strong>{requestSnap?.id}</strong>}?
           </p>
           <p className="mb-0">
-            <Button variant="danger" onClick={onCancel}>
+            <Button danger onClick={onCancel}>
               <FontAwesomeIcon icon={faExclamationCircle} />
               Cancel
             </Button>{" "}
-            <LoadingButton variant="primary" onClick={submitForm} isLoading={isFormSubmitting} disabled={isFormLoading}>
+            <LoadingButton type="primary" onClick={submitForm} isLoading={isFormSubmitting} disabled={isFormLoading}>
               <FontAwesomeIcon icon={faCheckCircle} />
               Confirm
             </LoadingButton>
           </p>
-        </Alert>
+        </div>
       </>
     )
   }

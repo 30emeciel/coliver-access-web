@@ -1,5 +1,5 @@
+import { Form, Input, Button, Checkbox, Row, Radio, Spin } from 'antd';
 import React, { useContext } from "react"
-import { Button, ButtonGroup, Container, Form, Spinner, ToggleButton } from "react-bootstrap"
 import { useDocumentData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
@@ -13,53 +13,39 @@ const Account = ({ paxId }: { paxId?: string }) => {
   const [paxDoc, paxDocIsLoading, paxDocError] = useDocumentData<Pax>(paxDocRef)
 
   if (!paxDoc) {
-    return <Container><Spinner animation="border" /></Container>
+    return <Spin />
   }
   const updateAccount = () => {}
 
   return (
-    <Container>
+    <Row>
       <Form>
-        <Form.Group controlId="exampleForm.ControlInput1">
-          <Form.Label>Name</Form.Label>
-          <Form.Control readOnly value={paxDoc.name} />
-        </Form.Group>
-        <Form.Group controlId="exampleForm.ControlSelect1">
-          <Form.Label>State</Form.Label>
-          <div className="mb-3">
-            <ButtonGroup toggle>
+        <Form.Item label="Name" name="Name">
+          <Input />
+        </Form.Item>
+        <Form.Item label="State" name="State">
+          <Radio.Group value={paxDoc.state}>
               {$enum(PaxStates).map((value, key, wrappedEnum, index) => (
-                <ToggleButton
+                <Radio.Button
                   key={index}
-                  className="mr-2"
-                  type="radio"
-                  variant={paxDoc.state === value ? "success" : "secondary"}
                   value={key}
-                  checked={paxDoc.state === value}
                   onChange={(e) =>
                     paxDocRef.update({
-                      state: $enum(PaxStates).getValueOrThrow(e.currentTarget.value),
+                      state: $enum(PaxStates).getValueOrThrow(e.target.value),
                     })
                   }
                 >
                   {key}
-                </ToggleButton>
+                </Radio.Button>
               ))}
-            </ButtonGroup>
-          </div>
-        </Form.Group>
-        <Form.Group controlId="exampleForm.ControlSelect3">
-          <Form.Label>Supervisaire ?</Form.Label>
-          <div className="mb-3">
-            <ButtonGroup toggle>
+            </Radio.Group>
+        </Form.Item>
+        <Form.Item label="Supervisaire ?" name="Supervisaire ?">
+            <Radio.Group value={!!paxDoc.isSupervisor}>
               {[true, false].map((value, index) => (
-                <ToggleButton
+                <Radio.Button
                   key={index}
-                  className="mr-2"
-                  type="radio"
-                  variant={!!paxDoc.isSupervisor === value ? "success" : "secondary"}
                   value={value}
-                  checked={!!paxDoc.isSupervisor === value}
                   onChange={(e) => {
                     const d = {
                       isSupervisor: value,
@@ -69,13 +55,12 @@ const Account = ({ paxId }: { paxId?: string }) => {
                   }
                 >
                   {value ? "Oui" : "Non"}
-                </ToggleButton>
+                </Radio.Button>
               ))}
-            </ButtonGroup>
-          </div>
-        </Form.Group>
+            </Radio.Group>
+        </Form.Item>
       </Form>
-    </Container>
+      </Row>
   )
 }
 

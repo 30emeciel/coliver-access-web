@@ -2,10 +2,10 @@ import "rc-steps/assets/index.css"
 import Steps, { Step } from "rc-steps"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCheck, faCoffee } from "@fortawesome/free-solid-svg-icons"
-import { Button, Col, Container, Row } from "react-bootstrap"
 import useUser, { Pax, PaxStates } from "src/core/usePax"
 import { useContext, useEffect, useRef } from "react"
 import PaxContext from "src/core/paxContext"
+import { Col, Row } from "antd"
 
 declare namespace Cognito {
   function load(s: string, options: any, callbacks?: any): void
@@ -72,7 +72,6 @@ const OnBoarding = () => {
   }
   return (
     <>
-      <Container>
         <Row>
           <Col>
             <Steps current={uc.doc!.state === PaxStates.Registered ? 2 : 1} icons={icons}>
@@ -106,7 +105,6 @@ const OnBoarding = () => {
             )}
           </Col>
         </Row>
-      </Container>
     </>
   )
 }

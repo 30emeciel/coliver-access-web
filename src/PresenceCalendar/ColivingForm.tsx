@@ -1,10 +1,9 @@
 import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Button, Col, Row } from "antd"
 import admin from "firebase"
 import { DateTime, Duration, Interval } from "luxon"
 import { useEffect, useState } from "react"
-import { Alert, Col, Row } from "react-bootstrap"
-import Button from "react-bootstrap/Button"
 import db from "src/core/db"
 import firebase from "src/core/firebase_config"
 import LoadingButton from "src/core/LoadingButton"
@@ -103,24 +102,24 @@ const ColivingForm = ({
       <br />
       <Row>
         <Col>
-          <Alert variant="info">
+          <div>
             <p>
               {numberOfNights ? <>You are going to stay for {numberOfNights} nights</> : <>Pick your departure date</>}
             </p>
             <p className="mb-0">
-              <Button variant="danger" onClick={onCancel}>
+              <Button danger onClick={onCancel}>
                 <FontAwesomeIcon icon={faExclamationCircle} /> Cancel
               </Button>{" "}
               <LoadingButton
                 disabled={!numberOfNights || numberOfNights <= 0}
-                variant="primary"
+                type="primary"
                 onClick={submitColivingRequest}
                 isLoading={isFormSubmitting}
               >
                 <FontAwesomeIcon icon={faCheckCircle} /> Submit
               </LoadingButton>
             </p>
-          </Alert>
+          </div>
         </Col>
       </Row>
       <Row>

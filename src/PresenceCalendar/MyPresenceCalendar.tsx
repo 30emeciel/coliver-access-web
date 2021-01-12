@@ -2,8 +2,6 @@ import { faBed, faExclamationCircle, faLaptopHouse, faUserClock, faUserEdit } fr
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { DateTime } from "luxon"
 import { useContext, useEffect, useState } from "react"
-import Button from "react-bootstrap/Button"
-import Row from "react-bootstrap/Row"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import "src/core/Switch.css"
@@ -15,7 +13,7 @@ import ColivingForm from "./ColivingForm"
 import CoworkingForm from "./CoworkingForm"
 import { TCalendarContext, TMapDays, TMapGlobalDays, TUserDay, UserDayStates } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
-import { Alert, Col } from "antd"
+import { Alert, Button, Col, Row } from "antd"
 
 enum AppStates {
   Normal,
@@ -154,7 +152,7 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
                   <div className="">
                     <Button
                       className="mr-1"
-                      variant="danger"
+                      danger
                       onClick={() => {
                         setCalValue(null)
                         setAppState(AppStates.Normal)
@@ -162,7 +160,7 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
                     >
                       <FontAwesomeIcon icon={faExclamationCircle} /> Cancel
                     </Button>
-                    <Button className="mr-1" variant="success" onClick={() => setAppState(AppStates.NewCoworking)}>
+                    <Button className="mr-1" onClick={() => setAppState(AppStates.NewCoworking)}>
                       <FontAwesomeIcon icon={faLaptopHouse} /> Coworking
                     </Button>
                     <Button onClick={() => setAppState(AppStates.ColivingForm)}>
@@ -184,7 +182,7 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
                   <div className="">
                     <Button
                       className="mr-1"
-                      variant="danger"
+                      danger
                       onClick={() => {
                         setCalValue(null)
                         setAppState(AppStates.Normal)
@@ -192,7 +190,7 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
                     >
                       <FontAwesomeIcon icon={faExclamationCircle} /> Cancel
                     </Button>
-                    <Button className="mr-1" variant="warning" onClick={() => setAppState(AppStates.CancelationForm)}>
+                    <Button className="mr-1" onClick={() => setAppState(AppStates.CancelationForm)}>
                       <FontAwesomeIcon icon={faExclamationCircle} /> Annuler ma réservation...
                     </Button>
                     <Button className="mr-1" onClick={() => setAppState(AppStates.EditDays)}>

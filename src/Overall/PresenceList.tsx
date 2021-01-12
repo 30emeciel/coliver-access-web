@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import loglevel from "loglevel"
 import { DateTime, Duration, Interval } from "luxon"
 import { useState } from "react"
-import { Col, Container, Form, Image, Spinner, Table } from "react-bootstrap"
 import { useCollection, useDocumentData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
 import db from "src/core/db"
@@ -12,12 +11,13 @@ import { Pax } from "src/core/usePax"
 import DateRangePicker from "react-bootstrap-daterangepicker"
 // you will need the css that comes with bootstrap@3. if you are using
 // a tool like webpack, you can do the following:
-import "bootstrap/dist/css/bootstrap.css"
 // you will also need the css that comes with bootstrap-daterangepicker
 import "bootstrap-daterangepicker/daterangepicker.css"
 import moment, { Moment } from "moment"
 import { $enum } from "ts-enum-util"
 import { ReservationKinds } from "src/PresenceCalendar/MyPresenceCalendarTypes"
+import { List, Row, Spin } from "antd"
+import Avatar from "antd/lib/avatar/avatar"
 
 const log = loglevel.getLogger("PresenceList")
 
@@ -29,13 +29,13 @@ const UserField = ({ paxId }: { paxId: string }) => {
     return (
       <>
         {paxData.picture && (
-          <Image width="32" alt="selfie" thumbnail={false} roundedCircle src={paxData.picture} />
+          <Avatar src={paxData.picture} />
         )}{" "}
         {paxData.name}
       </>
     )
   } else {
-    return <Spinner animation="border" />
+    return <Spin />
   }
 }
 
@@ -105,15 +105,10 @@ const WithContent = ({
   ))
 
   return (
-    <Table striped bordered hover responsive size="sm">
-      <thead>
-        <tr>
-          <th>Pax</th>
-          {headerList}
-        </tr>
-      </thead>
-      <tbody>{trList}</tbody>
-    </Table>
+    <List>
+    </List>
+
+
   )
 }
 
@@ -129,14 +124,13 @@ const PresenceList = () => {
     //setEndPeriod(end)
   }
 
-  return (
-    <Container fluid>
+  return <>
+      <Row>
       <h2>
         <FontAwesomeIcon icon={faCalendarCheck} /> Tableau des présences
       </h2>
-        <Form>
-          <Form.Group controlId="exampleForm.ControlInput1">
-            <Form.Label>Période</Form.Label>
+      </Row>
+      <Row>
             <DateRangePicker
               onCallback={handleCallback}
               initialSettings={{
@@ -183,18 +177,18 @@ const PresenceList = () => {
             >
               <input type="text" className="form-control" />
             </DateRangePicker>
-          </Form.Group>
-        </Form>
+      </Row>
+      <Row>
       {!paxDocs ? (
-        <Spinner animation="border" />
+        <Spin />
       ) : (
         <WithContent
           period={period}
           paxSnap={paxDocs}
         />
       )}
-    </Container>
-  )
+    </Row>
+  </>
 }
 
 export default PresenceList

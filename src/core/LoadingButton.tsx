@@ -1,30 +1,25 @@
-import { Button, Spinner } from "react-bootstrap"
+import { Button } from "antd"
+import { ButtonType } from "antd/lib/button"
+
 
 const LoadingButton = ({
   className,
   disabled,
-  variant,
+  type,
   onClick,
   isLoading,
   children,
 }: {
   className?: string
   disabled?: boolean
-  variant?: string
+  type?: ButtonType
   onClick?: () => void
   isLoading: boolean
   children: any
 }) => {
   return (
-    <Button className={className} disabled={disabled} variant={variant} onClick={onClick}>
-      {isLoading ? (
-        <>
-          {" "}
-          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading...
-        </>
-      ) : (
-        children
-      )}
+    <Button loading={isLoading} className={className} disabled={disabled} type={type} onClick={onClick}>
+        {children}
     </Button>
   )
 }
