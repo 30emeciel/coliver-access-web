@@ -1,0 +1,8 @@
+.logo {
+  float: left;
+  margin: 0px 8px 0px 8px;
+}
+
+.ant-layout-header {
+  padding: 0 !important
+}
