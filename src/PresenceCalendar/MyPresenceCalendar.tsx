@@ -2,7 +2,6 @@ import { faBed, faExclamationCircle, faLaptopHouse, faUserClock, faUserEdit } fr
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { DateTime } from "luxon"
 import { useContext, useEffect, useState } from "react"
-import { Alert, Col, Container } from "react-bootstrap"
 import Button from "react-bootstrap/Button"
 import Row from "react-bootstrap/Row"
 import { useCollectionData } from "react-firebase-hooks/firestore"
@@ -16,6 +15,7 @@ import ColivingForm from "./ColivingForm"
 import CoworkingForm from "./CoworkingForm"
 import { TCalendarContext, TMapDays, TMapGlobalDays, TUserDay, UserDayStates } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
+import { Alert, Col } from "antd"
 
 enum AppStates {
   Normal,
@@ -93,9 +93,7 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
   const FirstTimerIntro = () => {
     return (
       <Row>
-        <Alert variant="warning">
-          You are a new! Welcome 👋😀. For ease of integration, you recommand you to book a Coworking day on any Monday.
-        </Alert>
+        <Alert type="warning" message="You are a new! Welcome 👋😀. For ease of integration, you recommand you to book a Coworking day on any Monday." />
       </Row>
     )
   }
@@ -114,7 +112,6 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
 
   return (
     <>
-      <Container>
         <Row>
           <h2>
             <FontAwesomeIcon icon={faUserClock} /> Calendrier de présence
@@ -126,11 +123,10 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
         </Row>
         <br />
         <Row>
-          <Alert variant="info">
-            Click on a day you would like to book. Your request will be reviewed by the{" "}
-            <strong>Participante role</strong> and you will received an email with the decision.
-            <br />
-            Some days may not be available if the gender equity is not reached or there is not anymore spot available.
+          <Alert type="info" message="
+            Click on a day you would like to book. Your request will be reviewed by the
+            Participante role and you will received an email with the decision."
+            description="Some days may not be available if the gender equity is not reached or there is not anymore spot available.">
           </Alert>
         </Row>
         {isFirstTimer && <FirstTimerIntro />}
@@ -153,7 +149,7 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
             <br />
             <Row>
               <Col>
-                <Alert variant="info">
+                <div>
                   <p>What would you like to book?</p>
                   <div className="">
                     <Button
@@ -173,7 +169,7 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
                       <FontAwesomeIcon icon={faBed} /> Coliving
                     </Button>
                   </div>
-                </Alert>
+                </div>
               </Col>
             </Row>
           </>
@@ -183,7 +179,7 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
             <br />
             <Row>
               <Col>
-                <Alert variant="info">
+                <div>
                   <p>What would you like to do?</p>
                   <div className="">
                     <Button
@@ -203,7 +199,7 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
                       <FontAwesomeIcon icon={faUserEdit} /> Modifier ma réservation...
                     </Button>
                   </div>
-                </Alert>
+                </div>
               </Col>
             </Row>
           </>
@@ -250,8 +246,7 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
             }}
           />
         )}
-        {appState === AppStates.EditDays && <Alert variant="info"></Alert>}
-      </Container>
+        {appState === AppStates.EditDays && <div></div>}
     </>
   )
 }
