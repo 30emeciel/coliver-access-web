@@ -1,6 +1,7 @@
 import { faTimes, faUser, faUserClock, faUsers } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Button, Col, Container, Image, ListGroup, Row, Spinner, Table } from "react-bootstrap"
+import { Button, Image, List, Row, Skeleton, Spin, Table } from "antd"
+import Avatar from "antd/lib/avatar/avatar"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
 import db from "src/core/db"
@@ -9,43 +10,41 @@ import { Pax } from "src/core/usePax"
 const WithContent = ({ paxDocs }: { paxDocs: Pax[] }) => {
   const history = useHistory()
 
-  const listItems = paxDocs?.map((paxDoc, index) => {
-    return (
-      <tr key={index}>
-        <td>
-            {paxDoc?.picture && <Image width="32" alt="selfie" thumbnail={false} roundedCircle src={paxDoc?.picture} />}{" "}
-            {paxDoc.name}
-          </td>
-          <td className="d-flex justify-content-end">
-            <Button onClick={() => history.push(`/pax/account/${paxDoc.sub}`)}><FontAwesomeIcon icon={faUser}/> Compte</Button>
-            <Button onClick={() => history.push(`/pax/${paxDoc.sub}`)} className="ml-2"><FontAwesomeIcon icon={faUserClock}/> Présence</Button>
-          </td>
-        </tr>
-    )
-  })
+  const buttons = ({ paxDoc }: { paxDoc: Pax }) => [
+    <Button type="primary" onClick={() => history.push(`/pax/account/${paxDoc.sub}`)}>
+      <FontAwesomeIcon className="anticon" icon={faUser} /> Compte
+    </Button>,
+    <Button onClick={() => history.push(`/pax/${paxDoc.sub}`)} className="ml-2">
+      <FontAwesomeIcon className="anticon" icon={faUserClock} /> Présence
+    </Button>,
+  ]
 
-  return (<Table striped hover size="sm">
-  <thead>
-    <tr>
-      <th>Pax</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>{listItems}
-  </tbody>
-  </Table>)
+  return (
+    <List
+      dataSource={paxDocs}
+      renderItem={(paxDoc) => (
+        <List.Item actions={buttons({ paxDoc: paxDoc })}>
+            <List.Item.Meta avatar={<Avatar src={paxDoc.picture} />} title={paxDoc.name} />
+            <div>content</div>
+        </List.Item>
+
+      )}
+    />
+  )
 }
 
 const PaxList = () => {
   const [paxDocs, paxDocLoading, paxDocsError] = useCollectionData<Pax>(db.collection("pax").orderBy("name", "asc"))
 
   return (
-    <Container>
-      <h2>
-        <FontAwesomeIcon icon={faUsers} /> Répertoire des pax
-      </h2>
-      {!paxDocs ? <Spinner animation="border" /> : <WithContent paxDocs={paxDocs} />}
-    </Container>
+    <>
+      <Row>
+        <h2>
+          <FontAwesomeIcon icon={faUsers} /> Répertoire des pax
+        </h2>
+      </Row>
+      <Row>{!paxDocs ? <Spin /> : <WithContent paxDocs={paxDocs} />}</Row>
+    </>
   )
 }
 
