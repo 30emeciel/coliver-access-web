@@ -25,7 +25,6 @@ const WithContent = ({ paxDocs }: { paxDocs: Pax[] }) => {
       renderItem={(paxDoc) => (
         <List.Item actions={buttons({ paxDoc: paxDoc })}>
             <List.Item.Meta avatar={<Avatar src={paxDoc.picture} />} title={paxDoc.name} />
-            <div>content</div>
         </List.Item>
 
       )}
@@ -43,7 +42,7 @@ const PaxList = () => {
           <FontAwesomeIcon icon={faUsers} /> Répertoire des pax
         </h2>
       </Row>
-      <Row>{!paxDocs ? <Spin /> : <WithContent paxDocs={paxDocs} />}</Row>
+      {!paxDocs ? <Spin /> : <WithContent paxDocs={paxDocs} />}
     </>
   )
 }

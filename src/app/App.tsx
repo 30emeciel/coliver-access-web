@@ -25,12 +25,11 @@ import firebase from "src/core/firebase_config"
 import LoadingButton from "src/core/LoadingButton"
 import PaxContext, { TPaxContext } from "src/core/paxContext"
 import useUser, { Pax, PaxStates } from "src/core/usePax"
-import PaxList from "src/Overall/PaxList"
-import PresenceList from "src/Overall/PresenceList"
+import PaxList from "src/Supervisor/PaxList"
+import PresenceList from "src/Supervisor/PresenceList"
 import OnBoarding from "../OnBoarding/OnBoarding"
 import MyPresenceCalendar from "../PresenceCalendar/MyPresenceCalendar"
-import 'antd/dist/antd.css';
-import "./App.css"
+import "./App.less"
 import cassé from "./cassé.jpg"
 import { LoginOutlined } from '@ant-design/icons';
 
@@ -41,7 +40,7 @@ const NoUserContent = ({ isUserLoading }: { isUserLoading: boolean }) => {
     <Layout>
       <Content>
         <h1 className="header">Bienvenue sur l'appli Coliv du 30ème Ciel</h1>
-        <h2 className="header">L'application de gestion des présences du 30ème Ciel. Fait avec ❤.</h2>
+        <h2 className="header">L'application de gestion des présences du 30ème Ciel.</h2>
         <hr />
         <br />
         {isUserLoading ? (
@@ -177,8 +176,8 @@ const NavLinks = () => {
                     style={{float: "right"}}
                     title={
                       <>
-                        {pc.doc?.picture && <Avatar size="default" icon={<Image src={pc.doc?.picture} />} />}
-                        <span className="ml-2">{pc.doc?.name ? pc.doc.name : "-"}</span>
+                        {pc.doc?.picture && <Avatar size="default" src={pc.doc?.picture} />}
+                        <span style={{margin: "0px 0px 0px 8px"}}>{pc.doc?.name ? pc.doc.name : "-"}</span>
                       </>
                     }
                   >
@@ -224,7 +223,7 @@ const App = () => {
           <Layout className="layout">
             <Header>
               <div className="logo">
-                <span role="img" aria-label="rainbow" style={{margin: "0px 8px 0 0"}}>🌈</span>
+                <span role="img" aria-label="rainbow" style={{margin: "0px 8px 0 8px"}}>🌈</span>
                 <span style={{color: "white"}}>Coliv'app</span>
 
               </div>
