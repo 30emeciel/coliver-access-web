@@ -1,3 +1,5 @@
+import { faUser } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Form, Input, Button, Checkbox, Row, Radio, Spin } from "antd"
 import React, { useContext } from "react"
 import { useDocumentData } from "react-firebase-hooks/firestore"
@@ -19,7 +21,7 @@ const Account = ({ paxId }: { paxId?: string }) => {
   return (
     <>
       <Row>
-        <h3>{paxId ? `Compte de ${paxDoc.name}` : "Mon compte"}</h3>
+        <h2><FontAwesomeIcon icon={faUser} /> {paxId ? `Compte de ${paxDoc.name}` : "Mon compte"}</h2>
       </Row>
       <Form labelCol={{ span: 4 }} wrapperCol={{ span: 8 }}>
         <Form.Item label="Name" name="Name" initialValue={paxDoc.name}>

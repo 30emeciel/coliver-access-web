@@ -13,7 +13,7 @@ import ColivingForm from "./ColivingForm"
 import CoworkingForm from "./CoworkingForm"
 import { TCalendarContext, TMapDays, TMapGlobalDays, TUserDay, UserDayStates } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
-import { Alert, Button, Col, Row } from "antd"
+import { Alert, Button, Col, Row, Space } from "antd"
 
 enum AppStates {
   Normal,
@@ -91,7 +91,10 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
   const FirstTimerIntro = () => {
     return (
       <Row>
-        <Alert type="warning" message="You are a new! Welcome 👋😀. For ease of integration, you recommand you to book a Coworking day on any Monday." />
+        <Alert
+          type="warning"
+          message="You are a new! Welcome 👋😀. For ease of integration, you recommand you to book a Coworking day on any Monday."
+        />
       </Row>
     )
   }
@@ -110,46 +113,36 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
 
   return (
     <>
-        <Row>
-          <h2>
-            <FontAwesomeIcon icon={faUserClock} /> Calendrier de présence
-            {!(pax === currentUserData) && <> de {pax.name}</>}
-          </h2>
-        </Row>
-        <Row>
-          <Col></Col>
-        </Row>
-        <br />
-        <Row>
-          <Alert type="info" message="
+      <h2>
+        <FontAwesomeIcon icon={faUserClock} /> Calendrier de présence
+        {!(pax === currentUserData) && <> de {pax.name}</>}
+      </h2>
+      <br />
+      <Alert
+        type="info"
+        message="
             Click on a day you would like to book. Your request will be reviewed by the
             Participante role and you will received an email with the decision."
-            description="Some days may not be available if the gender equity is not reached or there is not anymore spot available.">
-          </Alert>
-        </Row>
-        {isFirstTimer && <FirstTimerIntro />}
-
-        <br />
-        {new Set([AppStates.Normal, AppStates.ShowEmptyForm, AppStates.ShowOccupiedForm]).has(appState) && (
-          <Row>
-            <Col>
-              <TheCalendar
-                calendarContext={calendarContext}
-                isRangeMode={false}
-                calValue={calValue}
-                onClickDay={onClickDayFct}
-              />
-            </Col>
-          </Row>
-        )}
-        {new Set([AppStates.ShowEmptyForm]).has(appState) && (
-          <>
-            <br />
-            <Row>
-              <Col>
+        description="Some days may not be available if the gender equity is not reached or there is not anymore spot available."
+      ></Alert>
+      {isFirstTimer && <FirstTimerIntro />}
+      <br />
+      {new Set([AppStates.Normal, AppStates.ShowEmptyForm, AppStates.ShowOccupiedForm]).has(appState) && (
+        <Row gutter={8}>
+          <Col>
+            <TheCalendar
+              calendarContext={calendarContext}
+              isRangeMode={false}
+              calValue={calValue}
+              onClickDay={onClickDayFct}
+            />
+          </Col>
+          <Col>
+            {new Set([AppStates.ShowEmptyForm]).has(appState) && (
+              <>
                 <div>
                   <p>What would you like to book?</p>
-                  <div className="">
+                  <Space>
                     <Button
                       className="mr-1"
                       danger
@@ -166,17 +159,12 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
                     <Button onClick={() => setAppState(AppStates.ColivingForm)}>
                       <FontAwesomeIcon icon={faBed} /> Coliving
                     </Button>
-                  </div>
+                  </Space>
                 </div>
-              </Col>
-            </Row>
-          </>
-        )}
-        {new Set([AppStates.ShowOccupiedForm]).has(appState) && (
-          <>
-            <br />
-            <Row>
-              <Col>
+              </>
+            )}
+            {new Set([AppStates.ShowOccupiedForm]).has(appState) && (
+              <>
                 <div>
                   <p>What would you like to do?</p>
                   <div className="">
@@ -198,53 +186,54 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
                     </Button>
                   </div>
                 </div>
-              </Col>
-            </Row>
-          </>
-        )}
+              </>
+            )}
+          </Col>
+        </Row>
+      )}
 
-        {new Set([AppStates.CancelationForm]).has(appState) && (
-          <CancelationForm
-            calendarContext={calendarContext}
-            calValue={calValue as Date}
-            onSubmit={() => {
-              setCalValue(null)
-              setAppState(AppStates.Normal)
-            }}
-            onCancel={() => {
-              setAppState(AppStates.ShowOccupiedForm)
-            }}
-          />
-        )}
+      {new Set([AppStates.CancelationForm]).has(appState) && (
+        <CancelationForm
+          calendarContext={calendarContext}
+          calValue={calValue as Date}
+          onSubmit={() => {
+            setCalValue(null)
+            setAppState(AppStates.Normal)
+          }}
+          onCancel={() => {
+            setAppState(AppStates.ShowOccupiedForm)
+          }}
+        />
+      )}
 
-        {appState === AppStates.ColivingForm && (
-          <ColivingForm
-            calendarContext={calendarContext}
-            firstCalValue={calValue}
-            onSubmit={() => {
-              setCalValue(null)
-              setAppState(AppStates.Normal)
-            }}
-            onCancel={() => {
-              setAppState(AppStates.ShowEmptyForm)
-            }}
-          />
-        )}
+      {appState === AppStates.ColivingForm && (
+        <ColivingForm
+          calendarContext={calendarContext}
+          firstCalValue={calValue}
+          onSubmit={() => {
+            setCalValue(null)
+            setAppState(AppStates.Normal)
+          }}
+          onCancel={() => {
+            setAppState(AppStates.ShowEmptyForm)
+          }}
+        />
+      )}
 
-        {appState === AppStates.NewCoworking && (
-          <CoworkingForm
-            calendarContext={calendarContext}
-            firstCalValue={calValue!}
-            onSubmit={() => {
-              setCalValue(null)
-              setAppState(AppStates.Normal)
-            }}
-            onCancel={() => {
-              setAppState(AppStates.ShowEmptyForm)
-            }}
-          />
-        )}
-        {appState === AppStates.EditDays && <div></div>}
+      {appState === AppStates.NewCoworking && (
+        <CoworkingForm
+          calendarContext={calendarContext}
+          firstCalValue={calValue!}
+          onSubmit={() => {
+            setCalValue(null)
+            setAppState(AppStates.Normal)
+          }}
+          onCancel={() => {
+            setAppState(AppStates.ShowEmptyForm)
+          }}
+        />
+      )}
+      {appState === AppStates.EditDays && <div></div>}
     </>
   )
 }

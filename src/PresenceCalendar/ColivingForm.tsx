@@ -1,6 +1,6 @@
 import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Button, Col, Row } from "antd"
+import { Button, Col, Row, Space } from "antd"
 import admin from "firebase"
 import { DateTime, Duration, Interval } from "luxon"
 import { useEffect, useState } from "react"
@@ -106,7 +106,7 @@ const ColivingForm = ({
             <p>
               {numberOfNights ? <>You are going to stay for {numberOfNights} nights</> : <>Pick your departure date</>}
             </p>
-            <p className="mb-0">
+            <Space>
               <Button danger onClick={onCancel}>
                 <FontAwesomeIcon icon={faExclamationCircle} /> Cancel
               </Button>{" "}
@@ -118,7 +118,7 @@ const ColivingForm = ({
               >
                 <FontAwesomeIcon icon={faCheckCircle} /> Submit
               </LoadingButton>
-            </p>
+            </Space>
           </div>
         </Col>
       </Row>
