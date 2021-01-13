@@ -1,12 +1,13 @@
 import "rc-steps/assets/index.css"
-import Steps, { Step } from "rc-steps"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCheck, faCoffee } from "@fortawesome/free-solid-svg-icons"
 import useUser, { Pax, PaxStates } from "src/core/usePax"
 import { useContext, useEffect, useRef } from "react"
 import PaxContext from "src/core/paxContext"
-import { Col, Row } from "antd"
+import { Col, Row, Steps } from "antd"
+import { UserOutlined, SolutionOutlined, LoadingOutlined, SmileOutlined, CheckSquareOutlined } from '@ant-design/icons';
 
+const { Step } = Steps;
 declare namespace Cognito {
   function load(s: string, options: any, callbacks?: any): void
   function prefill(arg: any): void
@@ -72,23 +73,18 @@ const OnBoarding = () => {
   }
   return (
     <>
-        <Row>
-          <Col>
-            <Steps current={uc.doc!.state === PaxStates.Registered ? 2 : 1} icons={icons}>
-              <Step title="Identification" description="Tu créés un compte PaxID" />
-              <Step title="Inscription" description="Aide-moi à mieux te connaître" />
-              <Step title="Confirmation" description="Je confirme ton inscription" />
+            <Steps current={uc.doc!.state === PaxStates.Registered ? 2 : 1}>
+              <Step title="Identification" description="Tu créés un compte PaxID" icon={<UserOutlined />} />
+              <Step title="Inscription" description="Aide-moi à mieux te connaître" icon={<SolutionOutlined />}/>
+              <Step title="Confirmation" description="Je confirme ton inscription" icon={uc.doc!.state === PaxStates.Registered ? <LoadingOutlined /> : <CheckSquareOutlined />}/>
+              <Step title="C'est parti !" icon={<SmileOutlined />} />
             </Steps>
-          </Col>
-        </Row>
         <br />
-        <Row>
-          <Col>
             {!uc.doc!.state && (
               <>
                 <h3>Inscription</h3>
                 <p>
-                  Avant de venir, <FontAwesomeIcon icon={faCoffee} /> j'ai besoin d'en savoir un peu plus sur toi.
+                  Avant de venir, j'ai besoin d'en savoir un peu plus sur toi.
                   Est-ce que tu peux remplir ce formulaire ? Le rôle <strong>Participante</strong> va revenir vers toi
                   pour la suite
                 </p>
@@ -103,8 +99,6 @@ const OnBoarding = () => {
                 </p>
               </>
             )}
-          </Col>
-        </Row>
     </>
   )
 }

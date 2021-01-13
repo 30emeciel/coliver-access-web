@@ -1,21 +1,19 @@
-import { faBed, faExclamationCircle, faLaptopHouse, faUserClock, faUserEdit } from "@fortawesome/free-solid-svg-icons"
+import { faBed, faLaptopHouse, faUserClock } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Alert, Button, Col, Drawer, Row, Space } from "antd"
 import { DateTime } from "luxon"
 import { useContext, useEffect, useState } from "react"
-import { useCollectionData, useDocumentDataOnce, useDocumentOnce } from "react-firebase-hooks/firestore"
+import { useCollectionData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
-import "src/core/Switch.css"
 import PaxContext from "src/core/paxContext"
+import "src/core/Switch.css"
 import { Pax } from "src/core/usePax"
 import { $enum } from "ts-enum-util"
-import CancelationForm from "./CancelationForm"
 import ColivingForm from "./ColivingForm"
 import CoworkingForm from "./CoworkingForm"
 import { TCalendarContext, TMapDays, TMapGlobalDays, TUserDay, UserDayStates } from "./MyPresenceCalendarTypes"
+import ReservationLoader from "./ReservationLoader"
 import TheCalendar from "./TheCalendar"
-import { Alert, Button, Col, Drawer, Row, Space, Spin } from "antd"
-import firebase from "src/core/firebase_config"
-import ConfirmationForm from "./ConfirmationForm"
 
 enum AppStates {
   Normal,
@@ -110,52 +108,6 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: Pax }) => {
     //}
   }
 
-  type DocumentData = firebase.firestore.DocumentData
-
-  function ReservationLoader({ pax, calValue, onSubmit }: { pax: Pax; calValue: Date; onSubmit: () => void }) {
-    const docDayRef = firebase.firestore().doc(`pax/${pax.sub}/days/${DateTime.fromJSDate(calValue).toISODate()}`)
-    const [dayDoc, dayDocLoading, dayDocError] = useDocumentDataOnce<DocumentData>(docDayRef)
-    const [requestSnap, requestSnapLoading, requestSnapError] = useDocumentOnce(dayDoc?.request)
-    const [compState, setCompState] = useState<"IDLE" | "CANCEL" | "CONFIRM">("IDLE")
-    if (!requestSnap) {
-      return <Spin />
-    }
-    const onCancel = () => setCompState("IDLE")
-    return (
-      <>
-        {compState === "IDLE" && (
-          <>
-            <p>Que veux-tu faire avec la réservation {requestSnap.id} ?</p>
-            <Space direction="vertical">
-              <Button
-                danger
-                onClick={() => setCompState("CANCEL")}
-                icon={<FontAwesomeIcon icon={faExclamationCircle} />}
-              >
-                Annuler ma réservation
-              </Button>
-              {pax.isSupervisor && (
-                <Button
-                  type="primary"
-                  disabled={requestSnap.data()?.status === "CONFIRMED"}
-                  onClick={() => setCompState("CONFIRM")}
-                  icon={<FontAwesomeIcon icon={faUserEdit} />}
-                >
-                  Confirmer la réservation
-                </Button>
-              )}
-            </Space>
-          </>
-        )}
-        {compState === "CONFIRM" && (
-          <ConfirmationForm pax={pax} requestSnap={requestSnap} onSubmit={onSubmit} onCancel={onCancel} />
-        )}
-        {compState === "CANCEL" && (
-          <CancelationForm pax={pax} requestSnap={requestSnap} onSubmit={onSubmit} onCancel={onCancel} />
-        )}
-      </>
-    )
-  }
 
   return (
     <>
@@ -210,7 +162,7 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: Pax }) => {
                 }}
               >
                 <ReservationLoader
-                  pax={pax}
+                  calendarPax={pax}
                   calValue={calValue!}
                   onSubmit={() => {
                     setCalValue(null)
