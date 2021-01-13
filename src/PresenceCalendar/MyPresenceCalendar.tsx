@@ -2,7 +2,7 @@ import { faBed, faExclamationCircle, faLaptopHouse, faUserClock, faUserEdit } fr
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { DateTime } from "luxon"
 import { useContext, useEffect, useState } from "react"
-import { useCollectionData } from "react-firebase-hooks/firestore"
+import { useCollectionData, useDocumentDataOnce, useDocumentOnce } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import "src/core/Switch.css"
 import PaxContext from "src/core/paxContext"
@@ -13,7 +13,9 @@ import ColivingForm from "./ColivingForm"
 import CoworkingForm from "./CoworkingForm"
 import { TCalendarContext, TMapDays, TMapGlobalDays, TUserDay, UserDayStates } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
-import { Alert, Button, Col, Row, Space } from "antd"
+import { Alert, Button, Col, Drawer, Row, Space, Spin } from "antd"
+import firebase from "src/core/firebase_config"
+import ConfirmationForm from "./ConfirmationForm"
 
 enum AppStates {
   Normal,
@@ -22,14 +24,11 @@ enum AppStates {
   NewCoworking,
   ColivingForm,
   EditDays,
-  CancelationForm,
 }
 
-const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
+const MyPresenceCalendar = ({ pax: initialPax }: { pax?: Pax }) => {
   const { doc: currentUserData } = useContext(PaxContext)
-  if (!pax) {
-    pax = currentUserData!
-  }
+  const pax = initialPax ? initialPax : currentUserData!
 
   /******************************************************************************************************************
    * States
@@ -111,19 +110,63 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
     //}
   }
 
+  type DocumentData = firebase.firestore.DocumentData
+
+  function ReservationLoader({ pax, calValue, onSubmit }: { pax: Pax; calValue: Date; onSubmit: () => void }) {
+    const docDayRef = firebase.firestore().doc(`pax/${pax.sub}/days/${DateTime.fromJSDate(calValue).toISODate()}`)
+    const [dayDoc, dayDocLoading, dayDocError] = useDocumentDataOnce<DocumentData>(docDayRef)
+    const [requestSnap, requestSnapLoading, requestSnapError] = useDocumentOnce(dayDoc?.request)
+    const [compState, setCompState] = useState<"IDLE" | "CANCEL" | "CONFIRM">("IDLE")
+    if (!requestSnap) {
+      return <Spin />
+    }
+    const onCancel = () => setCompState("IDLE")
+    return (
+      <>
+        {compState === "IDLE" && (
+          <>
+            <p>Que veux-tu faire avec la réservation {requestSnap.id} ?</p>
+            <Space direction="vertical">
+              <Button
+                danger
+                onClick={() => setCompState("CANCEL")}
+                icon={<FontAwesomeIcon icon={faExclamationCircle} />}
+              >
+                Annuler ma réservation
+              </Button>
+              {pax.isSupervisor && (
+                <Button
+                  type="primary"
+                  disabled={requestSnap.data()?.status === "CONFIRMED"}
+                  onClick={() => setCompState("CONFIRM")}
+                  icon={<FontAwesomeIcon icon={faUserEdit} />}
+                >
+                  Confirmer la réservation
+                </Button>
+              )}
+            </Space>
+          </>
+        )}
+        {compState === "CONFIRM" && (
+          <ConfirmationForm pax={pax} requestSnap={requestSnap} onSubmit={onSubmit} onCancel={onCancel} />
+        )}
+        {compState === "CANCEL" && (
+          <CancelationForm pax={pax} requestSnap={requestSnap} onSubmit={onSubmit} onCancel={onCancel} />
+        )}
+      </>
+    )
+  }
+
   return (
     <>
       <h2>
         <FontAwesomeIcon icon={faUserClock} /> Calendrier de présence
         {!(pax === currentUserData) && <> de {pax.name}</>}
       </h2>
-      <br />
       <Alert
         type="info"
         message="
-            Click on a day you would like to book. Your request will be reviewed by the
-            Participante role and you will received an email with the decision."
-        description="Some days may not be available if the gender equity is not reached or there is not anymore spot available."
+            Pour réserver, commence par cliquer sur le jour de ta venue."
       ></Alert>
       {isFirstTimer && <FirstTimerIntro />}
       <br />
@@ -136,74 +179,48 @@ const MyPresenceCalendar = ({ pax }: { pax?: Pax }) => {
               calValue={calValue}
               onClickDay={onClickDayFct}
             />
-          </Col>
-          <Col>
-            {new Set([AppStates.ShowEmptyForm]).has(appState) && (
-              <>
-                <div>
-                  <p>What would you like to book?</p>
-                  <Space>
-                    <Button
-                      className="mr-1"
-                      danger
-                      onClick={() => {
-                        setCalValue(null)
-                        setAppState(AppStates.Normal)
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faExclamationCircle} /> Cancel
-                    </Button>
-                    <Button className="mr-1" onClick={() => setAppState(AppStates.NewCoworking)}>
-                      <FontAwesomeIcon icon={faLaptopHouse} /> Coworking
-                    </Button>
-                    <Button onClick={() => setAppState(AppStates.ColivingForm)}>
-                      <FontAwesomeIcon icon={faBed} /> Coliving
-                    </Button>
-                  </Space>
-                </div>
-              </>
-            )}
-            {new Set([AppStates.ShowOccupiedForm]).has(appState) && (
-              <>
-                <div>
-                  <p>What would you like to do?</p>
-                  <div className="">
-                    <Button
-                      className="mr-1"
-                      danger
-                      onClick={() => {
-                        setCalValue(null)
-                        setAppState(AppStates.Normal)
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faExclamationCircle} /> Cancel
-                    </Button>
-                    <Button className="mr-1" onClick={() => setAppState(AppStates.CancelationForm)}>
-                      <FontAwesomeIcon icon={faExclamationCircle} /> Annuler ma réservation...
-                    </Button>
-                    <Button className="mr-1" onClick={() => setAppState(AppStates.EditDays)}>
-                      <FontAwesomeIcon icon={faUserEdit} /> Modifier ma réservation...
-                    </Button>
-                  </div>
-                </div>
-              </>
-            )}
+            <>
+              <Drawer
+                visible={new Set([AppStates.ShowEmptyForm]).has(appState)}
+                width={520}
+                onClose={() => {
+                  setCalValue(null)
+                  setAppState(AppStates.Normal)
+                }}
+              >
+                <p>Que veux-tu réserver ?</p>
+                <Space direction="vertical">
+                  <Button type="primary" onClick={() => setAppState(AppStates.ColivingForm)}>
+                    <FontAwesomeIcon icon={faBed} /> Coliving
+                  </Button>
+                  <Button type="primary" onClick={() => setAppState(AppStates.NewCoworking)}>
+                    <FontAwesomeIcon icon={faLaptopHouse} /> Coworking
+                  </Button>
+                </Space>
+              </Drawer>
+            </>
+
+            <>
+              <Drawer
+                visible={new Set([AppStates.ShowOccupiedForm]).has(appState)}
+                width={520}
+                onClose={() => {
+                  setCalValue(null)
+                  setAppState(AppStates.Normal)
+                }}
+              >
+                <ReservationLoader
+                  pax={pax}
+                  calValue={calValue!}
+                  onSubmit={() => {
+                    setCalValue(null)
+                    setAppState(AppStates.Normal)
+                  }}
+                />
+              </Drawer>
+            </>
           </Col>
         </Row>
-      )}
-
-      {new Set([AppStates.CancelationForm]).has(appState) && (
-        <CancelationForm
-          calendarContext={calendarContext}
-          calValue={calValue as Date}
-          onSubmit={() => {
-            setCalValue(null)
-            setAppState(AppStates.Normal)
-          }}
-          onCancel={() => {
-            setAppState(AppStates.ShowOccupiedForm)
-          }}
-        />
       )}
 
       {appState === AppStates.ColivingForm && (

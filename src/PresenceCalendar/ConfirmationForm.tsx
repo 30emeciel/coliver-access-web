@@ -1,17 +1,16 @@
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Drawer, Space, Spin } from "antd"
+import { Button, Drawer, Space } from "antd"
 import { useState } from "react"
 import db from "src/core/db"
 import firebase from "src/core/firebase_config"
-import Button from "src/core/LoadingButton"
 import "src/core/Switch.css"
 import { Pax } from "src/core/usePax"
+import { TCalendarContext } from "./MyPresenceCalendarTypes"
 
-type DocumentData = firebase.firestore.DocumentData
 type DocumentSnapshot = firebase.firestore.DocumentSnapshot
 
-const CancelationForm = ({
+export default function ConfirmationForm({
   pax,
   requestSnap,
   onSubmit,
@@ -21,7 +20,8 @@ const CancelationForm = ({
   requestSnap: DocumentSnapshot
   onSubmit: () => void
   onCancel: () => void
-}) => {
+}) {
+
   const [isFormSubmitting, setIsFormSubmitting] = useState(false)
 
   const submitForm = async () => {
@@ -29,12 +29,15 @@ const CancelationForm = ({
 
     var batch = db.batch()
     const request_ref = db.doc(`pax/${pax.sub}/requests/${requestSnap.id}`)
-    batch.delete(request_ref)
+    batch.update(request_ref, { status: "CONFIRMED" })
 
-    const daysQuerySnap = await db.collection(`pax/${pax.sub}/days`).where("request", "==", requestSnap.ref).get()
+    const daysQuerySnap = await db
+      .collection(`pax/${pax.sub}/days`)
+      .where("request", "==", requestSnap.ref)
+      .get()
 
     daysQuerySnap.forEach((docSnap) => {
-      batch.delete(docSnap.ref)
+      batch.update(docSnap.ref, { status: "CONFIRMED" })
     })
 
     await batch.commit()
@@ -48,10 +51,16 @@ const CancelationForm = ({
     return (
       <>
         <Drawer visible={true} onClose={onCancel}>
-          <p>Veux-tu annuler la réservation {!requestSnap ? <Spin /> : <strong>{requestSnap?.id}</strong>}?</p>
+          <p>
+            Veux-tu confirmer la réservation <strong>{requestSnap?.id}</strong>
+          </p>
           <Space direction="vertical">
-            <Button type="primary" onClick={submitForm} isLoading={isFormSubmitting}>
-              <FontAwesomeIcon icon={faCheckCircle} />
+            <Button
+              type="primary"
+              onClick={submitForm}
+              loading={isFormSubmitting}
+              icon={<FontAwesomeIcon icon={faCheckCircle} />}
+            >
               Okay
             </Button>
           </Space>
@@ -66,5 +75,3 @@ const CancelationForm = ({
     </>
   )
 }
-
-export default CancelationForm

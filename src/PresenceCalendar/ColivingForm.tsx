@@ -1,6 +1,6 @@
 import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Button, Col, Row, Space } from "antd"
+import { Button, Col, Drawer, Row, Space } from "antd"
 import admin from "firebase"
 import { DateTime, Duration, Interval } from "luxon"
 import { useEffect, useState } from "react"
@@ -89,42 +89,30 @@ const ColivingForm = ({
   const numberOfNights = interval ? interval.count("days") - 1 : null
   return (
     <>
-      <Row>
-        <Col>
           <TheCalendar
             calendarContext={calendarContext}
             isRangeMode={true}
             calValue={calValue}
             onChange={onChangeFct}
           />
-        </Col>
-      </Row>
-      <br />
-      <Row>
-        <Col>
-          <div>
+        <Drawer visible={true}
+        mask={false}
+          onClose={onCancel}>
             <p>
-              {numberOfNights ? <>You are going to stay for {numberOfNights} nights</> : <>Pick your departure date</>}
+              {numberOfNights ? <>Tu vas rester {numberOfNights} nuits</> : <>Choisis ton jour de départ</>}
             </p>
             <Space>
-              <Button danger onClick={onCancel}>
-                <FontAwesomeIcon icon={faExclamationCircle} /> Cancel
-              </Button>{" "}
               <LoadingButton
                 disabled={!numberOfNights || numberOfNights <= 0}
                 type="primary"
                 onClick={submitColivingRequest}
                 isLoading={isFormSubmitting}
               >
-                <FontAwesomeIcon icon={faCheckCircle} /> Submit
+                <FontAwesomeIcon icon={faCheckCircle} /> Okay
               </LoadingButton>
             </Space>
-          </div>
-        </Col>
-      </Row>
-      <Row>
-        <Col></Col>
-      </Row>
+          </Drawer>
+
     </>
   )
 }

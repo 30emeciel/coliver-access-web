@@ -60,7 +60,7 @@ const WithContent = ({
       const userId = daySnap.ref.parent!.parent!.id
       const data = daySnap.data()
       if (data.status !== "CONFIRMED") {
-        //return
+        return
       }
       const dt = DateTime.fromMillis(data.on.seconds * 1000).toMillis()
       let barr = previousValue.get(userId)

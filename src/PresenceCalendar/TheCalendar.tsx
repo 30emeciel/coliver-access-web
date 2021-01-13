@@ -1,4 +1,4 @@
-import { Col, Row, Spin } from "antd"
+import { Col, Row, Space, Spin } from "antd"
 import Calendar, { CalendarTileProperties } from "react-calendar"
 import "react-calendar/dist/Calendar.css"
 import "./Calendar.css"
@@ -42,10 +42,9 @@ const TheCalendar = ({
     <>
       {calendarContext.isLoading ? (
         <>
-          <Spin>
-            <span className="sr-only"> Loading calendar...</span>
+          <Spin size="large">
+            <span className="sr-only"> Chargement...</span>
           </Spin>{" "}
-          <div>Loading calendar...</div>
         </>
       ) : (
         <>
@@ -63,18 +62,15 @@ const TheCalendar = ({
             onClickDay={onClickDay}
           />
           <br />
-          <Row>
-            <Col>
+          <Space>
               <span className="calendar-legend-box coliving-pending_review mr-1"></span>
-              <span>Coliving Pending review</span> <span className="calendar-legend-box coliving-confirmed mr-1"></span>
-              <span>Coliving Confirmed</span>
-              <br />
+              <span>Coliving En attente</span> <span className="calendar-legend-box coliving-confirmed mr-1"></span>
+              <span>Coliving Confirmé</span>
               <span className="calendar-legend-box coworking-pending_review mr-1"></span>
-              <span>Coworking Pending review</span>{" "}
+              <span>Coworking En attente</span>{" "}
               <span className="calendar-legend-box coworking-confirmed mr-1"></span>
-              <span>Coworking Confirmed</span>
-            </Col>
-          </Row>
+              <span>Coworking Confirmé</span>
+          </Space>
         </>
       )}
     </>

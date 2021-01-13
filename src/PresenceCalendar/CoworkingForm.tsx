@@ -1,6 +1,6 @@
 import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Button, Col, Row } from "antd"
+import { Button, Col, Drawer, Row } from "antd"
 import admin from "firebase"
 import { DateTime } from "luxon"
 import React, { useState } from "react"
@@ -10,7 +10,6 @@ import LoadingButton from "src/core/LoadingButton"
 import "src/core/Switch.css"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
-
 
 type DocumentData = firebase.firestore.DocumentData
 
@@ -57,38 +56,24 @@ const CoworkingForm = ({
 
   return (
     <>
-      <Row>
-        <Col>
-          <TheCalendar
-            calendarContext={calendarContext}
-            isRangeMode={false}
-            calValue={calValue}
-            onChange={(d) => {
-              if (d instanceof Date) {
-                setCalValue(d)
-              }
-            }}
-          />
-        </Col>
-      </Row>
-      <br />
-      <Row>
-        <Col>
-          <div>
-            <p>
-              You would like to cowork with us on {DateTime.fromJSDate(calValue).toLocaleString(DateTime.DATE_FULL)}
-            </p>
-            <p className="mb-0">
-              <Button danger onClick={onCancel}>
-                <FontAwesomeIcon icon={faExclamationCircle} /> Cancel
-              </Button>{" "}
-              <LoadingButton disabled={!calValue} type="primary" onClick={submitForm} isLoading={isFormSubmitting}>
-                <FontAwesomeIcon icon={faCheckCircle} /> Submit
-              </LoadingButton>
-            </p>
-          </div>
-        </Col>
-      </Row>
+      <TheCalendar
+        calendarContext={calendarContext}
+        isRangeMode={false}
+        calValue={calValue}
+        onChange={(d) => {
+          if (d instanceof Date) {
+            setCalValue(d)
+          }
+        }}
+      />
+      <Drawer visible={true} onClose={onCancel}>
+        <p>Tu veux coworker avec nous le {DateTime.fromJSDate(calValue).toLocaleString(DateTime.DATE_FULL)}</p>
+        <p className="mb-0">
+          <LoadingButton disabled={!calValue} type="primary" onClick={submitForm} isLoading={isFormSubmitting}>
+            <FontAwesomeIcon icon={faCheckCircle} /> Okay
+          </LoadingButton>
+        </p>
+      </Drawer>
     </>
   )
 }
