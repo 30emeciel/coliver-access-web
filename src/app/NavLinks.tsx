@@ -28,7 +28,7 @@ export function NavLinks() {
     <>
       <Layout>
         <Content>
-          <Menu mode="horizontal" theme="dark">
+          <Menu mode="horizontal" theme="dark" selectable={false}>
             {pc.doc && pc.doc.state === PaxStates.Confirmed && (
               <>
                 <Menu.Item icon={<FontAwesomeIcon icon={faUserClock} />} onClick={() => history.push("/")}>

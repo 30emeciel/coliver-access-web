@@ -15,7 +15,6 @@ const Account = ({ paxId }: { paxId?: string }) => {
   if (!paxDoc) {
     return <Spin />
   }
-  const updateAccount = () => {}
 
   return (
     <>
