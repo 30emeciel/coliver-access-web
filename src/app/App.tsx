@@ -38,7 +38,7 @@ const App = () => {
               <NavLinks />
 
             </Header>
-            <Content style={{ padding: "50px 50px" }}>
+            <Content style={{ padding: "8px 16px" }}>
                 <ErrorBoundary FallbackComponent={ErrorFallback}>
                   {!isUserLoading && isUserAuthenticated ? (
                     <UserContent />

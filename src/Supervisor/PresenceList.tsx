@@ -16,8 +16,9 @@ import "bootstrap-daterangepicker/daterangepicker.css"
 import moment, { Moment } from "moment"
 import { $enum } from "ts-enum-util"
 import { ReservationKinds } from "src/PresenceCalendar/MyPresenceCalendarTypes"
-import { List, Row, Spin } from "antd"
+import { List, Row, Spin, Table } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
+import Column from "antd/lib/table/Column"
 
 const log = loglevel.getLogger("PresenceList")
 
@@ -54,7 +55,7 @@ const WithContent = ({
 
   const history = useHistory()
 
-  const grouped = paxSnap.docs.reduce<Map<string, (ReservationKinds|null)[]>>((previousValue, daySnap) => {
+  const grouped = paxSnap.docs.reduce<Map<string, Map<number, (ReservationKinds|null)>>>((previousValue, daySnap) => {
     ;(() => {
       const userId = daySnap.ref.parent!.parent!.id
       const data = daySnap.data()
@@ -63,19 +64,22 @@ const WithContent = ({
       }
       const dt = DateTime.fromMillis(data.on.seconds * 1000).toMillis()
       let barr = previousValue.get(userId)
-      const index = row.indexOf(dt)
-      if (index === -1) {
-        return
-      }
       if (!barr) {
-        barr = new Array<ReservationKinds|null>(periodLength).fill(null)
+        barr = new Map<number, ReservationKinds|null>()
         previousValue.set(userId, barr)
       }
 
-      barr[index] = $enum(ReservationKinds).asValueOrThrow(data.kind)
+      barr.set(dt, $enum(ReservationKinds).asValueOrThrow(data.kind))
     })()
     return previousValue
   }, new Map())
+
+  const dataSource = Array.from(grouped.entries()).map(([key, value]) => {
+      const dayFieldList = Array.from(value.entries()).map(([key, value]) => [key.toString(), value]) as [string, any][]
+      const paxIdField = [["key", key], ["paxId", key]] as [string, any][]
+      const data = new Map(paxIdField.concat(dayFieldList))
+      return Object.fromEntries(data.entries())
+  })
 
   const tdFct = (i:any) => {
     if (!i) return <></>
@@ -83,30 +87,40 @@ const WithContent = ({
     return <FontAwesomeIcon style={{color: r[0]}} icon={r[1]} />
   }
 
-  const trList = Array.from(grouped.entries()).map(([userId, barr]) => {
-    const tdList = barr.map((i, index) => <td key={`${userId}${index}`}>{tdFct(i)}</td>)
-    return (
-      <tr key={userId}>
-        <td>
-          <UserField paxId={userId} />
-        </td>
-        {tdList}
-      </tr>
-    )
-  })
-
-  const headerList = row.map((millis) => (
-    <th key={millis}>
-      {DateTime.fromMillis(millis).toLocaleString({
+  const day_columns = row.map((millis) => (
+    <Column
+      title={DateTime.fromMillis(millis).toLocaleString({
         /* weekday: 'short',*/ month: "short",
         day: "2-digit",
       })}
-    </th>
+      dataIndex={millis.toString()}
+      key={millis.toString()}
+      render={(rk) => tdFct(rk)}
+    />
   ))
 
+  const pax_column = <Column
+      title='Pax'
+      dataIndex='paxId'
+      key= 'paxId'
+      render={(paxId) => <UserField paxId={paxId}/>}
+      width={200}
+      fixed="left"
+  />
+
+
+
+  const columns = [pax_column].concat(day_columns)
+
   return (
-    <List>
-    </List>
+    <Table
+      bordered={true}
+      pagination={false}
+      size="small"
+      scroll={{"x": 2000}}
+      dataSource={dataSource}>
+      {columns}
+    </Table>
 
 
   )
