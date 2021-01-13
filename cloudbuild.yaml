@@ -1,11 +1,17 @@
 steps:
-- name: 'docker'
-  args: ['build', '-t', 'gcr.io/trentiemeciel/coliver-access-web', '.']
-- name: 'docker'
-  args: ['run', '-e', 'FIREBASE_TOKEN', 'gcr.io/trentiemeciel/coliver-access-web']
-  secretEnv: ['FIREBASE_TOKEN']
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'build', '-t', 'firebase', '-f', 'firebase.Dockerfile', '.' ]
+- name: node
+  entrypoint: npm
+  args: ['install', '--production', '--silent']
+- name: node
+  entrypoint: npm
+  args: ['run', 'build']
+- name: firebase
+  args: ['deploy', '--project=trentiemeciel', '--only=hosting']
 
-secrets:
-- kmsKeyName: 'projects/trentiemeciel/locations/global/keyRings/cloudbuilder/cryptoKeys/firebase-token'
-  secretEnv:
-    FIREBASE_TOKEN: 'CiQADhD9N8Ner1hyKdVB0eLDAP0Jb2j+zSH0E75jFMIZF+ywwtYSkAEARHgwJJPqbEyXFua16WHn9c1lwsHQE8T7V7Agaq/o0oGWkcE/7c5d/2/A1dMzRpjyvzFsNhTztkW4soBApDQ+bmn0FxntUF45fzm4Q8eoM77MH8/pHdeOYL8iuac+nd8zpdfTvzk4TtrRSKhipNPmxxNX1/bVfO7Gihe72TRy8/X1kWKZsqfZChKcwC/SPEQ='
+# secretEnv: ['FIREBASE_TOKEN']
+# secrets:
+# - kmsKeyName: 'projects/trentiemeciel/locations/global/keyRings/cloudbuilder/cryptoKeys/firebase-token'
+#   secretEnv:
+#     FIREBASE_TOKEN: 'CiQADhD9N8Ner1hyKdVB0eLDAP0Jb2j+zSH0E75jFMIZF+ywwtYSkAEARHgwJJPqbEyXFua16WHn9c1lwsHQE8T7V7Agaq/o0oGWkcE/7c5d/2/A1dMzRpjyvzFsNhTztkW4soBApDQ+bmn0FxntUF45fzm4Q8eoM77MH8/pHdeOYL8iuac+nd8zpdfTvzk4TtrRSKhipNPmxxNX1/bVfO7Gihe72TRy8/X1kWKZsqfZChKcwC/SPEQ='
