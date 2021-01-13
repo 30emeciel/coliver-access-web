@@ -6,6 +6,7 @@ import Account from "src/Account/Account";
 import db from "src/core/db";
 import PaxContext from "src/core/paxContext";
 import { Pax, PaxStates } from "src/core/usePax";
+import DateRangePickerCalendarExample from "src/PresenceCalendar/Demo";
 import PaxList from "src/Supervisor/PaxList";
 import PresenceList from "src/Supervisor/PresenceList";
 import OnBoarding from "../OnBoarding/OnBoarding";
@@ -59,6 +60,9 @@ export function UserContent() {
       </Route>
       <Route exact path="/presences">
         <PresenceList />
+      </Route>
+      <Route exact path="/test">
+        <DateRangePickerCalendarExample />
       </Route>
     </Switch>
   );
