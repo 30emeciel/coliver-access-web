@@ -6,7 +6,7 @@ import { useState } from "react"
 import { useCollection, useDocumentData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
 import db from "src/core/db"
-import firebase from "src/core/firebase_config"
+import firebase from "src/core/myfirebase"
 import { Pax } from "src/core/usePax"
 import DateRangePicker from "react-bootstrap-daterangepicker"
 // you will need the css that comes with bootstrap@3. if you are using

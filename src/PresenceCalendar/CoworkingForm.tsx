@@ -5,12 +5,12 @@ import admin from "firebase"
 import { DateTime } from "luxon"
 import React, { useState } from "react"
 import db from "src/core/db"
-import firebase from "src/core/firebase_config"
+import myfirebase from "src/core/myfirebase"
 import LoadingButton from "src/core/LoadingButton"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
 
-type DocumentData = firebase.firestore.DocumentData
+type DocumentData = myfirebase.firestore.DocumentData
 
 const CoworkingForm = ({
   calendarContext,

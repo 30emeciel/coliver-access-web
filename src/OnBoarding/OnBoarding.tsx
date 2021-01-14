@@ -1,5 +1,5 @@
 import { CheckSquareOutlined, LoadingOutlined, SmileOutlined, SolutionOutlined, UserOutlined } from '@ant-design/icons'
-import { Steps } from "antd"
+import { Card, Steps } from "antd"
 import { useContext, useEffect, useRef } from "react"
 import PaxContext from "src/core/paxContext"
 import { PaxStates } from "src/core/usePax"
@@ -64,12 +64,14 @@ const OnBoarding = () => {
 
   return (
     <>
+          <Card>
             <Steps current={uc.doc!.state === PaxStates.Registered ? 2 : 1}>
               <Step title="Identification" description="Tu créés un compte PaxID" icon={<UserOutlined />} />
               <Step title="Inscription" description="Aide-moi à mieux te connaître" icon={<SolutionOutlined />}/>
               <Step title="Confirmation" description="Je confirme ton inscription" icon={uc.doc!.state === PaxStates.Registered ? <LoadingOutlined /> : <CheckSquareOutlined />}/>
               <Step title="C'est parti !" icon={<SmileOutlined />} />
             </Steps>
+            </Card>
         <br />
             {!uc.doc!.state && (
               <>

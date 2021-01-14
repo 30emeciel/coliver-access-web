@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Drawer, Space, Spin } from "antd"
 import { useState } from "react"
 import db from "src/core/db"
-import firebase from "src/core/firebase_config"
+import firebase from "src/core/myfirebase"
 import Button from "src/core/LoadingButton"
 import { Pax } from "src/core/usePax"
 

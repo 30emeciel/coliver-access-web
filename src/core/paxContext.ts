@@ -1,5 +1,5 @@
 import { Pax } from "./usePax"
-import firebase from "src/core/firebase_config"
+import firebase from "src/core/myfirebase"
 import React from "react"
 
 export interface TPaxContext {

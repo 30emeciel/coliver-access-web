@@ -3,9 +3,8 @@ import axios from "axios"
 import { useDebugValue, useEffect, useState } from "react"
 import { useAuthState as useFirebaseAuthState } from "react-firebase-hooks/auth"
 import { useDocument } from "react-firebase-hooks/firestore"
-import firebase from "src/core/firebase_config"
-import loglevel from "loglevel"
-loglevel.setLevel("debug")
+import firebase from "src/core/myfirebase"
+import loglevel from "src/core/myloglevel"
 
 const auth0_options = {
   scope: "openid profile email",

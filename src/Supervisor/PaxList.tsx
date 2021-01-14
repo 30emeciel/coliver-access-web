@@ -12,10 +12,10 @@ const WithContent = ({ paxDocs }: { paxDocs: Pax[] }) => {
 
   const buttons = ({ paxDoc }: { paxDoc: Pax }) => [
     <Button type="primary" onClick={() => history.push(`/pax/account/${paxDoc.sub}`)}>
-      <FontAwesomeIcon className="anticon" icon={faUser} /> Compte
+      <FontAwesomeIcon icon={faUser} /> Compte
     </Button>,
     <Button onClick={() => history.push(`/pax/${paxDoc.sub}`)} className="ml-2">
-      <FontAwesomeIcon className="anticon" icon={faUserClock} /> Présence
+      <FontAwesomeIcon icon={faUserClock} /> Présence
     </Button>,
   ]
 

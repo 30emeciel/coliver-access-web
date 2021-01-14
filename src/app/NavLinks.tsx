@@ -7,7 +7,7 @@ import Layout, { Content } from "antd/lib/layout/layout"
 import SubMenu from "antd/lib/menu/SubMenu"
 import { useContext } from "react"
 import { useHistory } from "react-router-dom"
-import firebase from "src/core/firebase_config"
+import firebase from "src/core/myfirebase"
 import PaxContext from "src/core/paxContext"
 import { PaxStates } from "src/core/usePax"
 

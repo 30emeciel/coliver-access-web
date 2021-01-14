@@ -1,7 +1,7 @@
 import { faExclamationCircle, faUserEdit } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Button, Space, Spin } from "antd"
-import firebase from "src/core/firebase_config"
+import myfirebase from "src/core/myfirebase"
 import { DateTime } from "luxon"
 import React, { useState, useContext } from "react"
 import { useDocumentDataOnce, useDocumentOnce } from "react-firebase-hooks/firestore"
@@ -10,10 +10,10 @@ import { Pax } from "src/core/usePax"
 import CancelationForm from "./CancelationForm"
 import ConfirmationForm from "./ConfirmationForm"
 
-type DocumentData = firebase.firestore.DocumentData
+type DocumentData = myfirebase.firestore.DocumentData
 
  export default function ReservationLoader({ calendarPax, calValue, onSubmit }: { calendarPax: Pax; calValue: Date; onSubmit: () => void} ) {
-    const docDayRef = firebase.firestore().doc(`pax/${calendarPax.sub}/days/${DateTime.fromJSDate(calValue).toISODate()}`)
+    const docDayRef = myfirebase.firestore().doc(`pax/${calendarPax.sub}/days/${DateTime.fromJSDate(calValue).toISODate()}`)
     const [dayDoc, dayDocLoading, dayDocError] = useDocumentDataOnce<DocumentData>(docDayRef)
     const [requestSnap, requestSnapLoading, requestSnapError] = useDocumentOnce(dayDoc?.request)
     const [compState, setCompState] = useState<"IDLE" | "CANCEL" | "CONFIRM">("IDLE")

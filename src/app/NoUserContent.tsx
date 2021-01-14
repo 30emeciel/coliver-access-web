@@ -28,7 +28,7 @@ export function NoUserContent({ isUserLoading }: { isUserLoading: boolean; }) {
             <>
               <Row>
                 <Button
-                  icon={<FontAwesomeIcon icon={faSignInAlt} className="anticon" />}
+                  icon={<FontAwesomeIcon icon={faSignInAlt} />}
                   size="large"
                   type="primary"
                   block
@@ -40,7 +40,7 @@ export function NoUserContent({ isUserLoading }: { isUserLoading: boolean; }) {
               </Row>
               <br />
               <Row>
-                <Button icon={<FontAwesomeIcon className="anticon" icon={faUserPlus} />} size="large"
+                <Button icon={<FontAwesomeIcon icon={faUserPlus} />} size="large"
                   type="default"
                   block
                   loading={isLoading} onClick={() => loginWithRedirect( /*auth0_options*/)}>

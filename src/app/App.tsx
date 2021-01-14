@@ -40,7 +40,7 @@ const App = () => {
             </Header>
             <Content style={{ padding: "8px 16px" }}>
                 <ErrorBoundary FallbackComponent={ErrorFallback}>
-                  {!isUserLoading && isUserAuthenticated ? (
+                  {!isUserLoading && isUserAuthenticated && userDoc ? (
                     <UserContent />
                   ) : (
                     <NoUserContent isUserLoading={isUserLoading} />
