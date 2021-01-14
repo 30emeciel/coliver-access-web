@@ -4,9 +4,7 @@ import { Button, Drawer, Space } from "antd"
 import { useState } from "react"
 import db from "src/core/db"
 import firebase from "src/core/firebase_config"
-import "src/core/Switch.css"
 import { Pax } from "src/core/usePax"
-import { TCalendarContext } from "./MyPresenceCalendarTypes"
 
 type DocumentSnapshot = firebase.firestore.DocumentSnapshot
 

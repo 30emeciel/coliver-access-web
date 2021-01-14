@@ -5,7 +5,6 @@ import { useState } from "react"
 import db from "src/core/db"
 import firebase from "src/core/firebase_config"
 import Button from "src/core/LoadingButton"
-import "src/core/Switch.css"
 import { Pax } from "src/core/usePax"
 
 type DocumentData = firebase.firestore.DocumentData
