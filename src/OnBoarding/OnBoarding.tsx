@@ -1,11 +1,9 @@
-import "rc-steps/assets/index.css"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faCheck, faCoffee } from "@fortawesome/free-solid-svg-icons"
-import useUser, { Pax, PaxStates } from "src/core/usePax"
+import { CheckSquareOutlined, LoadingOutlined, SmileOutlined, SolutionOutlined, UserOutlined } from '@ant-design/icons'
+import { Steps } from "antd"
 import { useContext, useEffect, useRef } from "react"
 import PaxContext from "src/core/paxContext"
-import { Col, Row, Steps } from "antd"
-import { UserOutlined, SolutionOutlined, LoadingOutlined, SmileOutlined, CheckSquareOutlined } from '@ant-design/icons';
+import { PaxStates } from "src/core/usePax"
+import { getEnvOrFail } from '../core/getEnvOrFail'
 
 const { Step } = Steps;
 declare namespace Cognito {
@@ -14,6 +12,8 @@ declare namespace Cognito {
 }
 
 declare function ExoJQuery(arg: any): any
+
+const PREREGISTRATION_FORM_ID = getEnvOrFail("PREREGISTRATION_FORM_ID")
 
 const CognitoFormSeamless = ({ entry, onSubmit }: { entry: any; onSubmit: () => void }) => {
   const ref = useRef<HTMLDivElement>(null)
@@ -26,7 +26,7 @@ const CognitoFormSeamless = ({ entry, onSubmit }: { entry: any; onSubmit: () => 
 
     Cognito.load(
       "forms",
-      { id: 9, entry: entry },
+      { id: PREREGISTRATION_FORM_ID, entry: entry },
       {
         success: () => {
           //      ExoJQuery(function() {
@@ -62,15 +62,6 @@ const OnBoarding = () => {
     Uid: uc.doc!.sub,
   }
 
-  const cognitoFormUrl = `https://www.cognitoforms.com/_30%C3%A8meCiel/CoworkingColiving30%C3%A8meCielRegistration?entry=${encodeURIComponent(
-    JSON.stringify(cognitoFormEntry)
-  )}`
-
-  const finishIcon = <FontAwesomeIcon icon={faCheck} />
-  const icons = {
-    finish: finishIcon,
-    error: null,
-  }
   return (
     <>
             <Steps current={uc.doc!.state === PaxStates.Registered ? 2 : 1}>

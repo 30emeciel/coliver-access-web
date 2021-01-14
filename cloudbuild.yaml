@@ -7,8 +7,13 @@ steps:
 - name: node
   entrypoint: npm
   args: ['run', 'build']
+  env:
+  - 'REACT_APP_PREREGISTRATION_FORM_ID=$_PREREGISTRATION_FORM_ID'
 - name: firebase
   args: ['deploy', '--project=trentiemeciel', '--only=hosting']
+
+substitutions:
+  _PREREGISTRATION_FORM_ID: "9"
 
 # secretEnv: ['FIREBASE_TOKEN']
 # secrets:
