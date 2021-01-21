@@ -1,12 +1,11 @@
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Drawer, Space } from "antd"
-import admin from "firebase"
 import { DateTime, Duration, Interval } from "luxon"
 import { useEffect, useState } from "react"
 import db from "src/core/db"
 import LoadingButton from "src/core/LoadingButton"
-import { TRequest } from "src/models/Request"
+import { TRequest, TRequestConverter } from "src/models/Request"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
 
@@ -58,16 +57,17 @@ const ColivingForm = ({
       i = i.plus(oneDay)
     }
 
-
-
-    const request_data:TRequest = {
+    const request_data: TRequest = {
       status: "PENDING_REVIEW",
       arrivalDate: arrivalDate,
       departureDate: departureDate,
       kind: "COLIVING",
-      numberOfNights: numberOfNights!
+      numberOfNights: numberOfNights!,
     }
-    const request_doc = await db.collection(`pax/${currentUser.sub}/requests`).add(request_data)
+    const request_doc = await db
+      .collection(`pax/${currentUser.sub}/requests`)
+      .withConverter(TRequestConverter)
+      .add(request_data)
 
     var batch = db.batch()
 
@@ -89,33 +89,22 @@ const ColivingForm = ({
     setCalValue(d as Date[])
   }
 
-
   return (
     <>
-          <TheCalendar
-            calendarContext={calendarContext}
-            isRangeMode={true}
-            calValue={calValue}
-            onChange={onChangeFct}
-          />
-        <Drawer visible={true}
-        mask={false}
-          onClose={onCancel}>
-            <p>
-              {numberOfNights ? <>Tu vas rester {numberOfNights} nuits</> : <>Choisis ton jour de départ</>}
-            </p>
-            <Space>
-              <LoadingButton
-                disabled={!numberOfNights || numberOfNights <= 0}
-                type="primary"
-                onClick={submitColivingRequest}
-                isLoading={isFormSubmitting}
-              >
-                <FontAwesomeIcon icon={faCheckCircle} /> Okay
-              </LoadingButton>
-            </Space>
-          </Drawer>
-
+      <TheCalendar calendarContext={calendarContext} isRangeMode={true} calValue={calValue} onChange={onChangeFct} />
+      <Drawer visible={true} mask={false} onClose={onCancel}>
+        <p>{numberOfNights ? <>Tu vas rester {numberOfNights} nuits</> : <>Choisis ton jour de départ</>}</p>
+        <Space>
+          <LoadingButton
+            disabled={!numberOfNights || numberOfNights <= 0}
+            type="primary"
+            onClick={submitColivingRequest}
+            isLoading={isFormSubmitting}
+          >
+            <FontAwesomeIcon icon={faCheckCircle} /> Okay
+          </LoadingButton>
+        </Space>
+      </Drawer>
     </>
   )
 }

@@ -6,8 +6,9 @@ import { useContext } from "react"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
-import { RequestConverter, TRequest, TRequestKind, TRequestStatus } from "src/models/Request"
+import { TRequestConverter, TRequest, TRequestKind, TRequestStatus } from "src/models/Request"
 import myloglevel from "src/core/myloglevel"
+import WorkInProgress from "src/core/WorkInProgress"
 
 const log = myloglevel.getLogger("BookingList")
 
@@ -16,7 +17,7 @@ export default function BookingList() {
   const pax = pc.doc!
 
   const [listRequests, listRequestsLoading, listRequestsError] = useCollectionData<TRequest>(
-    db.collection(`pax/${pax.sub}/requests`).orderBy("arrivalDate", "asc").withConverter(RequestConverter) ,
+    db.collection(`pax/${pax.sub}/requests`).orderBy("arrivalDate", "asc").withConverter(TRequestConverter) ,
     { idField: "id" }
   )
 
@@ -44,10 +45,10 @@ export default function BookingList() {
           const statusFields = status2fields[item.status] || ["?", "pink", faQuestionCircle]
           const kindFields = kind2fields[item.kind] || ["?", "pink", faQuestionCircle]
           return <List.Item actions={[
-            <Button size="small" icon={<FontAwesomeIcon icon={faEdit}/>}>Modifier</Button>,
-            <Button danger size="small" icon={<FontAwesomeIcon icon={faExclamationCircle}/>}>Annuler</Button>
+            <WorkInProgress><Button size="small" icon={<FontAwesomeIcon icon={faEdit}/>}>Modifier</Button></WorkInProgress>,
+            <WorkInProgress><Button danger size="small" icon={<FontAwesomeIcon icon={faExclamationCircle}/>}>Annuler</Button></WorkInProgress>
             ]} extra={[]}>
-            <Tag color={kindFields[1]}><FontAwesomeIcon icon={kindFields[2]}/> {kindFields[0]}</Tag> {item.arrivalDate.toLocaleString()} au {item.departureDate.toLocaleString()} ({item.numberOfNights} nuits) <Tag color={statusFields[1]}><FontAwesomeIcon icon={statusFields[2]}/> {statusFields[0]}</Tag>
+            <Tag color={kindFields[1]}><FontAwesomeIcon icon={kindFields[2]}/> {kindFields[0]}</Tag> {item.arrivalDate.toLocaleString()}{item.departureDate && <> au {item.departureDate.toLocaleString()} ({item.numberOfNights} nuits)</>} <Tag color={statusFields[1]}><FontAwesomeIcon icon={statusFields[2]}/> {statusFields[0]}</Tag>
           </List.Item>
         }}
       ></List>

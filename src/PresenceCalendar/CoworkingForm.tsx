@@ -1,16 +1,13 @@
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Drawer } from "antd"
-import admin from "firebase"
 import { DateTime } from "luxon"
 import React, { useState } from "react"
 import db from "src/core/db"
-import myfirebase from "src/core/myfirebase"
 import LoadingButton from "src/core/LoadingButton"
+import { TRequest, TRequestConverter } from "src/models/Request"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
-
-type DocumentData = myfirebase.firestore.DocumentData
 
 const CoworkingForm = ({
   calendarContext,
@@ -35,14 +32,15 @@ const CoworkingForm = ({
     setIsFormSubmitting(true)
     const start = DateTime.fromJSDate(calValue)
 
-    // Submit the list of days to firestore
-    const FieldValue = admin.firestore.FieldValue
-
-    const request_data = {
-      created: FieldValue.serverTimestamp(),
+    const request_data: TRequest = {
+      arrivalDate: start,
+      kind: "COWORKING",
       status: "PENDING_REVIEW",
     }
-    const request_doc = await db.collection(`pax/${currentUser.sub}/requests`).add(request_data)
+    const request_doc = await db
+      .collection(`pax/${currentUser.sub}/requests`)
+      .withConverter(TRequestConverter)
+      .add(request_data)
     await db.collection(`pax/${currentUser.sub}/days`).doc(start.toISODate()).set({
       on: start.toJSDate(),
       request: request_doc,
