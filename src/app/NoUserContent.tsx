@@ -17,7 +17,6 @@ export function NoUserContent({ isUserLoading }: { isUserLoading: boolean; }) {
     <Layout>
       <Content>
         <h1 className="header">Bienvenue sur l'appli Coliv du 30ème Ciel</h1>
-        <h2 className="header">L'application de gestion des présences du 30ème Ciel.</h2>
         <hr />
         <br />
         {isUserLoading ? (
@@ -43,7 +42,7 @@ export function NoUserContent({ isUserLoading }: { isUserLoading: boolean; }) {
                 <Button icon={<FontAwesomeIcon icon={faUserPlus} />} size="large"
                   type="default"
                   block
-                  loading={isLoading} onClick={() => loginWithRedirect( /*auth0_options*/)}>
+                  loading={isLoading} onClick={() => loginWithRedirect()}>
                   Je suis nouveau, je veux créer mon compte PaxID
                 </Button>
               </Row>

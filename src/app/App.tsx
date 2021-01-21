@@ -2,7 +2,8 @@ import Layout, { Content, Footer, Header } from "antd/lib/layout/layout"
 import { ErrorBoundary } from "react-error-boundary"
 import { BrowserRouter } from "react-router-dom"
 import PaxContext, { TPaxContext } from "src/core/paxContext"
-import useUser from "src/core/usePax"
+import useUser, { PaxStates } from "src/core/usePax"
+import OnBoarding from "src/OnBoarding/OnBoarding"
 import "./App.less"
 import { ErrorFallback } from "./ErrorFallback"
 import { NavLinks } from "./NavLinks"
@@ -41,7 +42,8 @@ const App = () => {
             <Content style={{ padding: "8px 16px" }}>
                 <ErrorBoundary FallbackComponent={ErrorFallback}>
                   {!isUserLoading && isUserAuthenticated && userDoc ? (
-                    <UserContent />
+                    userDoc.state === PaxStates.Confirmed ?
+                      <UserContent /> : <OnBoarding />
                   ) : (
                     <NoUserContent isUserLoading={isUserLoading} />
                   )}
