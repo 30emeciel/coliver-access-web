@@ -11,7 +11,7 @@ const WithContent = ({ paxDocs }: { paxDocs: Pax[] }) => {
   const history = useHistory()
 
   const buttons = ({ paxDoc }: { paxDoc: Pax }) => [
-    <Button type="primary" onClick={() => history.push(`/pax/account/${paxDoc.sub}`)}>
+    <Button type="primary" onClick={() => history.push(`/pax/${paxDoc.sub}/account`)}>
       <FontAwesomeIcon icon={faUser} /> Compte
     </Button>,
     <Button onClick={() => history.push(`/pax/${paxDoc.sub}`)} className="ml-2">

@@ -3,9 +3,11 @@ import React, { useContext } from "react";
 import { useDocumentData } from "react-firebase-hooks/firestore";
 import { Route, Switch, useParams } from "react-router-dom";
 import Account from "src/Account/Account";
+import BookingList from "src/Booking/BookingList";
 import db from "src/core/db";
 import PaxContext from "src/core/paxContext";
 import { Pax, PaxStates } from "src/core/usePax";
+import Dashboard from "src/Dashboard/Dashboard";
 import PaxList from "src/Supervisor/PaxList";
 import PresenceList from "src/Supervisor/PresenceList";
 import OnBoarding from "../OnBoarding/OnBoarding";
@@ -46,7 +48,13 @@ export function UserContent() {
   return (
     <Switch>
       <Route exact path="/">
-        {uc.doc.state === PaxStates.Confirmed ? <MyPresenceCalendar /> : <OnBoarding />}
+        <Dashboard />
+      </Route>
+      <Route exact path="/presence">
+        <MyPresenceCalendar />
+      </Route>
+      <Route exact path="/bookings">
+        <BookingList />
       </Route>
       <Route exact path="/pax">
         <PaxList />
@@ -54,7 +62,7 @@ export function UserContent() {
       <Route exact path="/pax/:id">
         <MyPresenceCalendarLoader />
       </Route>
-      <Route exact path="/pax/account/:id">
+      <Route exact path="/pax/:id/account">
         <AccountLoader />
       </Route>
       <Route exact path="/presences">

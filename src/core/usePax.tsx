@@ -11,6 +11,7 @@ const auth0_options = {
 }
 
 export enum PaxStates {
+  Authenticated = "",
   Registered = "REGISTERED",
   Confirmed = "CONFIRMED",
 }
@@ -110,16 +111,11 @@ const useUser = () => {
   }, [setIsLoadingTris, error, isAuthenticated, userDocSnap])
 
   const ret = {
-    auth0IsLoading: auth0IsLoading,
-    firebaseAuthIsloading: firebaseAuthIsloading,
-    isUserDocLoading: isUserDocLoading,
     isLoading: isLoading,
-    isLoadingTris: isLoadingTris,
     isAuthenticated: isAuthenticated,
-    userSnap: userDocSnap,
-    userDataExists: userDocSnap?.exist,
-    userData: userDocSnap?.data() as Pax,
-    docRef: userDocRef,
+    userSnap: isAuthenticated ? userDocSnap : undefined,
+    userData: isAuthenticated ? userDocSnap?.data() as Pax : undefined,
+    docRef: isAuthenticated ? userDocRef : undefined,
     error: error,
   }
   log.debug(

@@ -13,6 +13,9 @@ import CoworkingForm from "./CoworkingForm"
 import { TCalendarContext, TMapDays, TMapGlobalDays, TUserDay, UserDayStates } from "./MyPresenceCalendarTypes"
 import ReservationLoader from "./ReservationLoader"
 import TheCalendar from "./TheCalendar"
+import myloglevel from "src/core/myloglevel"
+
+const log = myloglevel.getLogger("MyPresenceCalendar")
 
 enum AppStates {
   Normal,
@@ -58,7 +61,7 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: Pax }) => {
       return
     }
 
-    console.log("Refreshing calendar days...")
+    log.info("Refreshing calendar days...")
     const mapDays = new Map(
       listDays
         //      .filter((day) => day.status === "PENDING_REVIEW")

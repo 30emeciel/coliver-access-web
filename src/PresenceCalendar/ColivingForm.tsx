@@ -6,6 +6,7 @@ import { DateTime, Duration, Interval } from "luxon"
 import { useEffect, useState } from "react"
 import db from "src/core/db"
 import LoadingButton from "src/core/LoadingButton"
+import { TRequest } from "src/models/Request"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
 
@@ -25,6 +26,8 @@ const ColivingForm = ({
   const [isFormSubmitting, setIsFormSubmitting] = useState(false)
   const [interval, setInterval] = useState<null | Interval>(null)
   const [calValue, setCalValue] = useState<Date | Date[] | null>(firstCalValue ? firstCalValue : null)
+
+  const numberOfNights = interval ? interval.count("days") - 1 : null
 
   useEffect(() => {
     const twoDays = calValue as Date[]
@@ -55,12 +58,14 @@ const ColivingForm = ({
       i = i.plus(oneDay)
     }
 
-    // Submit the list of days to firestore
-    const FieldValue = admin.firestore.FieldValue
 
-    const request_data = {
-      created: FieldValue.serverTimestamp(),
+
+    const request_data:TRequest = {
       status: "PENDING_REVIEW",
+      arrivalDate: arrivalDate,
+      departureDate: departureDate,
+      kind: "COLIVING",
+      numberOfNights: numberOfNights!
     }
     const request_doc = await db.collection(`pax/${currentUser.sub}/requests`).add(request_data)
 
@@ -84,7 +89,7 @@ const ColivingForm = ({
     setCalValue(d as Date[])
   }
 
-  const numberOfNights = interval ? interval.count("days") - 1 : null
+
   return (
     <>
           <TheCalendar
