@@ -3,7 +3,7 @@ import {
   faBook,
   faBookReader,
   faCalendarCheck,
-  faChartPie,
+  faChartPie, faComments,
   faEye,
   faMoneyCheck,
   faSignOutAlt,
@@ -47,6 +47,10 @@ export function NavLinks() {
 
                 <Menu.Item icon={<FontAwesomeIcon icon={faMoneyCheck} />}>
                   <WorkInProgress>Mes contributions</WorkInProgress>
+                </Menu.Item>
+
+                <Menu.Item icon={<FontAwesomeIcon icon={faComments} />}>
+                  <WorkInProgress>Communauté</WorkInProgress>
                 </Menu.Item>
 
                 <Menu.Item icon={<FontAwesomeIcon icon={faChartPie} />}>

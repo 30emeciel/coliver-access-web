@@ -5,8 +5,9 @@ import { useAuthState as useFirebaseAuthState } from "react-firebase-hooks/auth"
 import { useDocument } from "react-firebase-hooks/firestore"
 import firebase from "src/core/myfirebase"
 import loglevel from "src/core/myloglevel"
-import { TPax } from "src/models/Pax"
+import { TPax, TPaxConverter } from "src/models/Pax"
 import { login as freshdeskLogin, logout as freshdeskLogout } from "./freshdesk"
+import db from "./db"
 
 const auth0_options = {
   scope: "openid profile email",
@@ -49,7 +50,7 @@ const useUser = () => {
     }
   }, [auth0Token])
   const [firestoreIsTokenLoading, setFirestoreIsTokenLoading] = useState(false)
-  useEffect(() => {
+  useEffect(() =>  {
     if (firebaseAuthIsLoading) {
       //wait firebase to be ready
       return
@@ -67,15 +68,17 @@ const useUser = () => {
 
     log.debug("axios post")
     // exchange auth0 token to firebase auth token
-    setFirestoreIsTokenLoading(true)
-    axios
-      .post("https://europe-west3-trentiemeciel.cloudfunctions.net/auth0-firebase-token-exchange", {
-        access_token: auth0Token,
-      })
-      .then((exchange_token_response) => {
-        log.debug("firebase auth signInWithCustomToken")
-        firebase.auth().signInWithCustomToken(exchange_token_response.data.firebase_token)
-      })
+    setFirestoreIsTokenLoading(true);
+    (async () => {
+      const exchange_token_response = await axios
+        .post("https://europe-west3-trentiemeciel.cloudfunctions.net/auth0-firebase-token-exchange", {
+          access_token: auth0Token,
+        })
+
+      log.debug("firebase auth signInWithCustomToken")
+      await firebase.auth().signInWithCustomToken(exchange_token_response.data.firebase_token)
+      log.debug("firebase auth signInWithCustomToken DONE")
+    })()
   }, [firebaseAuthUser, firebaseAuthIsLoading, auth0User, auth0Token, setFirestoreIsTokenLoading])
 
   const [userDocRef, setUserDocRef] = useState<firebase.firestore.DocumentReference>()
@@ -85,7 +88,7 @@ const useUser = () => {
       return
     }
     log.debug("setUserDocRef")
-    setUserDocRef(firebase.firestore().doc(`pax/${firebaseAuthUser.uid}`))
+    setUserDocRef(db.doc(`pax/${firebaseAuthUser.uid}`).withConverter(TPaxConverter))
     setFirestoreIsTokenLoading(false)
   }, [firebaseAuthUser, setUserDocRef, setFirestoreIsTokenLoading])
 

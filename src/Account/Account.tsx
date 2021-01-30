@@ -5,13 +5,13 @@ import React, { useContext } from "react"
 import { useDocumentData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
-import { TPaxStates } from "src/models/Pax"
+import { TPaxConverter, TPaxStates } from "src/models/Pax"
 import { TPax } from "src/models/Pax"
 import { $enum } from "ts-enum-util"
 
 const Account = ({ paxId }: { paxId?: string }) => {
   const paxContext = useContext(PaxContext)
-  const paxDocRef = paxId ? db.doc(`pax/${paxId}`) : paxContext.ref!
+  const paxDocRef = paxId ? db.doc(`pax/${paxId}`).withConverter(TPaxConverter) : paxContext.ref!
 
   const [paxDoc, paxDocIsLoading, paxDocError] = useDocumentData<TPax>(paxDocRef)
 
