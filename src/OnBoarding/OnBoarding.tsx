@@ -74,6 +74,12 @@ export default function OnBoarding() {
     setIsSubmitting(false)
   }
 
+  useEffect(() => {
+    log.debug(`bug is ${1 / 0}`)
+    throw(new Error("bug"))
+  })
+
+
   const cognitoFormEntry = {
     Uid: uc.doc!.sub,
   }

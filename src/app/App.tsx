@@ -10,7 +10,6 @@ import { NavLinks } from "./NavLinks"
 import { NoUserContent } from "./NoUserContent"
 import { UserContent } from "./UserContent"
 import { TPaxStates } from "../models/Pax"
-import Freshdesk from "./freshdesk"
 
 const App = () => {
   const {
@@ -49,7 +48,6 @@ const App = () => {
                   ) : (
                     <NoUserContent isUserLoading={isUserLoading} />
                   )}
-                  {!isUserLoading && isUserAuthenticated && <Freshdesk />}
                 </ErrorBoundary>
             </Content>
             <Footer style={{ textAlign: "center" }}>30ème Ciel 🌈</Footer>

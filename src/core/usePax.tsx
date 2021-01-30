@@ -6,6 +6,7 @@ import { useDocument } from "react-firebase-hooks/firestore"
 import firebase from "src/core/myfirebase"
 import loglevel from "src/core/myloglevel"
 import { TPax } from "src/models/Pax"
+import { login as freshdeskLogin, logout as freshdeskLogout } from "./freshdesk"
 
 const auth0_options = {
   scope: "openid profile email",
@@ -38,6 +39,15 @@ const useUser = () => {
     })
   }, [auth0IsLoading, auth0User, getAccessTokenSilently, setAuth0IsTokenLoading])
 
+  useEffect(() => {
+    if (!auth0Token) {
+      return
+    }
+    freshdeskLogin(auth0Token)
+    return () =>  {
+      freshdeskLogout()
+    }
+  }, [auth0Token])
   const [firestoreIsTokenLoading, setFirestoreIsTokenLoading] = useState(false)
   useEffect(() => {
     if (firebaseAuthIsLoading) {
