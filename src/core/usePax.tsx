@@ -5,23 +5,10 @@ import { useAuthState as useFirebaseAuthState } from "react-firebase-hooks/auth"
 import { useDocument } from "react-firebase-hooks/firestore"
 import firebase from "src/core/myfirebase"
 import loglevel from "src/core/myloglevel"
+import { TPax } from "src/models/Pax"
 
 const auth0_options = {
   scope: "openid profile email",
-}
-
-export enum PaxStates {
-  Authenticated = "",
-  Registered = "REGISTERED",
-  Confirmed = "CONFIRMED",
-}
-
-export interface Pax {
-  sub: string
-  name: string
-  state?: PaxStates
-  picture?: string
-  isSupervisor?: boolean
 }
 
 const log = loglevel.getLogger("useUser")
@@ -114,7 +101,7 @@ const useUser = () => {
     isLoading: isLoading,
     isAuthenticated: isAuthenticated,
     userSnap: isAuthenticated ? userDocSnap : undefined,
-    userData: isAuthenticated ? userDocSnap?.data() as Pax : undefined,
+    userData: isAuthenticated ? userDocSnap?.data() as TPax : undefined,
     docRef: isAuthenticated ? userDocRef : undefined,
     error: error,
   }

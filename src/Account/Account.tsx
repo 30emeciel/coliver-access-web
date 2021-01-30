@@ -5,14 +5,15 @@ import React, { useContext } from "react"
 import { useDocumentData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
-import { Pax, PaxStates } from "src/core/usePax"
+import { TPaxStates } from "src/models/Pax"
+import { TPax } from "src/models/Pax"
 import { $enum } from "ts-enum-util"
 
 const Account = ({ paxId }: { paxId?: string }) => {
   const paxContext = useContext(PaxContext)
   const paxDocRef = paxId ? db.doc(`pax/${paxId}`) : paxContext.ref!
 
-  const [paxDoc, paxDocIsLoading, paxDocError] = useDocumentData<Pax>(paxDocRef)
+  const [paxDoc, paxDocIsLoading, paxDocError] = useDocumentData<TPax>(paxDocRef)
 
   if (!paxDoc) {
     return <Spin />
@@ -27,15 +28,15 @@ const Account = ({ paxId }: { paxId?: string }) => {
         <Form.Item label="Name" name="Name" initialValue={paxDoc.name}>
           <Input readOnly/>
         </Form.Item>
-        <Form.Item label="State" name="State" initialValue={$enum(PaxStates).getKeyOrThrow(paxDoc.state)}>
+        <Form.Item label="State" name="State" initialValue={$enum(TPaxStates).getKeyOrThrow(paxDoc.state)}>
           <Radio.Group value={paxDoc.state}>
-            {$enum(PaxStates).map((value, key, wrappedEnum, index) => (
+            {$enum(TPaxStates).map((value, key, wrappedEnum, index) => (
               <Radio.Button
                 key={index}
                 value={key}
                 onChange={(e) =>
                   paxDocRef.update({
-                    state: $enum(PaxStates).getValueOrThrow(e.target.value),
+                    state: $enum(TPaxStates).getValueOrThrow(e.target.value),
                   })
                 }
               >

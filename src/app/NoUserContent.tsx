@@ -34,7 +34,7 @@ export function NoUserContent({ isUserLoading }: { isUserLoading: boolean; }) {
                   loading={isLoading}
                   onClick={() => loginWithRedirect( /*auth0_options*/)}
                 >
-                  Me connecter avec mon compte PaxID
+                  Connexion
                 </Button>
               </Row>
               <br />
@@ -43,7 +43,7 @@ export function NoUserContent({ isUserLoading }: { isUserLoading: boolean; }) {
                   type="default"
                   block
                   loading={isLoading} onClick={() => loginWithRedirect()}>
-                  Je suis nouveau, je veux créer mon compte PaxID
+                  Je suis nouveau, je veux créer mon compte
                 </Button>
               </Row>
             </>

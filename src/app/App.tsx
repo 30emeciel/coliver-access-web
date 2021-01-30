@@ -2,13 +2,15 @@ import Layout, { Content, Footer, Header } from "antd/lib/layout/layout"
 import { ErrorBoundary } from "react-error-boundary"
 import { BrowserRouter } from "react-router-dom"
 import PaxContext, { TPaxContext } from "src/core/paxContext"
-import useUser, { PaxStates } from "src/core/usePax"
+import useUser from "src/core/usePax"
 import OnBoarding from "src/OnBoarding/OnBoarding"
 import "./App.less"
 import { ErrorFallback } from "./ErrorFallback"
 import { NavLinks } from "./NavLinks"
 import { NoUserContent } from "./NoUserContent"
 import { UserContent } from "./UserContent"
+import { TPaxStates } from "../models/Pax"
+import Freshdesk from "./freshdesk"
 
 const App = () => {
   const {
@@ -42,11 +44,12 @@ const App = () => {
             <Content style={{ padding: "8px 16px" }}>
                 <ErrorBoundary FallbackComponent={ErrorFallback}>
                   {!isUserLoading && isUserAuthenticated && userDoc ? (
-                    userDoc.state === PaxStates.Confirmed ?
+                    userDoc.state === TPaxStates.Confirmed ?
                       <UserContent /> : <OnBoarding />
                   ) : (
                     <NoUserContent isUserLoading={isUserLoading} />
                   )}
+                  {!isUserLoading && isUserAuthenticated && <Freshdesk />}
                 </ErrorBoundary>
             </Content>
             <Footer style={{ textAlign: "center" }}>30ème Ciel 🌈</Footer>

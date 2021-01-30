@@ -5,12 +5,12 @@ import Avatar from "antd/lib/avatar/avatar"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
 import db from "src/core/db"
-import { Pax } from "src/core/usePax"
+import { TPax } from "src/models/Pax"
 
-const WithContent = ({ paxDocs }: { paxDocs: Pax[] }) => {
+const WithContent = ({ paxDocs }: { paxDocs: TPax[] }) => {
   const history = useHistory()
 
-  const buttons = ({ paxDoc }: { paxDoc: Pax }) => [
+  const buttons = ({ paxDoc }: { paxDoc: TPax }) => [
     <Button type="primary" onClick={() => history.push(`/pax/${paxDoc.sub}/account`)}>
       <FontAwesomeIcon icon={faUser} /> Compte
     </Button>,
@@ -33,7 +33,7 @@ const WithContent = ({ paxDocs }: { paxDocs: Pax[] }) => {
 }
 
 const PaxList = () => {
-  const [paxDocs, paxDocLoading, paxDocsError] = useCollectionData<Pax>(db.collection("pax").orderBy("name", "asc"))
+  const [paxDocs, paxDocLoading, paxDocsError] = useCollectionData<TPax>(db.collection("pax").orderBy("name", "asc"))
 
   return (
     <>

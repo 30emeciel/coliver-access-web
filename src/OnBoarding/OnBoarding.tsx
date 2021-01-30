@@ -1,9 +1,9 @@
-import { CheckSquareOutlined, LoadingOutlined, SmileOutlined, SolutionOutlined, UserOutlined } from '@ant-design/icons'
-import { Card, Steps } from "antd"
-import { useContext, useEffect, useRef } from "react"
+import { CheckSquareOutlined, LoadingOutlined, SmileOutlined, SolutionOutlined, UserOutlined } from "@ant-design/icons"
+import { Card, Spin, Steps } from "antd"
+import { useContext, useEffect, useRef, useState } from "react"
 import PaxContext from "src/core/paxContext"
-import { PaxStates } from "src/core/usePax"
-import { getEnvOrFail } from 'src/core/getEnvOrFail'
+import { TPax, TPaxConverter, TPaxStates } from "src/models/Pax"
+import { getEnvOrFail } from "src/core/getEnvOrFail"
 import myloglevel from "src/core/myloglevel"
 
 const log = myloglevel.getLogger("OnBoarding")
@@ -19,7 +19,7 @@ declare function ExoJQuery(arg: any): any
 
 const PREREGISTRATION_FORM_ID = getEnvOrFail("PREREGISTRATION_FORM_ID")
 
-const CognitoFormSeamless = ({ entry, onSubmit }: { entry: any; onSubmit: () => void }) => {
+const CognitoFormSeamless = ({ entry, onSubmit }: { entry: any; onSubmit: (e: any, data: any) => void }) => {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -52,16 +52,26 @@ const CognitoFormSeamless = ({ entry, onSubmit }: { entry: any; onSubmit: () => 
     }
   }, [entry, onSubmit])
 
-  return <div ref={ref} className="cognito"></div>
+  return <div ref={ref} className="cognito" />
 }
 
-const OnBoarding = () => {
+export default function OnBoarding() {
   const uc = useContext(PaxContext)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const onSubmitFct = () => {
+  const onSubmitFct = async (e: any, data: any) => {
+    setIsSubmitting(true)
     log.info("onSubmit")
+    const weirdId = data.entry.Id as string
+    const [formId, entryId] = weirdId.split("-")
+    const preregistrationFormEntryUrl = `https://www.cognitoforms.com/_30%C3%A8meCiel/${formId}/entries/${entryId}`
     const userDocRef = uc.ref!
-    userDocRef.update({ state: "REGISTERED" })
+    const data_update:Partial<TPax> = {
+      state: TPaxStates.Registered,
+      preregistrationFormEntryUrl: preregistrationFormEntryUrl
+    }
+    await userDocRef.withConverter(TPaxConverter).set(data_update, {merge: true})
+    setIsSubmitting(false)
   }
 
   const cognitoFormEntry = {
@@ -71,10 +81,9 @@ const OnBoarding = () => {
   return (
     <>
           <Card>
-            <Steps current={uc.doc!.state === PaxStates.Registered ? 2 : 1}>
-              <Step title="Identification" description="Tu créés un compte PaxID" icon={<UserOutlined />} />
+            <Steps current={uc.doc!.state === TPaxStates.Registered ? 1 : 0}>
               <Step title="Préinscription" description="Aide-moi à mieux te connaître" icon={<SolutionOutlined />}/>
-              <Step title="Confirmation" description="Attends la confirmation de ton inscription" icon={uc.doc!.state === PaxStates.Registered ? <LoadingOutlined /> : <CheckSquareOutlined />}/>
+              <Step title="Confirmation" description="Attends la confirmation de ta préinscription" icon={uc.doc!.state === TPaxStates.Registered ? <LoadingOutlined /> : <CheckSquareOutlined />}/>
               <Step title="C'est parti !" icon={<SmileOutlined />} />
             </Steps>
             </Card>
@@ -86,10 +95,10 @@ const OnBoarding = () => {
                   Avant de venir, le rôle <strong>Participante</strong> a besoin d'en savoir un peu plus sur toi.
                   Est-ce que tu peux remplir ce formulaire ?
                 </p>
-                <CognitoFormSeamless entry={cognitoFormEntry} onSubmit={onSubmitFct} />
+                {isSubmitting ? <Spin /> : <CognitoFormSeamless entry={cognitoFormEntry} onSubmit={onSubmitFct} />}
               </>
             )}
-            {uc.doc!.state === PaxStates.Registered && (
+            {uc.doc!.state === TPaxStates.Registered && (
               <>
                 <h3>Confirmation</h3>
                 <p>
@@ -101,4 +110,4 @@ const OnBoarding = () => {
   )
 }
 
-export default OnBoarding
+

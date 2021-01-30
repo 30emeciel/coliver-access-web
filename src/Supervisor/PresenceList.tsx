@@ -7,7 +7,7 @@ import { useCollection, useDocumentData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
 import db from "src/core/db"
 import firebase from "src/core/myfirebase"
-import { Pax } from "src/core/usePax"
+import { TPax } from "src/models/Pax"
 import DateRangePicker from "react-bootstrap-daterangepicker"
 // you will need the css that comes with bootstrap@3. if you are using
 // a tool like webpack, you can do the following:
@@ -24,7 +24,7 @@ const log = loglevel.getLogger("PresenceList")
 
 const UserField = ({ paxId }: { paxId: string }) => {
   const paxDocRef = db.doc(`pax/${paxId}`)
-  const [paxData, isLoading, error] = useDocumentData<Pax>(paxDocRef)
+  const [paxData, isLoading, error] = useDocumentData<TPax>(paxDocRef)
 
   if (paxData) {
     return (

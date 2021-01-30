@@ -19,7 +19,7 @@ import { useContext } from "react"
 import { useHistory, useLocation, useRouteMatch } from "react-router-dom"
 import firebase from "src/core/myfirebase"
 import PaxContext from "src/core/paxContext"
-import { PaxStates } from "src/core/usePax"
+import { TPaxStates } from "src/models/Pax"
 import WorkInProgress from "src/core/WorkInProgress"
 
 export function NavLinks() {
@@ -32,7 +32,7 @@ export function NavLinks() {
       <Layout>
         <Content>
           <Menu mode="horizontal" theme="dark" selectedKeys={[location.pathname]} selectable={false}>
-            {pc.doc && pc.doc.state === PaxStates.Confirmed && (
+            {pc.doc && pc.doc.state === TPaxStates.Confirmed && (
               <>
                 <Menu.Item key="/presence" icon={<FontAwesomeIcon icon={faUserClock} />} onClick={() => history.push("/presence")}>
                   Ma présence

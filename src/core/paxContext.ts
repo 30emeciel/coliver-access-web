@@ -1,11 +1,11 @@
-import { Pax } from "./usePax"
+import { TPax } from "../models/Pax"
 import firebase from "src/core/myfirebase"
 import React from "react"
 
 export interface TPaxContext {
   isLoading: boolean
   isAuthenticated?: boolean
-  doc?: Pax
+  doc?: TPax
   ref?: firebase.firestore.DocumentReference
 }
 

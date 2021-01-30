@@ -6,7 +6,7 @@ import { useContext, useEffect, useState } from "react"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
-import { Pax } from "src/core/usePax"
+import { TPax } from "src/models/Pax"
 import { $enum } from "ts-enum-util"
 import ColivingForm from "./ColivingForm"
 import CoworkingForm from "./CoworkingForm"
@@ -26,7 +26,7 @@ enum AppStates {
   EditDays,
 }
 
-const MyPresenceCalendar = ({ pax: initialPax }: { pax?: Pax }) => {
+const MyPresenceCalendar = ({ pax: initialPax }: { pax?: TPax }) => {
   const { doc: currentUserData } = useContext(PaxContext)
   const pax = initialPax ? initialPax : currentUserData!
 

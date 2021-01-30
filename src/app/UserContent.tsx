@@ -3,10 +3,10 @@ import React, { useContext } from "react";
 import { useDocumentData } from "react-firebase-hooks/firestore";
 import { Route, Switch, useParams } from "react-router-dom";
 import Account from "src/Account/Account";
-import BookingList from "src/Booking/BookingList";
+import ReservationList from "src/Reservation/ReservationList";
 import db from "src/core/db";
 import PaxContext from "src/core/paxContext";
-import { Pax, PaxStates } from "src/core/usePax";
+import { TPax } from "src/models/Pax";
 import Dashboard from "src/Dashboard/Dashboard";
 import PaxList from "src/Supervisor/PaxList";
 import PresenceList from "src/Supervisor/PresenceList";
@@ -20,7 +20,7 @@ type PaxParams = {
 
 const MyPresenceCalendarLoader = () => {
   const { id: userId } = useParams<PaxParams>()
-  const [pax, isLoading, error] = useDocumentData<Pax>(db.doc(`pax/${userId}`))
+  const [pax, isLoading, error] = useDocumentData<TPax>(db.doc(`pax/${userId}`))
   if (error) {
     throw error
   }
@@ -54,7 +54,7 @@ export function UserContent() {
         <MyPresenceCalendar />
       </Route>
       <Route exact path="/bookings">
-        <BookingList />
+        <ReservationList />
       </Route>
       <Route exact path="/pax">
         <PaxList />

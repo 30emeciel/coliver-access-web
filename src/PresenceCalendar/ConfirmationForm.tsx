@@ -4,7 +4,7 @@ import { Button, Drawer, Space } from "antd"
 import { useState } from "react"
 import db from "src/core/db"
 import firebase from "src/core/myfirebase"
-import { Pax } from "src/core/usePax"
+import { TPax } from "src/models/Pax"
 
 type DocumentSnapshot = firebase.firestore.DocumentSnapshot
 
@@ -14,7 +14,7 @@ export default function ConfirmationForm({
   onSubmit,
   onCancel,
 }: {
-  pax: Pax
+  pax: TPax
   requestSnap: DocumentSnapshot
   onSubmit: () => void
   onCancel: () => void

@@ -5,7 +5,7 @@ import { DateTime, Duration, Interval } from "luxon"
 import { useEffect, useState } from "react"
 import db from "src/core/db"
 import LoadingButton from "src/core/LoadingButton"
-import { TRequest, TRequestConverter } from "src/models/Request"
+import { TReservationRequest, TReservationRequestConverter } from "src/models/ReservationRequest"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
 
@@ -57,8 +57,8 @@ const ColivingForm = ({
       i = i.plus(oneDay)
     }
 
-    const request_data: TRequest = {
-      status: "PENDING_REVIEW",
+    const request_data: TReservationRequest = {
+      state: "PENDING_REVIEW",
       arrivalDate: arrivalDate,
       departureDate: departureDate,
       kind: "COLIVING",
@@ -66,10 +66,10 @@ const ColivingForm = ({
     }
     const request_doc = await db
       .collection(`pax/${currentUser.sub}/requests`)
-      .withConverter(TRequestConverter)
+      .withConverter(TReservationRequestConverter)
       .add(request_data)
 
-    var batch = db.batch()
+    const batch = db.batch()
 
     res.forEach((r) => {
       batch.set(db.collection(`pax/${currentUser.sub}/days`).doc(r.toISODate()), {

@@ -39,6 +39,7 @@
     "react-dom": "^17.0.1",
     "react-error-boundary": "^3.1.0",
     "react-firebase-hooks": "^2.2.0",
+    "react-helmet": "^6.1.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",
     "ts-enum-util": "^4.0.2",
@@ -69,6 +70,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-helmet": "^6.1.0",
     "prettier": "^2.2.1"
   }
 }

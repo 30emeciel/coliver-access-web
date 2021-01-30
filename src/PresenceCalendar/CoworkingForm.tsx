@@ -5,7 +5,7 @@ import { DateTime } from "luxon"
 import React, { useState } from "react"
 import db from "src/core/db"
 import LoadingButton from "src/core/LoadingButton"
-import { TRequest, TRequestConverter } from "src/models/Request"
+import { TReservationRequest, TReservationRequestConverter } from "src/models/ReservationRequest"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
 
@@ -32,14 +32,14 @@ const CoworkingForm = ({
     setIsFormSubmitting(true)
     const start = DateTime.fromJSDate(calValue)
 
-    const request_data: TRequest = {
+    const request_data: TReservationRequest = {
       arrivalDate: start,
       kind: "COWORKING",
-      status: "PENDING_REVIEW",
+      state: "PENDING_REVIEW",
     }
     const request_doc = await db
       .collection(`pax/${currentUser.sub}/requests`)
-      .withConverter(TRequestConverter)
+      .withConverter(TReservationRequestConverter)
       .add(request_data)
     await db.collection(`pax/${currentUser.sub}/days`).doc(start.toISODate()).set({
       on: start.toJSDate(),

@@ -5,7 +5,7 @@ import { useState } from "react"
 import db from "src/core/db"
 import firebase from "src/core/myfirebase"
 import Button from "src/core/LoadingButton"
-import { Pax } from "src/core/usePax"
+import { TPax } from "src/models/Pax"
 
 type DocumentData = firebase.firestore.DocumentData
 type DocumentSnapshot = firebase.firestore.DocumentSnapshot
@@ -16,7 +16,7 @@ const CancelationForm = ({
   onSubmit,
   onCancel,
 }: {
-  pax: Pax
+  pax: TPax
   requestSnap: DocumentSnapshot
   onSubmit: () => void
   onCancel: () => void

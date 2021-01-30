@@ -1,32 +1,31 @@
 import { faBed, faBookReader, faBriefcase, faCheckCircle, faClock, faEdit, faExclamationCircle, faQuestionCircle, IconDefinition } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Button, List, Tag } from "antd"
-import { DateTime } from "luxon"
 import { useContext } from "react"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
-import PaxContext from "src/core/paxContext"
-import { TRequestConverter, TRequest, TRequestKind, TRequestStatus } from "src/models/Request"
 import myloglevel from "src/core/myloglevel"
+import PaxContext from "src/core/paxContext"
 import WorkInProgress from "src/core/WorkInProgress"
+import { TReservationRequest, TReservationRequestConverter, TReservationRequestKind, TReservationRequestState } from "src/models/ReservationRequest"
 
-const log = myloglevel.getLogger("BookingList")
+const log = myloglevel.getLogger("ReservationList")
 
-export default function BookingList() {
+export default function ReservationList() {
   const pc = useContext(PaxContext)
   const pax = pc.doc!
 
-  const [listRequests, listRequestsLoading, listRequestsError] = useCollectionData<TRequest>(
-    db.collection(`pax/${pax.sub}/requests`).orderBy("arrivalDate", "asc").withConverter(TRequestConverter) ,
+  const [listRequests, listRequestsLoading, listRequestsError] = useCollectionData<TReservationRequest>(
+    db.collection(`pax/${pax.sub}/requests`).orderBy("arrivalDate", "asc").withConverter(TReservationRequestConverter) ,
     { idField: "id" }
   )
 
-  const status2fields:Record<TRequestStatus, [string, string, IconDefinition]> = {
+  const state2fields:Record<TReservationRequestState, [string, string, IconDefinition]> = {
     "CONFIRMED": ["Confirmée", "green", faCheckCircle],
     "PENDING_REVIEW": ["En attente", "orange", faClock]
   }
 
-  const kind2fields:Record<TRequestKind, [string, string, IconDefinition]> = {
+  const kind2fields:Record<TReservationRequestKind, [string, string, IconDefinition]> = {
     "COLIVING": ["Coliving", "#606dbc", faBed],
     "COWORKING": ["Coworking", "#6dbc6d", faBriefcase]
   }
@@ -42,7 +41,7 @@ export default function BookingList() {
         dataSource={listRequests}
         loading={listRequestsLoading}
         renderItem={(item) => {
-          const statusFields = status2fields[item.status] || ["?", "pink", faQuestionCircle]
+          const statusFields = state2fields[item.state] || ["?", "pink", faQuestionCircle]
           const kindFields = kind2fields[item.kind] || ["?", "pink", faQuestionCircle]
           return <List.Item actions={[
             <WorkInProgress><Button size="small" icon={<FontAwesomeIcon icon={faEdit}/>}>Modifier</Button></WorkInProgress>,
