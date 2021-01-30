@@ -20,7 +20,7 @@ const useUser = () => {
     getAccessTokenSilently,
     error: auth0Error,
   } = useAuth0()
-  const [firebaseAuthUser, firebaseAuthIsloading, firebaseAuthError] = useFirebaseAuthState(firebase.auth())
+  const [firebaseAuthUser, firebaseAuthIsLoading, firebaseAuthError] = useFirebaseAuthState(firebase.auth())
 
   const [auth0Token, setAuth0Token] = useState<string | null>(null)
   const [isLoadingTris, setIsLoadingTris] = useState(true)
@@ -40,7 +40,7 @@ const useUser = () => {
 
   const [firestoreIsTokenLoading, setFirestoreIsTokenLoading] = useState(false)
   useEffect(() => {
-    if (firebaseAuthIsloading) {
+    if (firebaseAuthIsLoading) {
       //wait firebase to be ready
       return
     }
@@ -66,7 +66,7 @@ const useUser = () => {
         log.debug("firebase auth signInWithCustomToken")
         firebase.auth().signInWithCustomToken(exchange_token_response.data.firebase_token)
       })
-  }, [firebaseAuthUser, firebaseAuthIsloading, auth0User, auth0Token, setFirestoreIsTokenLoading])
+  }, [firebaseAuthUser, firebaseAuthIsLoading, auth0User, auth0Token, setFirestoreIsTokenLoading])
 
   const [userDocRef, setUserDocRef] = useState<firebase.firestore.DocumentReference>()
 
@@ -82,12 +82,12 @@ const useUser = () => {
   const [userDocSnap, isUserDocLoading, userDocError] = useDocument(userDocRef)
   const error = auth0Error || firebaseAuthError || userDocError
   const isAuthenticated = auth0IsAuthenticated && firebaseAuthUser != null
-  const isLoadingBis = auth0IsLoading || firebaseAuthIsloading || isUserDocLoading || userDocSnap?.exists === undefined
+  const isLoadingBis = auth0IsLoading || firebaseAuthIsLoading || isUserDocLoading || userDocSnap?.exists === undefined
   const isLoading =
     auth0IsLoading ||
     auth0isTokenLoading ||
     firestoreIsTokenLoading ||
-    firebaseAuthIsloading ||
+    firebaseAuthIsLoading ||
     isUserDocLoading ||
     (isAuthenticated && !userDocSnap)
 
