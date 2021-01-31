@@ -19,6 +19,7 @@ import { Row, Spin, Table } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import Column from "antd/lib/table/Column"
 import { TReservationRequestKind } from "../models/ReservationRequest"
+import { TDay, TDayConverter } from "../models/Day"
 
 const log = loglevel.getLogger("PresenceList")
 
@@ -43,10 +44,10 @@ const UserField = ({ paxId }: { paxId: string }) => {
 
 const WithContent = ({
                        period,
-                       paxSnap,
+                       paxSnaps,
                      }: {
   period: [DateTime, DateTime]
-  paxSnap: firebase.firestore.QuerySnapshot
+  paxSnaps: firebase.firestore.QuerySnapshot<TDay>
 }) => {
   log.debug(`period[0]=${period[0]} period[1]=${period[1]}`)
   const int = Interval.fromDateTimes(period[0], period[1])
@@ -55,21 +56,21 @@ const WithContent = ({
 
   const history = useHistory()
 
-  const grouped = paxSnap.docs.reduce<Map<string, Map<number, (TReservationRequestKind | null)>>>((previousValue, daySnap) => {
+  const grouped = paxSnaps.docs.reduce<Map<string, Map<number, (TReservationRequestKind | null)>>>((previousValue, daySnap) => {
     ;(() => {
       const userId = daySnap.ref.parent!.parent!.id
-      const data = daySnap.data()
-      if (data.status !== "CONFIRMED") {
+      const day = daySnap.data()
+      if (day.state !== "CONFIRMED") {
         return
       }
-      const dt = DateTime.fromMillis(data.on.seconds * 1000).toMillis()
+      const dt = day.on.toMillis()
       let barr = previousValue.get(userId)
       if (!barr) {
         barr = new Map<number, TReservationRequestKind | null>()
         previousValue.set(userId, barr)
       }
 
-      barr.set(dt, $enum(TReservationRequestKind).asValueOrThrow(data.kind))
+      barr.set(dt, $enum(TReservationRequestKind).asValueOrThrow(day.kind))
     })()
     return previousValue
   }, new Map())
@@ -126,8 +127,8 @@ const WithContent = ({
 }
 
 const PresenceList = () => {
-  const [paxDocs, paxDocLoading, paxDocsError] = useCollection(
-    db.collectionGroup("days").orderBy("on", "asc"),
+  const [paxSnaps, paxDocLoading, paxDocsError] = useCollection(
+    db.collectionGroup("days").withConverter(TDayConverter).orderBy("on", "asc"),
   )
   const [period, setPeriod] = useState<[DateTime, DateTime]>([DateTime.local().startOf("month"), DateTime.local().endOf("month")])
 
@@ -192,12 +193,12 @@ const PresenceList = () => {
       </DateRangePicker>
     </Row>
     <Row>
-      {!paxDocs ? (
+      {!paxSnaps ? (
         <Spin />
       ) : (
         <WithContent
           period={period}
-          paxSnap={paxDocs}
+          paxSnaps={paxSnaps}
         />
       )}
     </Row>
