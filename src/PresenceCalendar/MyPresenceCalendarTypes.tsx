@@ -1,27 +1,13 @@
 import { DateTime, Duration, Interval } from "luxon"
 import { TPax } from "src/models/Pax"
-
-export enum UserDayStates {
-  PendingReview = "PENDING_REVIEW",
-  Confirmed = "CONFIRMED",
-}
-
-export enum ReservationKinds {
-  Coworking = "COWORKING",
-  Coliving = "COLIVING",
-}
+import { TDay } from "../models/Day"
 
 export enum GlobalDayStates {
   Disabled,
 }
 
-export interface TUserDay {
-  on: any
-  kind: ReservationKinds
-  status: UserDayStates
-}
 
-export type TMapDays = Map<number, TUserDay>
+export type TMapDays = Map<number, TDay>
 export type TMapGlobalDays = Map<number, GlobalDayStates>
 
 export class TCalendarContext {

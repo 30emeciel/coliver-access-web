@@ -1,7 +1,7 @@
 import { faBed, faBriefcase, faCalendarCheck, IconDefinition } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import loglevel from "loglevel"
-import { DateTime, Duration, Interval } from "luxon"
+import { DateTime, Interval } from "luxon"
 import { useState } from "react"
 import { useCollection, useDocumentData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
@@ -15,10 +15,10 @@ import DateRangePicker from "react-bootstrap-daterangepicker"
 import "bootstrap-daterangepicker/daterangepicker.css"
 import moment, { Moment } from "moment"
 import { $enum } from "ts-enum-util"
-import { ReservationKinds } from "src/PresenceCalendar/MyPresenceCalendarTypes"
-import { List, Row, Spin, Table } from "antd"
+import { Row, Spin, Table } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import Column from "antd/lib/table/Column"
+import { TReservationRequestKind } from "../models/ReservationRequest"
 
 const log = loglevel.getLogger("PresenceList")
 
@@ -42,9 +42,9 @@ const UserField = ({ paxId }: { paxId: string }) => {
 
 
 const WithContent = ({
-  period,
-  paxSnap,
-}: {
+                       period,
+                       paxSnap,
+                     }: {
   period: [DateTime, DateTime]
   paxSnap: firebase.firestore.QuerySnapshot
 }) => {
@@ -55,7 +55,7 @@ const WithContent = ({
 
   const history = useHistory()
 
-  const grouped = paxSnap.docs.reduce<Map<string, Map<number, (ReservationKinds|null)>>>((previousValue, daySnap) => {
+  const grouped = paxSnap.docs.reduce<Map<string, Map<number, (TReservationRequestKind | null)>>>((previousValue, daySnap) => {
     ;(() => {
       const userId = daySnap.ref.parent!.parent!.id
       const data = daySnap.data()
@@ -65,26 +65,26 @@ const WithContent = ({
       const dt = DateTime.fromMillis(data.on.seconds * 1000).toMillis()
       let barr = previousValue.get(userId)
       if (!barr) {
-        barr = new Map<number, ReservationKinds|null>()
+        barr = new Map<number, TReservationRequestKind | null>()
         previousValue.set(userId, barr)
       }
 
-      barr.set(dt, $enum(ReservationKinds).asValueOrThrow(data.kind))
+      barr.set(dt, $enum(TReservationRequestKind).asValueOrThrow(data.kind))
     })()
     return previousValue
   }, new Map())
 
   const dataSource = Array.from(grouped.entries()).map(([key, value]) => {
-      const dayFieldList = Array.from(value.entries()).map(([key, value]) => [key.toString(), value]) as [string, any][]
-      const paxIdField = [["key", key], ["paxId", key]] as [string, any][]
-      const data = new Map(paxIdField.concat(dayFieldList))
-      return Object.fromEntries(data.entries())
+    const dayFieldList = Array.from(value.entries()).map(([key, value]) => [key.toString(), value]) as [string, any][]
+    const paxIdField = [["key", key], ["paxId", key]] as [string, any][]
+    const data = new Map(paxIdField.concat(dayFieldList))
+    return Object.fromEntries(data.entries())
   })
 
-  const tdFct = (i:any) => {
+  const tdFct = (i: any) => {
     if (!i) return <></>
-    const r:[string, IconDefinition] = i === ReservationKinds.Coliving ? ['#606dbc', faBed] : ['#6dbc6d', faBriefcase]
-    return <FontAwesomeIcon style={{color: r[0]}} icon={r[1]} />
+    const r: [string, IconDefinition] = i === TReservationRequestKind.COLIVING ? ["#606dbc", faBed] : ["#6dbc6d", faBriefcase]
+    return <FontAwesomeIcon style={{ color: r[0] }} icon={r[1]} />
   }
 
   const day_columns = row.map((millis) => (
@@ -100,14 +100,13 @@ const WithContent = ({
   ))
 
   const pax_column = <Column
-      title='Pax'
-      dataIndex='paxId'
-      key= 'paxId'
-      render={(paxId) => <UserField paxId={paxId}/>}
-      width={200}
-      fixed="left"
+    title="Pax"
+    dataIndex="paxId"
+    key="paxId"
+    render={(paxId) => <UserField paxId={paxId} />}
+    width={200}
+    fixed="left"
   />
-
 
 
   const columns = [pax_column].concat(day_columns)
@@ -117,7 +116,7 @@ const WithContent = ({
       bordered={true}
       pagination={false}
       size="small"
-      scroll={{"x": 2000}}
+      scroll={{ "x": 2000 }}
       dataSource={dataSource}>
       {columns}
     </Table>
@@ -128,7 +127,7 @@ const WithContent = ({
 
 const PresenceList = () => {
   const [paxDocs, paxDocLoading, paxDocsError] = useCollection(
-    db.collectionGroup("days").orderBy("on", "asc")
+    db.collectionGroup("days").orderBy("on", "asc"),
   )
   const [period, setPeriod] = useState<[DateTime, DateTime]>([DateTime.local().startOf("month"), DateTime.local().endOf("month")])
 
@@ -139,60 +138,60 @@ const PresenceList = () => {
   }
 
   return <>
-      <Row>
+    <Row>
       <h2>
         <FontAwesomeIcon icon={faCalendarCheck} /> Tableau des présences
       </h2>
-      </Row>
-      <Row>
-            <DateRangePicker
-              onCallback={handleCallback}
-              initialSettings={{
-                autoApply: false,
-                alwaysShowCalendars: true,
-                ranges: {
-                  "Les 7 derniers jours": [moment().subtract(6, "days"), moment()],
-                  "Les 30 derniers jours": [moment().subtract(29, "days"), moment()],
-                  "Ce mois-ci": [moment().startOf("month"), moment().endOf("month")],
-                  "Le mois dernier": [
-                    moment().subtract(1, "month").startOf("month"),
-                    moment().subtract(1, "month").endOf("month"),
-                  ],
-                },
-                locale: {
-                  format: "DD/MM/YYYY",
-                  separator: " - ",
-                  applyLabel: "Appliquer",
-                  cancelLabel: "Annuler",
-                  fromLabel: "De",
-                  toLabel: "A",
-                  customRangeLabel: "Autre",
-                  weekLabel: "S",
-                  daysOfWeek: ["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"],
-                  monthNames: [
-                    "Janvier",
-                    "Fevrier",
-                    "Mars",
-                    "Avril",
-                    "Mai",
-                    "Juin",
-                    "Juillet",
-                    "Août",
-                    "Septembre",
-                    "Octobre",
-                    "Novembre",
-                    "Décembre",
-                  ],
-                  firstDay: 1,
-                },
-                startDate: period[0].toJSDate(),
-                endDate: period[1].toJSDate(),
-              }}
-            >
-              <input type="text" className="form-control" />
-            </DateRangePicker>
-      </Row>
-      <Row>
+    </Row>
+    <Row>
+      <DateRangePicker
+        onCallback={handleCallback}
+        initialSettings={{
+          autoApply: false,
+          alwaysShowCalendars: true,
+          ranges: {
+            "Les 7 derniers jours": [moment().subtract(6, "days"), moment()],
+            "Les 30 derniers jours": [moment().subtract(29, "days"), moment()],
+            "Ce mois-ci": [moment().startOf("month"), moment().endOf("month")],
+            "Le mois dernier": [
+              moment().subtract(1, "month").startOf("month"),
+              moment().subtract(1, "month").endOf("month"),
+            ],
+          },
+          locale: {
+            format: "DD/MM/YYYY",
+            separator: " - ",
+            applyLabel: "Appliquer",
+            cancelLabel: "Annuler",
+            fromLabel: "De",
+            toLabel: "A",
+            customRangeLabel: "Autre",
+            weekLabel: "S",
+            daysOfWeek: ["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"],
+            monthNames: [
+              "Janvier",
+              "Fevrier",
+              "Mars",
+              "Avril",
+              "Mai",
+              "Juin",
+              "Juillet",
+              "Août",
+              "Septembre",
+              "Octobre",
+              "Novembre",
+              "Décembre",
+            ],
+            firstDay: 1,
+          },
+          startDate: period[0].toJSDate(),
+          endDate: period[1].toJSDate(),
+        }}
+      >
+        <input type="text" className="form-control" />
+      </DateRangePicker>
+    </Row>
+    <Row>
       {!paxDocs ? (
         <Spin />
       ) : (

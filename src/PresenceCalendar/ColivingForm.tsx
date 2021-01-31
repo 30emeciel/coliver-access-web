@@ -5,9 +5,15 @@ import { DateTime, Duration, Interval } from "luxon"
 import { useEffect, useState } from "react"
 import db from "src/core/db"
 import LoadingButton from "src/core/LoadingButton"
-import { TReservationRequest, TReservationRequestConverter } from "src/models/ReservationRequest"
+import {
+  TReservationRequest,
+  TReservationRequestConverter,
+  TReservationRequestKind,
+  TReservationRequestState,
+} from "src/models/ReservationRequest"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
+import { TDayConverter, TDayKind, TDayState } from "../models/Day"
 
 const ColivingForm = ({
   calendarContext,
@@ -58,10 +64,10 @@ const ColivingForm = ({
     }
 
     const request_data: TReservationRequest = {
-      state: "PENDING_REVIEW",
+      state: TReservationRequestState.PENDING_REVIEW,
       arrivalDate: arrivalDate,
       departureDate: departureDate,
-      kind: "COLIVING",
+      kind: TReservationRequestKind.COLIVING,
       numberOfNights: numberOfNights!,
     }
     const request_doc = await db
@@ -72,11 +78,11 @@ const ColivingForm = ({
     const batch = db.batch()
 
     res.forEach((r) => {
-      batch.set(db.collection(`pax/${currentUser.sub}/days`).doc(r.toISODate()), {
-        on: r.toJSDate(),
+      batch.set(db.collection(`pax/${currentUser.sub}/days`).doc(r.toISODate()).withConverter(TDayConverter), {
+        on: r,
         request: request_doc,
-        status: "PENDING_REVIEW",
-        kind: "COLIVING",
+        state: TDayState.PENDING_REVIEW,
+        kind: TDayKind.COLIVING,
       })
     })
 

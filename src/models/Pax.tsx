@@ -1,5 +1,5 @@
 import admin from "firebase"
-import { DateTime } from "luxon"
+import { makePartialData } from "./utils"
 
 
 export enum TPaxStates {
@@ -20,7 +20,7 @@ export interface TPax {
 
 export const TPaxConverter: admin.firestore.FirestoreDataConverter<TPax> = {
   fromFirestore: (snapshot, options) => {
-    const data = snapshot.data(options)
+    const data = snapshot.data(options)!
 
     return {
       sub: data.sub,
@@ -32,14 +32,14 @@ export const TPaxConverter: admin.firestore.FirestoreDataConverter<TPax> = {
     }
   },
   toFirestore: (entity: Partial<TPax>) => {
-    return Object.fromEntries(Object.entries({
+    return makePartialData({
       // prevent to change pax id
       // sub: entity.sub,
-      name: entity.name ?? undefined,
-      state: entity.state ?? undefined,
-      picture: entity.picture ?? undefined,
-      is_supervisor: entity.isSupervisor ?? undefined,
-      preregistration_form_entry_url: entity.preregistrationFormEntryUrl ?? undefined
-    }).filter(([key, value]) => value !== undefined))
+      name: entity.name,
+      state: entity.state,
+      picture: entity.picture,
+      is_supervisor: entity.isSupervisor,
+      preregistration_form_entry_url: entity.preregistrationFormEntryUrl
+    })
   },
 }

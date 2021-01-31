@@ -29,7 +29,7 @@ const TheCalendar = ({
     if (!day) {
       return ""
     }
-    return `${day.kind}-${day.status}`.toLowerCase()
+    return `${day.kind}-${day.state}`.toLowerCase()
   }
 
   const disabledTiles = ({ activeStartDate, date, view }: CalendarTileProperties) =>

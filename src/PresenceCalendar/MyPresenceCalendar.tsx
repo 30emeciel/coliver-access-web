@@ -10,10 +10,11 @@ import { TPax } from "src/models/Pax"
 import { $enum } from "ts-enum-util"
 import ColivingForm from "./ColivingForm"
 import CoworkingForm from "./CoworkingForm"
-import { TCalendarContext, TMapDays, TMapGlobalDays, TUserDay, UserDayStates } from "./MyPresenceCalendarTypes"
+import { TCalendarContext, TMapDays, TMapGlobalDays } from "./MyPresenceCalendarTypes"
 import ReservationLoader from "./ReservationLoader"
 import TheCalendar from "./TheCalendar"
 import myloglevel from "src/core/myloglevel"
+import { TDay, TDayConverter, TDayState } from "../models/Day"
 
 const log = myloglevel.getLogger("MyPresenceCalendar")
 
@@ -36,8 +37,8 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: TPax }) => {
   const [isFirstTimer, setIsFirstTimer] = useState(false)
   const [appState, setAppState] = useState(AppStates.Normal)
 
-  const [listDays, listDaysLoading, listDaysError] = useCollectionData<TUserDay>(
-    db.collection(`pax/${pax.sub}/days`).orderBy("on", "asc")
+  const [listDays, listDaysLoading, listDaysError] = useCollectionData<TDay>(
+    db.collection(`pax/${pax.sub}/days`).withConverter(TDayConverter).orderBy("on", "asc"),
   )
 
   const [userDays, setUserDays] = useState<TMapDays>(new Map())
@@ -67,14 +68,9 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: TPax }) => {
         //      .filter((day) => day.status === "PENDING_REVIEW")
         .map((day) => {
           // TODO: #1 DateTime should be TZ insensitive
-          let d = DateTime.fromMillis(day.on.seconds * 1000)
-          let status = $enum(UserDayStates).asValueOrThrow(day.status)
-          let ud = {
-            kind: day.kind,
-            status: status,
-          }
-          return [d.toMillis(), ud] as [number, TUserDay]
-        })
+          let d = day.on
+          return [d.toMillis(), day] as [number, TDay]
+        }),
     )
     setUserDays(mapDays)
   }, [listDays, setUserDays])
@@ -119,9 +115,7 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: TPax }) => {
       </h2>
       <Alert
         type="info"
-        message="
-            Pour réserver, commence par cliquer sur le jour de ta venue."
-      ></Alert>
+        message="Pour réserver, commence par cliquer sur le jour de ta venue." />
       {isFirstTimer && <FirstTimerIntro />}
       <br />
       {new Set([AppStates.Normal, AppStates.ShowEmptyForm, AppStates.ShowOccupiedForm]).has(appState) && (

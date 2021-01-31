@@ -1,9 +1,23 @@
 import admin from "firebase"
 import { DateTime } from "luxon"
+import {
+  dtFromFirestore,
+  dtToFirestore,
+  makePartialData,
+  optionalDtFromFirestore,
+  optionalDtToFirestore,
+} from "./utils"
 
 
-export type TReservationRequestState = "PENDING_REVIEW" | "CONFIRMED"
-export type TReservationRequestKind = "COLIVING" | "COWORKING"
+export enum TReservationRequestState {
+  "PENDING_REVIEW" = "PENDING_REVIEW",
+  "CONFIRMED" = "CONFIRMED"
+}
+
+export enum TReservationRequestKind {
+  "COLIVING" = "COLIVING",
+  "COWORKING" = "COWORKING"
+}
 
 export interface TReservationRequest {
   id?: string
@@ -14,37 +28,28 @@ export interface TReservationRequest {
   departureDate?: DateTime
   numberOfNights?: number
 }
-function dtFromFirestore(firestore_timestamp:any) {
-  return DateTime.fromMillis((firestore_timestamp as admin.firestore.Timestamp).toMillis())
-}
-
-function dtToFirestore(dt:DateTime) {
-  return admin.firestore.Timestamp.fromDate(dt.toJSDate())
-}
 
 export const TReservationRequestConverter: admin.firestore.FirestoreDataConverter<TReservationRequest> = {
   fromFirestore: (snapshot, options) => {
-    const data = snapshot.data(options)
+    const data = snapshot.data(options)!
 
     return {
       created: dtFromFirestore(data.created),
-      state: data.state || data.status,
+      state: data.state,
       arrivalDate: dtFromFirestore(data.arrival_date),
-      departureDate: data.departureDate ? dtFromFirestore(data.departure_date) : undefined,
+      departureDate: optionalDtFromFirestore(data.departure_date),
       kind: data.kind,
       numberOfNights: data.number_of_nights,
     }
   },
   toFirestore: (entity: Partial<TReservationRequest>) => {
-    return {
+    return makePartialData({
       created: admin.firestore.FieldValue.serverTimestamp(),
       kind: entity.kind,
-      state: entity.state,
-      arrival_date: entity.arrivalDate ? dtToFirestore(entity.arrivalDate) : null,
-      departure_date: entity.departureDate
-        ? dtToFirestore(entity.departureDate)
-        : null,
-      number_of_nights: entity.numberOfNights ? entity.numberOfNights : null,
-    }
+      state: entity.state ,
+      arrival_date: optionalDtToFirestore(entity.arrivalDate),
+      departure_date: optionalDtToFirestore(entity.departureDate),
+      number_of_nights: entity.numberOfNights,
+    })
   },
 }

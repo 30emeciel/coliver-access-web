@@ -5,9 +5,15 @@ import { DateTime } from "luxon"
 import React, { useState } from "react"
 import db from "src/core/db"
 import LoadingButton from "src/core/LoadingButton"
-import { TReservationRequest, TReservationRequestConverter } from "src/models/ReservationRequest"
+import {
+  TReservationRequest,
+  TReservationRequestConverter,
+  TReservationRequestKind,
+  TReservationRequestState,
+} from "src/models/ReservationRequest"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
+import { TDayConverter, TDayKind, TDayState } from "../models/Day"
 
 const CoworkingForm = ({
   calendarContext,
@@ -34,18 +40,18 @@ const CoworkingForm = ({
 
     const request_data: TReservationRequest = {
       arrivalDate: start,
-      kind: "COWORKING",
-      state: "PENDING_REVIEW",
+      kind: TReservationRequestKind.COWORKING,
+      state: TReservationRequestState.PENDING_REVIEW,
     }
     const request_doc = await db
       .collection(`pax/${currentUser.sub}/requests`)
       .withConverter(TReservationRequestConverter)
       .add(request_data)
-    await db.collection(`pax/${currentUser.sub}/days`).doc(start.toISODate()).set({
-      on: start.toJSDate(),
+    await db.collection(`pax/${currentUser.sub}/days`).doc(start.toISODate()).withConverter(TDayConverter).set({
+      on: start,
       request: request_doc,
-      status: "PENDING_REVIEW",
-      kind: "COWORKING",
+      state: TDayState.PENDING_REVIEW,
+      kind: TDayKind.COWORKING,
     })
 
     onSubmit()

@@ -5,6 +5,8 @@ import { useState } from "react"
 import db from "src/core/db"
 import firebase from "src/core/myfirebase"
 import { TPax } from "src/models/Pax"
+import { TReservationRequest, TReservationRequestConverter, TReservationRequestState } from "../models/ReservationRequest"
+import { TDay, TDayConverter, TDayState } from "../models/Day"
 
 type DocumentSnapshot = firebase.firestore.DocumentSnapshot
 
@@ -25,17 +27,24 @@ export default function ConfirmationForm({
   const submitForm = async () => {
     setIsFormSubmitting(true)
 
-    var batch = db.batch()
-    const request_ref = db.doc(`pax/${pax.sub}/requests/${requestSnap.id}`)
-    batch.update(request_ref, { status: "CONFIRMED" })
+    const batch = db.batch()
+    const request_ref = db.doc(`pax/${pax.sub}/requests/${requestSnap.id}`).withConverter(TReservationRequestConverter)
+    const request_data:Partial<TReservationRequest> = {
+     state: TReservationRequestState.CONFIRMED,
+    }
+    batch.set(request_ref, request_data, {merge: true})
 
     const daysQuerySnap = await db
       .collection(`pax/${pax.sub}/days`)
+      .withConverter(TDayConverter)
       .where("request", "==", requestSnap.ref)
       .get()
 
     daysQuerySnap.forEach((docSnap) => {
-      batch.update(docSnap.ref, { status: "CONFIRMED" })
+      const data_update:Partial<TDay> = {
+        state: TDayState.CONFIRMED
+      }
+      batch.set(docSnap.ref, data_update, {merge: true})
     })
 
     await batch.commit()
