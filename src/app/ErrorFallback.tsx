@@ -1,6 +1,6 @@
 import { Button, Image, Result } from "antd"
-import cassé from "./cassé.jpg";
-import {open as freshdeskOpen} from "src/core/freshdesk"
+import cassé from "./cassé.jpg"
+import { open as freshdeskOpen } from "src/core/freshdesk"
 
 export function ErrorFallback({ error }: { error: Error; }) {
   const title = "Bravo ! Tu viens de trouver un bug dans notre application."

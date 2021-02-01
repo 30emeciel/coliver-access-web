@@ -7,14 +7,13 @@ import { useCollectionData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
 import { TPax } from "src/models/Pax"
-import { $enum } from "ts-enum-util"
 import ColivingForm from "./ColivingForm"
 import CoworkingForm from "./CoworkingForm"
 import { TCalendarContext, TMapDays, TMapGlobalDays } from "./MyPresenceCalendarTypes"
 import ReservationLoader from "./ReservationLoader"
 import TheCalendar from "./TheCalendar"
 import myloglevel from "src/core/myloglevel"
-import { TDay, TDayConverter, TDayState } from "../models/Day"
+import { TDay, TDayConverter } from "../models/Day"
 
 const log = myloglevel.getLogger("MyPresenceCalendar")
 

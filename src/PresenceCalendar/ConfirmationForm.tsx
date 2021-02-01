@@ -5,7 +5,11 @@ import { useState } from "react"
 import db from "src/core/db"
 import firebase from "src/core/myfirebase"
 import { TPax } from "src/models/Pax"
-import { TReservationRequest, TReservationRequestConverter, TReservationRequestState } from "../models/ReservationRequest"
+import {
+  TReservationRequest,
+  TReservationRequestConverter,
+  TReservationRequestState,
+} from "../models/ReservationRequest"
 import { TDay, TDayConverter, TDayState } from "../models/Day"
 
 type DocumentSnapshot = firebase.firestore.DocumentSnapshot

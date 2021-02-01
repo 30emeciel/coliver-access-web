@@ -1,4 +1,4 @@
-import { CheckSquareOutlined, LoadingOutlined, SmileOutlined, SolutionOutlined, UserOutlined } from "@ant-design/icons"
+import { CheckSquareOutlined, LoadingOutlined, SmileOutlined, SolutionOutlined } from "@ant-design/icons"
 import { Card, Spin, Steps } from "antd"
 import { useContext, useEffect, useRef, useState } from "react"
 import PaxContext from "src/core/paxContext"

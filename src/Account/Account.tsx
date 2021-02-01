@@ -1,12 +1,11 @@
 import { faUser } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Form, Input, Button, Checkbox, Row, Radio, Spin } from "antd"
+import { Form, Input, Radio, Row, Spin } from "antd"
 import React, { useContext } from "react"
 import { useDocumentData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
-import { TPaxConverter, TPaxStates } from "src/models/Pax"
-import { TPax } from "src/models/Pax"
+import { TPax, TPaxConverter, TPaxStates } from "src/models/Pax"
 import { $enum } from "ts-enum-util"
 
 const Account = ({ paxId }: { paxId?: string }) => {

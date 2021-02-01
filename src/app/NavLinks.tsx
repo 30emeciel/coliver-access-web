@@ -1,9 +1,10 @@
 import { useAuth0 } from "@auth0/auth0-react"
 import {
-  faBook,
   faBookReader,
   faCalendarCheck,
-  faChartPie, faCheckDouble, faComments,
+  faChartPie,
+  faCheckDouble,
+  faComments,
   faEye,
   faMoneyCheck,
   faSignOutAlt,
@@ -16,7 +17,7 @@ import Avatar from "antd/lib/avatar/avatar"
 import Layout, { Content } from "antd/lib/layout/layout"
 import SubMenu from "antd/lib/menu/SubMenu"
 import { useContext } from "react"
-import { useHistory, useLocation, useRouteMatch } from "react-router-dom"
+import { useHistory, useLocation } from "react-router-dom"
 import firebase from "src/core/myfirebase"
 import PaxContext from "src/core/paxContext"
 import { TPaxStates } from "src/models/Pax"

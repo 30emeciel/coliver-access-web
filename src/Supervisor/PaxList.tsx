@@ -1,6 +1,6 @@
-import { faTimes, faUser, faUserClock, faUsers } from "@fortawesome/free-solid-svg-icons"
+import { faUser, faUserClock, faUsers } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Button, Image, List, Row, Skeleton, Spin, Table } from "antd"
+import { Button, List, Row, Spin } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"

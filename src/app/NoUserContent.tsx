@@ -1,14 +1,8 @@
-import { useAuth0 } from "@auth0/auth0-react";
-import {
-  faSignInAlt,
-
-
-
-  faUserPlus
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Row, Spin } from "antd";
-import Layout, { Content } from "antd/lib/layout/layout";
+import { useAuth0 } from "@auth0/auth0-react"
+import { faSignInAlt, faUserPlus } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Button, Row, Spin } from "antd"
+import Layout, { Content } from "antd/lib/layout/layout"
 
 export function NoUserContent({ isUserLoading }: { isUserLoading: boolean; }) {
   const { loginWithRedirect, isLoading } = useAuth0();
