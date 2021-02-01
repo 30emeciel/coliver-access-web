@@ -19,7 +19,7 @@ import { Row, Spin, Table } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import Column from "antd/lib/table/Column"
 import { TReservationRequestKind } from "../models/ReservationRequest"
-import { TDay, TDayConverter } from "../models/Day"
+import { TDay, TDayConverter, TDayState } from "../models/Day"
 
 const log = loglevel.getLogger("PresenceList")
 
@@ -60,7 +60,7 @@ const WithContent = ({
     ;(() => {
       const userId = daySnap.ref.parent!.parent!.id
       const day = daySnap.data()
-      if (day.state !== "CONFIRMED") {
+      if (day.state !== TDayState.CONFIRMED) {
         return
       }
       const dt = day.on.toMillis()
