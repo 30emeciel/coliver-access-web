@@ -1,17 +1,16 @@
 import { Result, Spin } from "antd"
-import React, { useContext } from "react";
-import { useDocumentData } from "react-firebase-hooks/firestore";
-import { Route, Switch, useParams } from "react-router-dom";
-import Account from "src/Account/Account";
-import ReservationList from "src/Reservation/ReservationList";
-import db from "src/core/db";
-import PaxContext from "src/core/paxContext";
-import { TPax } from "src/models/Pax";
-import Dashboard from "src/Dashboard/Dashboard";
-import PaxList from "src/Supervisor/PaxList";
-import PresenceList from "src/Supervisor/PresenceList";
-import OnBoarding from "../OnBoarding/OnBoarding";
-import MyPresenceCalendar from "../PresenceCalendar/MyPresenceCalendar";
+import React, { useContext } from "react"
+import { useDocumentData } from "react-firebase-hooks/firestore"
+import { Route, Switch, useParams } from "react-router-dom"
+import Account from "src/Account/Account"
+import ReservationList from "src/Reservation/ReservationList"
+import db from "src/core/db"
+import PaxContext from "src/core/paxContext"
+import { TPax } from "src/models/Pax"
+import Dashboard from "src/Dashboard/Dashboard"
+import PaxList from "src/Supervisor/PaxList"
+import PresenceList from "src/Supervisor/PresenceList"
+import MyPresenceCalendar from "../PresenceCalendar/MyPresenceCalendar"
 
 
 type PaxParams = {
@@ -20,7 +19,7 @@ type PaxParams = {
 
 const MyPresenceCalendarLoader = () => {
   const { id: userId } = useParams<PaxParams>()
-  const [pax, isLoading, error] = useDocumentData<TPax>(db.doc(`pax/${userId}`))
+  const [pax, , error] = useDocumentData<TPax>(db.doc(`pax/${userId}`))
   if (error) {
     throw error
   }
