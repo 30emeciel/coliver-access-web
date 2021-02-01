@@ -11,10 +11,10 @@ const WithContent = ({ paxDocs }: { paxDocs: TPax[] }) => {
   const history = useHistory()
 
   const buttons = ({ paxDoc }: { paxDoc: TPax }) => [
-    <Button type="primary" onClick={() => history.push(`/pax/${paxDoc.sub}/account`)}>
+    <Button type="primary" onClick={() => history.push(`/supervisor/pax/${paxDoc.sub}/account`)}>
       <FontAwesomeIcon icon={faUser} /> Compte
     </Button>,
-    <Button onClick={() => history.push(`/pax/${paxDoc.sub}`)} className="ml-2">
+    <Button onClick={() => history.push(`/supervisor/pax/${paxDoc.sub}/presence`)} className="ml-2">
       <FontAwesomeIcon icon={faUserClock} /> Présence
     </Button>,
   ]

@@ -3,7 +3,7 @@ import {
   faBook,
   faBookReader,
   faCalendarCheck,
-  faChartPie, faComments,
+  faChartPie, faCheckDouble, faComments,
   faEye,
   faMoneyCheck,
   faSignOutAlt,
@@ -38,9 +38,9 @@ export function NavLinks() {
                   Ma présence
                 </Menu.Item>
                 <Menu.Item
-                  key="/bookings"
+                  key="/my-reservations"
                   icon={<FontAwesomeIcon icon={faBookReader} />}
-                  onClick={() => history.push("/bookings")}
+                  onClick={() => history.push("/my-reservations")}
                 >
                   Mes réservations
                 </Menu.Item>
@@ -62,13 +62,16 @@ export function NavLinks() {
                   icon={<FontAwesomeIcon className="mr-2" icon={faEye} />}
                   title="Supervisaire"
                 >
-                  <Menu.Item key="/pax" icon={<FontAwesomeIcon icon={faUsers} />} onClick={() => history.push("/pax")}>
+                  <Menu.Item key="/supervisor/pax" icon={<FontAwesomeIcon icon={faUsers} />} onClick={() => history.push("/supervisor/pax")}>
                     Répertoire des pax
                   </Menu.Item>
+                  <Menu.Item key="/supervisor/reservations" icon={<FontAwesomeIcon icon={faCheckDouble} />} onClick={() => history.push("/supervisor/reservations")}>
+                    Réservations en attente
+                  </Menu.Item>
                   <Menu.Item
-                    key="/presences"
+                    key="/supervisor/presence-summary"
                     icon={<FontAwesomeIcon icon={faCalendarCheck} />}
-                    onClick={() => history.push("/presences")}
+                    onClick={() => history.push("/supervisor/presence-summary")}
                   >
                     Tableau des présences
                   </Menu.Item>

@@ -53,21 +53,25 @@ export function UserContent() {
       <Route exact path="/presence">
         <MyPresenceCalendar />
       </Route>
-      <Route exact path="/bookings">
+      <Route exact path="/my-reservations">
         <ReservationList />
       </Route>
-      <Route exact path="/pax">
+      <Route exact path="/supervisor/pax">
         <PaxList />
       </Route>
-      <Route exact path="/pax/:id">
+      <Route exact path="/supervisor/pax/:id/presence">
         <MyPresenceCalendarLoader />
       </Route>
-      <Route exact path="/pax/:id/account">
+      <Route exact path="/supervisor/pax/:id/account">
         <AccountLoader />
       </Route>
-      <Route exact path="/presences">
+      <Route exact path="/supervisor/presence-summary">
         <PresenceList />
       </Route>
+      <Route exact path="/supervisor/reservations">
+        <ReservationList isSupervisorMode={true}/>
+      </Route>
+
     </Switch>
   );
 }
