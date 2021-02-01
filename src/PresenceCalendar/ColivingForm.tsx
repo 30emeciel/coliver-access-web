@@ -64,6 +64,7 @@ const ColivingForm = ({
     }
 
     const request_data: TReservationRequest = {
+      paxId: currentUser.sub,
       state: TReservationRequestState.PENDING_REVIEW,
       arrivalDate: arrivalDate,
       departureDate: departureDate,

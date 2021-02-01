@@ -39,6 +39,7 @@ const CoworkingForm = ({
     const start = DateTime.fromJSDate(calValue)
 
     const request_data: TReservationRequest = {
+      paxId: currentUser.sub,
       arrivalDate: start,
       kind: TReservationRequestKind.COWORKING,
       state: TReservationRequestState.PENDING_REVIEW,

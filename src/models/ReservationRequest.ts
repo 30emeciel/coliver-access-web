@@ -21,6 +21,7 @@ export enum TReservationRequestKind {
 
 export interface TReservationRequest {
   id?: string
+  paxId: string
   created?: DateTime
   kind: TReservationRequestKind
   state: TReservationRequestState
@@ -34,6 +35,7 @@ export const TReservationRequestConverter: admin.firestore.FirestoreDataConverte
     const data = snapshot.data(options)!
 
     return {
+      paxId: snapshot.ref.parent!.parent!.id,
       created: dtFromFirestore(data.created),
       state: data.state,
       arrivalDate: dtFromFirestore(data.arrival_date),
