@@ -1,4 +1,4 @@
-import { Spin } from "antd";
+import { Result, Spin } from "antd"
 import React, { useContext } from "react";
 import { useDocumentData } from "react-firebase-hooks/firestore";
 import { Route, Switch, useParams } from "react-router-dom";
@@ -70,6 +70,9 @@ export function UserContent() {
       </Route>
       <Route exact path="/supervisor/reservations">
         <ReservationList isSupervisorMode={true}/>
+      </Route>
+      <Route>
+        <Result status="404" title={"Perdu 😐"}/>
       </Route>
 
     </Switch>
