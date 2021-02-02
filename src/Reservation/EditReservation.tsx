@@ -8,10 +8,10 @@ import PaxContext from "src/core/paxContext"
 import { TReservationRequest } from "src/models/ReservationRequest"
 
 
-export default function EditReservation(requestId:string, impersonatedPaxId?: string) {
+export default function EditReservation({paxId, requestId}:{paxId:string, requestId:string}) {
 
   const paxContext = useContext(PaxContext)
-  const paxDocRef = impersonatedPaxId ? db.doc(`pax/${impersonatedPaxId}`) : paxContext.ref!
+  const paxDocRef = paxId ? db.doc(`pax/${paxId}`) : paxContext.ref!
   const requestDocRef = db.doc(`pax/${paxDocRef.id}/requests/${requestId}`)
   const [requestDoc, requestDocIsLoading, requestDocError] = useDocumentData<TReservationRequest>(requestDocRef)
 

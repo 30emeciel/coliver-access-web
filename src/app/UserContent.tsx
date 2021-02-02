@@ -11,14 +11,20 @@ import Dashboard from "src/Dashboard/Dashboard"
 import PaxList from "src/Supervisor/PaxList"
 import PresenceList from "src/Supervisor/PresenceList"
 import MyPresenceCalendar from "../PresenceCalendar/MyPresenceCalendar"
+import EditReservation from "../Reservation/EditReservation"
 
 
-type PaxParams = {
+type IdParams = {
   id: string
 }
 
+type PaxReservationParams = {
+  paxId: string
+  reservationId: string
+}
+
 const MyPresenceCalendarLoader = () => {
-  const { id: userId } = useParams<PaxParams>()
+  const { id: userId } = useParams<IdParams>()
   const [pax, , error] = useDocumentData<TPax>(db.doc(`pax/${userId}`))
   if (error) {
     throw error
@@ -34,9 +40,22 @@ const MyPresenceCalendarLoader = () => {
 }
 
 const AccountLoader = () => {
-  const { id: userId } = useParams<PaxParams>()
+  const { id: userId } = useParams<IdParams>()
   return <Account paxId={userId} />
 }
+
+const ReservationLoader = () => {
+  const uc = useContext(PaxContext)
+  const paxId = uc.doc!.sub!
+  const { id: reservationId } = useParams<IdParams>()
+  return <EditReservation paxId={paxId} requestId={reservationId} />
+}
+
+const SupervisorReservationLoader = () => {
+  const { paxId, reservationId } = useParams<PaxReservationParams>()
+  return <EditReservation paxId={paxId} requestId={reservationId} />
+}
+
 export function UserContent() {
   const uc = useContext(PaxContext);
 
@@ -54,6 +73,12 @@ export function UserContent() {
       </Route>
       <Route exact path="/my-reservations">
         <ReservationList />
+      </Route>
+      <Route exact path="/reservation/:id">
+        <ReservationLoader />
+      </Route>
+      <Route exact path="/supervisor/pax/:paxId/reservation/:reservationId">
+        <SupervisorReservationLoader />
       </Route>
       <Route exact path="/supervisor/pax">
         <PaxList />

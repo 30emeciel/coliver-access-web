@@ -25,6 +25,7 @@ import {
 } from "src/models/ReservationRequest"
 import { useHistory } from "react-router-dom"
 import { TDay, TDayConverter, TDayState } from "../models/Day"
+import { DateTime } from "luxon"
 
 const log = myloglevel.getLogger("ReservationList")
 
@@ -88,7 +89,7 @@ export default function ReservationList({ isSupervisorMode = false }: { isSuperv
         batch.set(docSnap.ref, data_update, { merge: true })
       })
 
-      //await batch.commit()
+      await batch.commit()
 
       // When all done, reset the UI
       setIsConfirmationSubmitting(false)
@@ -111,7 +112,7 @@ export default function ReservationList({ isSupervisorMode = false }: { isSuperv
         batch.delete(docSnap.ref)
       })
 
-      //await batch.commit()
+      await batch.commit()
 
       // When all done, reset the UI
       setIsCancelingSubmitting(false)
@@ -174,8 +175,10 @@ export default function ReservationList({ isSupervisorMode = false }: { isSuperv
           const stateFields = state2fields[item.state] || ["?", "pink", faQuestionCircle]
           const kindFields = kind2fields[item.kind] || ["?", "pink", faQuestionCircle]
           return <ListItem item={item}>
-            <Tag color={kindFields[1]}><FontAwesomeIcon icon={kindFields[2]} /> {kindFields[0]}
-            </Tag> {item.arrivalDate.toLocaleString()}{item.departureDate && <> au {item.departureDate.toLocaleString()} ({item.numberOfNights} nuits)</>}
+            <Tag color={kindFields[1]}><FontAwesomeIcon icon={kindFields[2]} /> {kindFields[0]}</Tag>
+            {item.arrivalDate.setLocale('fr-fr').toLocaleString(DateTime.DATE_MED)}
+            {item.departureDate && <> au {item.departureDate.setLocale('fr-fr').toLocaleString(DateTime.DATE_MED)} ({item.numberOfNights} nuits)</>}
+            {" "}
             <Tag color={stateFields[1]}><FontAwesomeIcon icon={stateFields[2]} /> {stateFields[0]}</Tag>
           </ListItem>
         }}
