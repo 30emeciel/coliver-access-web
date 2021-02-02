@@ -29,14 +29,14 @@ import { DateTime } from "luxon"
 import { TPax, TPaxConverter } from "../models/Pax"
 
 const log = myloglevel.getLogger("ReservationList")
-const { Column, ColumnGroup } = Table
+const { Column } = Table
 
 export default function ReservationList({ isSupervisorMode = false }: { isSupervisorMode?: boolean }) {
   const pc = useContext(PaxContext)
   const pax = pc.doc!
   const history = useHistory()
 
-  const [listRequests, listRequestsLoading, listRequestsError] = useCollectionData<TReservationRequest>(
+  const [listRequests, listRequestsLoading, ] = useCollectionData<TReservationRequest>(
     (isSupervisorMode ?
         db.collectionGroup("requests")
           .where("state", "==", "PENDING_REVIEW")
@@ -160,7 +160,7 @@ export default function ReservationList({ isSupervisorMode = false }: { isSuperv
   useEffect(() => {
     if (!paxList)
       return
-    const m = paxList.reduce((previousValue, currentValue, index, arr) => {
+    const m = paxList.reduce((previousValue, currentValue, _index, _arr) => {
       previousValue.set(currentValue.sub, currentValue)
       return previousValue
     }, new Map<string, TPax>())
