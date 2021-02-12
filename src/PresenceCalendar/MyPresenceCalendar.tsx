@@ -14,6 +14,7 @@ import ReservationLoader from "./ReservationLoader"
 import TheCalendar from "./TheCalendar"
 import myloglevel from "src/core/myloglevel"
 import { TDay, TDayConverter } from "../models/Day"
+import { BackButton } from "../Buttons/BackButton"
 
 const log = myloglevel.getLogger("MyPresenceCalendar")
 
@@ -130,10 +131,10 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: TPax }) => {
               <Modal visible={new Set([AppStates.ShowEmptyForm]).has(appState)} onCancel={() => {
                 setCalValue(null)
                 setAppState(AppStates.Normal)
-              }} footer={[<Button key="back" onClick={() => {
+              }} footer={[<BackButton onClick={() => {
                 setCalValue(null)
                 setAppState(AppStates.Normal)
-              }}>Annuler</Button>]}>
+              }}/>]}>
                 <p>Que veux-tu réserver ?</p>
                 <Space direction="vertical">
                   <Button type="primary" onClick={() => setAppState(AppStates.ColivingForm)}>
@@ -150,10 +151,10 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: TPax }) => {
               <Modal visible={new Set([AppStates.ShowOccupiedForm]).has(appState)} onCancel={() => {
                 setCalValue(null)
                 setAppState(AppStates.Normal)
-              }} footer={[<Button key="back" onClick={() => {
+              }} footer={[<BackButton onClick={() => {
                 setCalValue(null)
                 setAppState(AppStates.Normal)
-              }}>Annuler</Button>]}>
+              }}/>]}>
                 <ReservationLoader
                   calendarPax={pax}
                   calValue={calValue!}

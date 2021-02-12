@@ -1,6 +1,6 @@
-import { faCheckCircle } from "@fortawesome/free-solid-svg-icons"
+import { faArrowCircleLeft, faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Drawer } from "antd"
+import { Alert, Button, Col, Drawer, Row, Space } from "antd"
 import { DateTime } from "luxon"
 import React, { useState } from "react"
 import db from "src/core/db"
@@ -14,6 +14,8 @@ import {
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
 import { TDayConverter, TDayKind, TDayState } from "../models/Day"
+import { Collapse } from "react-collapse"
+import { BackButton } from "../Buttons/BackButton"
 
 const CoworkingForm = ({
   calendarContext,
@@ -57,27 +59,42 @@ const CoworkingForm = ({
 
     onSubmit()
   }
+  const Form = () => {
+    return <>
+      <h3>Coworking</h3>
+      <p>Tu veux coworker avec nous le {DateTime.fromJSDate(calValue).toLocaleString(DateTime.DATE_FULL)}</p>
+      <Space>
+        <Button disabled={!calValue} type="primary" onClick={submitForm} loading={isFormSubmitting}>
+          <FontAwesomeIcon icon={faCheckCircle} /> Okay
+        </Button>
+        <BackButton onClick={onCancel}/>
+      </Space>
+    </>
+  }
 
   return (
     <>
-      <TheCalendar
-        calendarContext={calendarContext}
-        isRangeMode={false}
-        calValue={calValue}
-        onChange={(d) => {
-          if (d instanceof Date) {
-            setCalValue(d)
-          }
-        }}
-      />
-      <Drawer visible={true} onClose={onCancel}>
-        <p>Tu veux coworker avec nous le {DateTime.fromJSDate(calValue).toLocaleString(DateTime.DATE_FULL)}</p>
-        <p className="mb-0">
-          <LoadingButton disabled={!calValue} type="primary" onClick={submitForm} isLoading={isFormSubmitting}>
-            <FontAwesomeIcon icon={faCheckCircle} /> Okay
-          </LoadingButton>
-        </p>
-      </Drawer>
+      <Row gutter={[8, 8]}>
+        <Col>
+          <Collapse isOpened={true} initialStyle={{height: 0, overflow: 'hidden'}}>
+            <Alert message={<Form/>}/>
+          </Collapse>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+        <TheCalendar
+            calendarContext={calendarContext}
+            isRangeMode={false}
+            calValue={calValue}
+            onChange={(d) => {
+              if (d instanceof Date) {
+                setCalValue(d)
+              }
+            }}
+          />
+        </Col>
+      </Row>
     </>
   )
 }

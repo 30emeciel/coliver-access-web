@@ -1,8 +1,8 @@
-import { faCheckCircle } from "@fortawesome/free-solid-svg-icons"
+import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Alert, Button, Col, Drawer, message, Modal, Row, Space } from "antd"
 import { DateTime, Duration, Interval } from "luxon"
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import db from "src/core/db"
 import {
   TReservationRequest,
@@ -14,6 +14,7 @@ import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
 import { TDayConverter, TDayKind, TDayState } from "../models/Day"
 import {Collapse} from 'react-collapse';
+import { BackButton } from "../Buttons/BackButton"
 
 const getIntervalFromDateArr = (dateArr:Date[] | null) => {
   if (!dateArr || dateArr.length < 2) {
@@ -115,6 +116,7 @@ const ColivingForm = ({
 
   const Form = () => {
     return <>
+      <h3>Coliving</h3>
     <p>{interval ? <>Tu vas rester {numberOfNights} nuits</> : <>Choisis ton jour de départ</>}</p>
     <Space>
       <Button
@@ -122,22 +124,24 @@ const ColivingForm = ({
         type="primary"
         onClick={submitColivingRequest}
         loading={isFormSubmitting}><FontAwesomeIcon icon={faCheckCircle} /> Okay</Button>
+      <BackButton onClick={onCancel}/>
     </Space>
       </>
   }
-  const [isOpened, setIsOpened] = useState(false)
 
   return (
     <>
-      <Row>
-        <Button onClick={() => setIsOpened(!isOpened)}>IsOpened</Button>
-        <Collapse isOpened={isOpened}>
-          <Alert message="Yooooooooooooo"/>
-        </Collapse>
+      <Row gutter={[8, 8]}>
+        <Col>
+          <Collapse isOpened={true} initialStyle={{height: 0, overflow: 'hidden'}}>
+            <Alert message={<Form/>}/>
+          </Collapse>
+        </Col>
       </Row>
       <Row>
-      <TheCalendar calendarContext={calendarContext} isRangeMode={true} calValue={calValue} onClickDay={onChangeFct} />
-
+        <Col>
+          <TheCalendar calendarContext={calendarContext} isRangeMode={true} calValue={calValue} onClickDay={onChangeFct} />
+        </Col>
       </Row>
     </>
   )
