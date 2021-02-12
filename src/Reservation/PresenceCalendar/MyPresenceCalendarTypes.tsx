@@ -1,6 +1,6 @@
 import { DateTime } from "luxon"
 import { TPax } from "src/models/Pax"
-import { TDay } from "../models/Day"
+import { TDay } from "../../models/Day"
 
 export enum GlobalDayStates {
   Disabled,

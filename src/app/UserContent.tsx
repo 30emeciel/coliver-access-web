@@ -10,7 +10,7 @@ import { TPax } from "src/models/Pax"
 import Dashboard from "src/Dashboard/Dashboard"
 import PaxList from "src/Supervisor/PaxList"
 import PresenceList from "src/Supervisor/PresenceList"
-import MyPresenceCalendar from "../PresenceCalendar/MyPresenceCalendar"
+import MyPresenceCalendar from "../Reservation/PresenceCalendar/MyPresenceCalendar"
 import EditReservation from "../Reservation/EditReservation"
 
 
@@ -67,9 +67,6 @@ export function UserContent() {
     <Switch>
       <Route exact path="/">
         <Dashboard />
-      </Route>
-      <Route exact path="/presence">
-        <MyPresenceCalendar />
       </Route>
       <Route exact path="/my-reservations">
         <ReservationList />

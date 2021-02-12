@@ -13,8 +13,8 @@ import { TCalendarContext, TMapDays, TMapGlobalDays } from "./MyPresenceCalendar
 import ReservationLoader from "./ReservationLoader"
 import TheCalendar from "./TheCalendar"
 import myloglevel from "src/core/myloglevel"
-import { TDay, TDayConverter } from "../models/Day"
-import { BackButton } from "../Buttons/BackButton"
+import { TDay, TDayConverter } from "../../models/Day"
+import { BackButton } from "../../Buttons/BackButton"
 
 const log = myloglevel.getLogger("MyPresenceCalendar")
 
@@ -110,8 +110,7 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: TPax }) => {
   return (
     <>
       <h2>
-        <FontAwesomeIcon icon={faUserClock} /> Calendrier de présence
-        {!(pax === currentUserData) && <> de {pax.name}</>}
+        {!(pax === currentUserData) && <> <FontAwesomeIcon icon={faUserClock} /> Calendrier de présence de {pax.name}</>}
       </h2>
       <Alert
         type="info"

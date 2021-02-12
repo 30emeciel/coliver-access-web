@@ -35,9 +35,6 @@ export function NavLinks() {
           <Menu mode="horizontal" theme="dark" selectedKeys={[location.pathname]} selectable={false}>
             {pc.doc && pc.doc.state === TPaxStates.Confirmed && (
               <>
-                <Menu.Item key="/presence" icon={<FontAwesomeIcon icon={faUserClock} />} onClick={() => history.push("/presence")}>
-                  Ma présence
-                </Menu.Item>
                 <Menu.Item
                   key="/my-reservations"
                   icon={<FontAwesomeIcon icon={faBookReader} />}

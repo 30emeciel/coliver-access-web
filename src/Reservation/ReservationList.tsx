@@ -11,8 +11,8 @@ import {
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Avatar, Button, Popconfirm, Space, Spin, Table, Tag } from "antd"
-import { useContext, useEffect, useState } from "react"
+import { Avatar, Button, Col, Collapse, Popconfirm, Row, Space, Spin, Table, Tag } from "antd"
+import React, { useContext, useEffect, useState } from "react"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import myloglevel from "src/core/myloglevel"
@@ -29,9 +29,11 @@ import { useHistory } from "react-router-dom"
 import { TDay, TDayConverter, TDayState } from "../models/Day"
 import { DateTime } from "luxon"
 import { TPax, TPaxConverter } from "../models/Pax"
+import MyPresenceCalendar from "./PresenceCalendar/MyPresenceCalendar"
 
 const log = myloglevel.getLogger("ReservationList")
 const { Column } = Table
+const { Panel } = Collapse
 
 export default function ReservationList({ isSupervisorMode = false }: { isSupervisorMode?: boolean }) {
   const pc = useContext(PaxContext)
@@ -160,25 +162,34 @@ export default function ReservationList({ isSupervisorMode = false }: { isSuperv
           <><FontAwesomeIcon icon={faBookReader} /> Mes réservations</>
         }
       </h2>
-      <Table bordered={true} dataSource={listRequests} loading={listRequestsLoading} pagination={false}>
-        <Column title="Type" key="kind" dataIndex="kind" render={(kind: TReservationRequestKind) => {
-          const kindFields = kind2fields[kind] || ["?", "pink", faQuestionCircle]
-          return <Tag color={kindFields[1]}><FontAwesomeIcon icon={kindFields[2]} /> {kindFields[0]}</Tag>
-        }} />
-        {isSupervisorMode &&
-        <Column title="Pax" key="paxId" dataIndex="paxId" render={paxId => <PaxField pax={paxMap?.get(paxId)} />} />}
-        <Column key="text"
-                title="Description"
-                render={(text, record:TReservationRequest) => reservationText(record)} />
-        <Column title="Status" key="state" dataIndex="state" render={(state: TReservationRequestState) => {
-          const stateFields = state2fields[state] || ["?", "pink", faQuestionCircle]
-          return <Tag color={stateFields[1]}><FontAwesomeIcon icon={stateFields[2]} /> {stateFields[0]}</Tag>
-        }} />
 
+      { !isSupervisorMode && <MyPresenceCalendar />}
 
+      <br />
 
-        <Column key="actions" title="Actions" render={(text, record:TReservationRequest) => <ActionButtons item={record} />} />
-      </Table>
+      <Collapse ghost={true} defaultActiveKey="current-reservations">
+        <Panel key="current-reservations" header={<strong>Réservations en cours</strong>}>
+          <Table bordered={true} dataSource={listRequests} loading={listRequestsLoading} pagination={false}>
+            <Column title="Type" key="kind" dataIndex="kind" render={(kind: TReservationRequestKind) => {
+              const kindFields = kind2fields[kind] || ["?", "pink", faQuestionCircle]
+              return <Tag color={kindFields[1]}><FontAwesomeIcon icon={kindFields[2]} /> {kindFields[0]}</Tag>
+            }} />
+            {isSupervisorMode &&
+            <Column title="Pax" key="paxId" dataIndex="paxId" render={paxId => <PaxField pax={paxMap?.get(paxId)} />} />}
+            <Column key="text"
+                    title="Description"
+                    render={(text, record:TReservationRequest) => reservationText(record)} />
+            <Column title="Status" key="state" dataIndex="state" render={(state: TReservationRequestState) => {
+              const stateFields = state2fields[state] || ["?", "pink", faQuestionCircle]
+              return <Tag color={stateFields[1]}><FontAwesomeIcon icon={stateFields[2]} /> {stateFields[0]}</Tag>
+            }} />
+            <Column key="actions" title="Actions" render={(text, record:TReservationRequest) => <ActionButtons item={record} />} />
+          </Table>
+        </Panel>
+        <Panel key="past-reservations" header={<strong>Réservations passées</strong>}>
+          <p>TODO</p>
+        </Panel>
+      </Collapse>
     </>
   )
 }

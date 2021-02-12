@@ -13,8 +13,8 @@ import {
   TReservationRequest,
   TReservationRequestConverter,
   TReservationRequestState,
-} from "../models/ReservationRequest"
-import { TDay, TDayConverter } from "../models/Day"
+} from "../../models/ReservationRequest"
+import { TDay, TDayConverter } from "../../models/Day"
 
 export default function ReservationLoader({
                                             calendarPax,
