@@ -3,15 +3,16 @@ import React, { useContext } from "react"
 import { useDocumentData } from "react-firebase-hooks/firestore"
 import { Route, Switch, useParams } from "react-router-dom"
 import Account from "src/Account/Account"
-import ReservationList from "src/Reservation/ReservationList"
+import ReservationList, { ReservationListMode } from "src/Reservation/ReservationList"
 import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
 import { TPax } from "src/models/Pax"
 import Dashboard from "src/Dashboard/Dashboard"
 import PaxList from "src/Supervisor/PaxList"
 import PresenceList from "src/Supervisor/PresenceList"
-import MyPresenceCalendar from "../Reservation/PresenceCalendar/MyPresenceCalendar"
+import MyPresenceCalendar from "src/Reservation/PresenceCalendar/MyPresenceCalendar"
 import EditReservation from "../Reservation/EditReservation"
+import ReservationIndex from "../Reservation/ReservationIndex"
 
 
 type IdParams = {
@@ -69,7 +70,7 @@ export function UserContent() {
         <Dashboard />
       </Route>
       <Route exact path="/my-reservations">
-        <ReservationList />
+        <ReservationIndex />
       </Route>
       <Route exact path="/reservation/:id">
         <ReservationLoader />
@@ -90,7 +91,7 @@ export function UserContent() {
         <PresenceList />
       </Route>
       <Route exact path="/supervisor/reservations">
-        <ReservationList isSupervisorMode={true}/>
+        <ReservationList mode={ReservationListMode.Supervisor}/>
       </Route>
       <Route>
         <Result status="404" title={"Perdu 😐"}/>

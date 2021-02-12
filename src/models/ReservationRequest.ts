@@ -50,7 +50,8 @@ export const TReservationRequestConverter: admin.firestore.FirestoreDataConverte
       kind: entity.kind,
       state: entity.state ,
       arrival_date: optionalDtToFirestore(entity.arrivalDate),
-      departure_date: optionalDtToFirestore(entity.departureDate),
+      // coworking has same arrival and departure dates, for filtering purpose
+      departure_date: optionalDtToFirestore(entity.departureDate ?? entity.arrivalDate),
       number_of_nights: entity.numberOfNights,
     })
   },

@@ -14,7 +14,7 @@ import ReservationLoader from "./ReservationLoader"
 import TheCalendar from "./TheCalendar"
 import myloglevel from "src/core/myloglevel"
 import { TDay, TDayConverter } from "../../models/Day"
-import { BackButton } from "../../Buttons/BackButton"
+import BackButton from "../../Buttons/BackButton"
 
 const log = myloglevel.getLogger("MyPresenceCalendar")
 
@@ -27,7 +27,7 @@ enum AppStates {
   EditDays,
 }
 
-const MyPresenceCalendar = ({ pax: initialPax }: { pax?: TPax }) => {
+export default function MyPresenceCalendar({ pax: initialPax }: { pax?: TPax }) {
   const { doc: currentUserData } = useContext(PaxContext)
   const pax = initialPax ? initialPax : currentUserData!
 
@@ -199,5 +199,3 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: TPax }) => {
     </>
   )
 }
-
-export default MyPresenceCalendar

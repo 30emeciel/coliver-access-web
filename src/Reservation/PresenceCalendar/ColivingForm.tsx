@@ -14,7 +14,7 @@ import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
 import { TDayConverter, TDayKind, TDayState } from "../../models/Day"
 import {Collapse} from 'react-collapse';
-import { BackButton } from "../../Buttons/BackButton"
+import BackButton from "../../Buttons/BackButton"
 
 const getIntervalFromDateArr = (dateArr:Date[] | null) => {
   if (!dateArr || dateArr.length < 2) {

@@ -1,22 +1,4 @@
-import {
-  faBed,
-  faBookReader,
-  faBriefcase,
-  faCheckCircle,
-  faCheckDouble,
-  faClock,
-  faEdit,
-  faExclamationCircle,
-  faQuestionCircle,
-  IconDefinition,
-} from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Avatar, Button, Col, Collapse, Popconfirm, Row, Space, Spin, Table, Tag } from "antd"
-import React, { useContext, useEffect, useState } from "react"
-import { useCollectionData } from "react-firebase-hooks/firestore"
-import db from "src/core/db"
-import myloglevel from "src/core/myloglevel"
-import PaxContext from "src/core/paxContext"
+import { Avatar, Button, Popconfirm, Space, Spin, Table, Tag } from "antd"
 import {
   cancelReservation,
   confirmReservation,
@@ -24,31 +6,77 @@ import {
   TReservationRequestConverter,
   TReservationRequestKind,
   TReservationRequestState,
-} from "src/models/ReservationRequest"
-import { useHistory } from "react-router-dom"
-import { TDay, TDayConverter, TDayState } from "../models/Day"
-import { DateTime } from "luxon"
+} from "../models/ReservationRequest"
+import {
+  faBed, faBookReader,
+  faBriefcase,
+  faCheckCircle, faCheckDouble,
+  faClock, faEdit, faExclamationCircle,
+  faQuestionCircle,
+  IconDefinition,
+} from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import React, { useContext, useEffect, useState } from "react"
+import { useCollectionData } from "react-firebase-hooks/firestore"
+import db from "../core/db"
 import { TPax, TPaxConverter } from "../models/Pax"
-import MyPresenceCalendar from "./PresenceCalendar/MyPresenceCalendar"
+import { DateTime } from "luxon"
+import PaxContext from "../core/paxContext"
+import { useHistory } from "react-router-dom"
+import myloglevel from "../core/myloglevel"
+import firebase from "firebase"
+const { Column } = Table
+type CollectionReference = firebase.firestore.CollectionReference
+type DocumentData = firebase.firestore.DocumentData
+type Query = firebase.firestore.Query
 
 const log = myloglevel.getLogger("ReservationList")
-const { Column } = Table
-const { Panel } = Collapse
 
-export default function ReservationList({ isSupervisorMode = false }: { isSupervisorMode?: boolean }) {
+export enum ReservationListMode {
+  Supervisor,
+  PendingReview,
+  Current,
+  Past
+}
+
+const getCollectionFromMode = (mode: ReservationListMode, pax: TPax) => {
+  if (mode == ReservationListMode.Supervisor) {
+    return db.collectionGroup("requests")
+      .where("state", "==", "PENDING_REVIEW")
+      .orderBy("created", "asc")
+  }
+  let q:CollectionReference|Query = db.collection(`pax/${pax.sub}/requests`)
+
+  /*
+  if (mode == ReservationListMode.PendingReviewMode) {
+    q = q.where("state", "==", "PENDING_REVIEW")
+  }
+  else {
+    // Current and Past modes
+    q = q.where("state", "==", "CONFIRMED")
+  }
+  */
+  const today = DateTime.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).toJSDate()
+
+  if (mode == ReservationListMode.Current) {
+    q = q.where("arrival_date", ">=", today)
+  }
+  else if (mode == ReservationListMode.Past) {
+    q = q.where("arrival_date", "<", today)
+  }
+  q = q.orderBy("arrival_date", "asc")
+  return q
+}
+
+export default function ReservationList({ mode = ReservationListMode.Current }: { mode?: ReservationListMode }) {
   const pc = useContext(PaxContext)
   const pax = pc.doc!
   const history = useHistory()
+  const [today, ] = useState(DateTime.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).toJSDate())
+  log.debug(`today: ${today}`)
 
   const [listRequests, listRequestsLoading, ] = useCollectionData<TReservationRequest>(
-    (isSupervisorMode ?
-        db.collectionGroup("requests")
-          .where("state", "==", "PENDING_REVIEW")
-          .orderBy("created", "asc")
-        :
-        db.collection(`pax/${pax.sub}/requests`)
-          .orderBy("arrival_date", "asc")
-    )
+    getCollectionFromMode(mode, pax)
       .withConverter(TReservationRequestConverter),
     { idField: "id" },
   )
@@ -86,10 +114,13 @@ export default function ReservationList({ isSupervisorMode = false }: { isSuperv
 
 
     const actions = [
-      <Button size="small"
+      <Button
+        key="edit"
+        size="small"
               icon={<FontAwesomeIcon icon={faEdit} />}
               onClick={() => history.push(`/reservation/${item.id}`)}>Modifier</Button>,
       <Popconfirm
+        key="cancel"
         arrowPointAtCenter
         onConfirm={myCancelReservation}
         title="Est-ce que tu veux annuler cette réservation ?"
@@ -102,17 +133,19 @@ export default function ReservationList({ isSupervisorMode = false }: { isSuperv
           icon={<FontAwesomeIcon icon={faExclamationCircle} />}>Annuler</Button>
       </Popconfirm>,
     ]
-    if (isSupervisorMode) {
+    if (mode == ReservationListMode.Supervisor) {
       const confirm = <Popconfirm
+        key="confirm"
         placement="topLeft"
         onConfirm={myConfirmReservation}
         title="Est-ce que tu veux confirmer cette réservation ?"
         okText="Oui"
         cancelText="Non"
-      ><Button size="small"
-               loading={isConfirmationSubmitting}
-               type="primary"
-               icon={<FontAwesomeIcon icon={faCheckDouble} />}>Confirmer</Button>
+      ><Button
+        size="small"
+        loading={isConfirmationSubmitting}
+        type="primary"
+        icon={<FontAwesomeIcon icon={faCheckDouble} />}>Confirmer</Button>
       </Popconfirm>
       actions.push(confirm)
     }
@@ -120,7 +153,7 @@ export default function ReservationList({ isSupervisorMode = false }: { isSuperv
 
   }
 
-  const [paxList] = useCollectionData<TPax>(isSupervisorMode ? db.collection("/pax").withConverter(TPaxConverter) : null)
+  const [paxList] = useCollectionData<TPax>(mode == ReservationListMode.Supervisor ? db.collection("/pax").withConverter(TPaxConverter) : null)
 
   const [paxMap, setPaxMap] = useState(new Map<string, TPax>())
   useEffect(() => {
@@ -153,43 +186,28 @@ export default function ReservationList({ isSupervisorMode = false }: { isSuperv
     }
   }
 
-  return (
-    <>
-      <h2>
-        {isSupervisorMode ?
-          <><FontAwesomeIcon icon={faCheckDouble} /> Réservations en attente de confirmation</>
-          :
-          <><FontAwesomeIcon icon={faBookReader} /> Mes réservations</>
-        }
-      </h2>
+  return <>
+    <h2>
+      {mode == ReservationListMode.Supervisor &&
+        <><FontAwesomeIcon icon={faCheckDouble} /> Réservations en attente de confirmation</>
+      }
+    </h2>
 
-      { !isSupervisorMode && <MyPresenceCalendar />}
-
-      <br />
-
-      <Collapse ghost={true} defaultActiveKey="current-reservations">
-        <Panel key="current-reservations" header={<strong>Réservations en cours</strong>}>
-          <Table bordered={true} dataSource={listRequests} loading={listRequestsLoading} pagination={false}>
-            <Column title="Type" key="kind" dataIndex="kind" render={(kind: TReservationRequestKind) => {
-              const kindFields = kind2fields[kind] || ["?", "pink", faQuestionCircle]
-              return <Tag color={kindFields[1]}><FontAwesomeIcon icon={kindFields[2]} /> {kindFields[0]}</Tag>
-            }} />
-            {isSupervisorMode &&
-            <Column title="Pax" key="paxId" dataIndex="paxId" render={paxId => <PaxField pax={paxMap?.get(paxId)} />} />}
-            <Column key="text"
-                    title="Description"
-                    render={(text, record:TReservationRequest) => reservationText(record)} />
-            <Column title="Status" key="state" dataIndex="state" render={(state: TReservationRequestState) => {
-              const stateFields = state2fields[state] || ["?", "pink", faQuestionCircle]
-              return <Tag color={stateFields[1]}><FontAwesomeIcon icon={stateFields[2]} /> {stateFields[0]}</Tag>
-            }} />
-            <Column key="actions" title="Actions" render={(text, record:TReservationRequest) => <ActionButtons item={record} />} />
-          </Table>
-        </Panel>
-        <Panel key="past-reservations" header={<strong>Réservations passées</strong>}>
-          <p>TODO</p>
-        </Panel>
-      </Collapse>
-    </>
-  )
+    <Table bordered={true} dataSource={listRequests} loading={listRequestsLoading} pagination={false}>
+      <Column title="Type" key="kind" dataIndex="kind" render={(kind: TReservationRequestKind) => {
+        const kindFields = kind2fields[kind] || ["?", "pink", faQuestionCircle]
+        return <Tag color={kindFields[1]}><FontAwesomeIcon icon={kindFields[2]} /> {kindFields[0]}</Tag>
+      }} />
+      {mode == ReservationListMode.Supervisor &&
+      <Column title="Pax" key="paxId" dataIndex="paxId" render={paxId => <PaxField pax={paxMap?.get(paxId)} />} />}
+      <Column key="text"
+              title="Description"
+              render={(text, record:TReservationRequest) => reservationText(record)} />
+      <Column title="Status" key="state" dataIndex="state" render={(state: TReservationRequestState) => {
+        const stateFields = state2fields[state] || ["?", "pink", faQuestionCircle]
+        return <Tag color={stateFields[1]}><FontAwesomeIcon icon={stateFields[2]} /> {stateFields[0]}</Tag>
+      }} />
+      <Column key="actions" title="Actions" render={(text, record:TReservationRequest) => <ActionButtons item={record} />} />
+    </Table>
+  </>
 }

@@ -15,7 +15,7 @@ import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
 import { TDayConverter, TDayKind, TDayState } from "../../models/Day"
 import { Collapse } from "react-collapse"
-import { BackButton } from "../../Buttons/BackButton"
+import BackButton from "../../Buttons/BackButton"
 
 const CoworkingForm = ({
   calendarContext,
