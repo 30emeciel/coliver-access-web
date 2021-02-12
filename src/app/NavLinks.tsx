@@ -1,14 +1,15 @@
 import { useAuth0 } from "@auth0/auth0-react"
 import {
   faBookReader,
+  faCalendarAlt,
   faCalendarCheck,
   faChartPie,
   faCheckDouble,
   faComments,
   faEye,
   faMoneyCheck,
+  faPlus,
   faSignOutAlt,
-  faUserClock,
   faUsers,
 } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -47,17 +48,27 @@ export function NavLinks() {
                   <WorkInProgress>Mes contributions</WorkInProgress>
                 </Menu.Item>
 
-                <Menu.Item icon={<FontAwesomeIcon icon={faComments} />}>
-                  <WorkInProgress>Communauté</WorkInProgress>
-                </Menu.Item>
+                <SubMenu
+                  disabled={!pc.doc?.isSupervisor}
+                  key="plus"
+                  icon={<FontAwesomeIcon icon={faPlus} />}
+                  title="Plus"
+                >
+                  <Menu.Item icon={<FontAwesomeIcon icon={faComments} />}>
+                    <WorkInProgress>Communauté</WorkInProgress>
+                  </Menu.Item>
+                  <Menu.Item icon={<FontAwesomeIcon icon={faCalendarAlt} />}>
+                    <WorkInProgress>Événements</WorkInProgress>
+                  </Menu.Item>
+                  <Menu.Item icon={<FontAwesomeIcon icon={faChartPie} />}>
+                    <WorkInProgress>Statistiques</WorkInProgress>
+                  </Menu.Item>
+                </SubMenu>
 
-                <Menu.Item icon={<FontAwesomeIcon icon={faChartPie} />}>
-                  <WorkInProgress>Statistiques</WorkInProgress>
-                </Menu.Item>
                 <SubMenu
                   disabled={!pc.doc?.isSupervisor}
                   key="supervisor"
-                  icon={<FontAwesomeIcon className="mr-2" icon={faEye} />}
+                  icon={<FontAwesomeIcon icon={faEye} />}
                   title="Supervisaire"
                 >
                   <Menu.Item key="/supervisor/pax" icon={<FontAwesomeIcon icon={faUsers} />} onClick={() => history.push("/supervisor/pax")}>

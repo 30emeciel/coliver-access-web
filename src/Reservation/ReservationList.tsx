@@ -8,10 +8,13 @@ import {
   TReservationRequestState,
 } from "../models/ReservationRequest"
 import {
-  faBed, faBookReader,
+  faBed,
   faBriefcase,
-  faCheckCircle, faCheckDouble,
-  faClock, faEdit, faExclamationCircle,
+  faCheckCircle,
+  faCheckDouble,
+  faClock,
+  faEdit,
+  faExclamationCircle,
   faQuestionCircle,
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons"
@@ -25,6 +28,7 @@ import PaxContext from "../core/paxContext"
 import { useHistory } from "react-router-dom"
 import myloglevel from "../core/myloglevel"
 import firebase from "firebase"
+
 const { Column } = Table
 type CollectionReference = firebase.firestore.CollectionReference
 type DocumentData = firebase.firestore.DocumentData
@@ -72,8 +76,6 @@ export default function ReservationList({ mode = ReservationListMode.Current }: 
   const pc = useContext(PaxContext)
   const pax = pc.doc!
   const history = useHistory()
-  const [today, ] = useState(DateTime.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).toJSDate())
-  log.debug(`today: ${today}`)
 
   const [listRequests, listRequestsLoading, ] = useCollectionData<TReservationRequest>(
     getCollectionFromMode(mode, pax)
@@ -159,7 +161,7 @@ export default function ReservationList({ mode = ReservationListMode.Current }: 
   useEffect(() => {
     if (!paxList)
       return
-    const m = paxList.reduce((previousValue, currentValue, _index, _arr) => {
+    const m = paxList.reduce((previousValue, currentValue) => {
       previousValue.set(currentValue.sub, currentValue)
       return previousValue
     }, new Map<string, TPax>())
