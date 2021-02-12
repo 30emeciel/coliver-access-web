@@ -1,10 +1,9 @@
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Drawer, Space } from "antd"
+import { Alert, Button, Col, Drawer, message, Modal, Row, Space } from "antd"
 import { DateTime, Duration, Interval } from "luxon"
 import { useEffect, useState } from "react"
 import db from "src/core/db"
-import LoadingButton from "src/core/LoadingButton"
 import {
   TReservationRequest,
   TReservationRequestConverter,
@@ -14,7 +13,22 @@ import {
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
 import { TDayConverter, TDayKind, TDayState } from "../models/Day"
+import {Collapse} from 'react-collapse';
 
+const getIntervalFromDateArr = (dateArr:Date[] | null) => {
+  if (!dateArr || dateArr.length < 2) {
+    return null
+  }
+  const [arrivalDate, departureDate] = dateArr
+  if (departureDate == arrivalDate) {
+    return null
+  }
+  const interval = Interval.fromDateTimes(arrivalDate, departureDate)
+  if (!interval.isValid) {
+    throw Error("interval is not valid")
+  }
+  return interval
+}
 const ColivingForm = ({
   calendarContext,
   firstCalValue,
@@ -30,20 +44,16 @@ const ColivingForm = ({
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false)
   const [interval, setInterval] = useState<null | Interval>(null)
-  const [calValue, setCalValue] = useState<Date | Date[] | null>(firstCalValue ? firstCalValue : null)
+  const [calValue, setCalValue] = useState<Date[] | null>(firstCalValue ? [firstCalValue] : null)
 
   const numberOfNights = interval ? interval.count("days") - 1 : null
 
   useEffect(() => {
-    const twoDays = calValue as Date[]
-
-    const arrivalDate = twoDays ? twoDays[0] : null
-    const departureDate = twoDays ? twoDays[1] : null
-    setInterval(!arrivalDate || !departureDate ? null : Interval.fromDateTimes(arrivalDate, departureDate))
-  }, [calValue])
+    setInterval(getIntervalFromDateArr(calValue))
+  }, [calValue, setInterval])
 
   const submitColivingRequest = async () => {
-    if (!interval) {
+    if (!interval || !numberOfNights) {
       return
     }
     const arrivalDate = interval.start
@@ -53,8 +63,8 @@ const ColivingForm = ({
     const oneDay = Duration.fromObject({ days: 1 })
 
     // Get all the days that contains the selected range
-    var res: DateTime[] = []
-    var i = arrivalDate.plus({}) // clone
+    const res: DateTime[] = []
+    let i = arrivalDate.plus({}) // clone
     while (i <= departureDate) {
       if (calendarContext.isDisabledDay(i)) {
         continue
@@ -69,7 +79,7 @@ const ColivingForm = ({
       arrivalDate: arrivalDate,
       departureDate: departureDate,
       kind: TReservationRequestKind.COLIVING,
-      numberOfNights: numberOfNights!,
+      numberOfNights: numberOfNights,
     }
     const request_doc = await db
       .collection(`pax/${currentUser.sub}/requests`)
@@ -92,26 +102,43 @@ const ColivingForm = ({
     onSubmit()
   }
 
-  const onChangeFct = (d: Date | Date[]) => {
-    setCalValue(d as Date[])
+  const onChangeFct = (d: Date) => {
+    if (!calValue || calValue.length > 1) {
+      setCalValue([d])
+    }
+    else {
+      const t = [calValue[0], d].sort((a, b) => a.getTime() - b.getTime())
+      setCalValue(t)
+    }
+
   }
+
+  const Form = () => {
+    return <>
+    <p>{interval ? <>Tu vas rester {numberOfNights} nuits</> : <>Choisis ton jour de départ</>}</p>
+    <Space>
+      <Button
+        disabled={!interval}
+        type="primary"
+        onClick={submitColivingRequest}
+        loading={isFormSubmitting}><FontAwesomeIcon icon={faCheckCircle} /> Okay</Button>
+    </Space>
+      </>
+  }
+  const [isOpened, setIsOpened] = useState(false)
 
   return (
     <>
-      <TheCalendar calendarContext={calendarContext} isRangeMode={true} calValue={calValue} onChange={onChangeFct} />
-      <Drawer visible={true} mask={false} onClose={onCancel}>
-        <p>{numberOfNights ? <>Tu vas rester {numberOfNights} nuits</> : <>Choisis ton jour de départ</>}</p>
-        <Space>
-          <LoadingButton
-            disabled={!numberOfNights || numberOfNights <= 0}
-            type="primary"
-            onClick={submitColivingRequest}
-            isLoading={isFormSubmitting}
-          >
-            <FontAwesomeIcon icon={faCheckCircle} /> Okay
-          </LoadingButton>
-        </Space>
-      </Drawer>
+      <Row>
+        <Button onClick={() => setIsOpened(!isOpened)}>IsOpened</Button>
+        <Collapse isOpened={isOpened}>
+          <Alert message="Yooooooooooooo"/>
+        </Collapse>
+      </Row>
+      <Row>
+      <TheCalendar calendarContext={calendarContext} isRangeMode={true} calValue={calValue} onClickDay={onChangeFct} />
+
+      </Row>
     </>
   )
 }

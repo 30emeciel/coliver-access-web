@@ -2,7 +2,7 @@ import { DateTime } from "luxon"
 import admin from "firebase"
 import { TReservationRequest } from "./ReservationRequest"
 import myfirebase from "src/core/myfirebase"
-import { dtFromFirestore, makePartialData, optionalDtToFirestore } from "./utils"
+import { dtFromFirestore, makePartialData, optionalDtFromFirestore, optionalDtToFirestore } from "./utils"
 
 export enum TDayState {
   "PENDING_REVIEW" = "PENDING_REVIEW",
@@ -14,6 +14,7 @@ export enum TDayKind {
 }
 
 export interface TDay {
+  created?: DateTime,
   on: DateTime
   kind: TDayKind
   state: TDayState
@@ -25,6 +26,7 @@ export const TDayConverter: admin.firestore.FirestoreDataConverter<TDay> = {
     const data = snapshot.data(options)!
 
     return {
+      created: optionalDtFromFirestore(data.created),
       on: dtFromFirestore(data.on),
       state: data.state,
       kind: data.kind,
@@ -33,6 +35,7 @@ export const TDayConverter: admin.firestore.FirestoreDataConverter<TDay> = {
   },
   toFirestore: (entity: Partial<TDay>) => {
     return makePartialData({
+      created: admin.firestore.FieldValue.serverTimestamp(),
       on: optionalDtToFirestore(entity.on),
       kind: entity.kind,
       state: entity.state,

@@ -2,8 +2,9 @@ import { DateTime } from "luxon"
 import admin from "firebase"
 
 export function dtFromFirestore(firestore_timestamp: admin.firestore.Timestamp) {
-  if (!firestore_timestamp)
+  if (!firestore_timestamp) {
     throw Error("firestore_timestamp not defined")
+  }
 
   return DateTime.fromMillis((firestore_timestamp).toMillis())
 }
@@ -23,6 +24,6 @@ export function optionalDtToFirestore(dt?: DateTime) {
   return dt ? dtToFirestore(dt) : undefined
 }
 
-export function makePartialData(o:object) {
-  return Object.fromEntries(Object.entries(o).filter(([key, value]:[string, any]) => value !== undefined))
+export function makePartialData(o:Record<string, unknown>) {
+  return Object.fromEntries(Object.entries(o).filter(([, value]:[string, unknown]) => value !== undefined))
 }

@@ -57,7 +57,7 @@ const WithContent = ({
   const history = useHistory()
 
   const grouped = paxSnaps.docs.reduce<Map<string, Map<number, (TReservationRequestKind | null)>>>((previousValue, daySnap) => {
-    ;(() => {
+    (() => {
       const userId = daySnap.ref.parent!.parent!.id
       const day = daySnap.data()
       if (day.state !== TDayState.CONFIRMED) {
@@ -132,7 +132,7 @@ const PresenceList = () => {
   )
   const [period, setPeriod] = useState<[DateTime, DateTime]>([DateTime.local().startOf("month"), DateTime.local().endOf("month")])
 
-  const handleCallback = (start: Moment, end: Moment, label: String | undefined) => {
+  const handleCallback = (start: Moment, end: Moment, label: string | undefined) => {
     log.debug(`start ${start} end: ${end} label: ${label}`)
     setPeriod([DateTime.fromJSDate(start.toDate()), DateTime.fromJSDate(end.toDate())])
     //setEndPeriod(end)

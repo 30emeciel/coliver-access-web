@@ -9,6 +9,8 @@ import myloglevel from "src/core/myloglevel"
 const log = myloglevel.getLogger("OnBoarding")
 
 const { Step } = Steps;
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
 declare namespace Cognito {
   function load(s: string, options: any, callbacks?: any): void
   function prefill(arg: any): void

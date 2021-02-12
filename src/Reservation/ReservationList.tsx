@@ -18,6 +18,8 @@ import db from "src/core/db"
 import myloglevel from "src/core/myloglevel"
 import PaxContext from "src/core/paxContext"
 import {
+  cancelReservation,
+  confirmReservation,
   TReservationRequest,
   TReservationRequestConverter,
   TReservationRequestKind,
@@ -64,56 +66,18 @@ export default function ReservationList({ isSupervisorMode = false }: { isSuperv
   const ActionButtons = ({ item }: { item: TReservationRequest }) => {
     const [isConfirmationSubmitting, setIsConfirmationSubmitting] = useState(false)
 
-    const confirmReservation = async () => {
+    const myConfirmReservation = async () => {
       setIsConfirmationSubmitting(true)
-
-      const batch = db.batch()
-      const request_ref = db.doc(`pax/${item.paxId}/requests/${item.id!}`)
-        .withConverter(TReservationRequestConverter)
-
-      const request_data: Partial<TReservationRequest> = {
-        state: TReservationRequestState.CONFIRMED,
-      }
-      batch.set(request_ref, request_data, { merge: true })
-
-      const daysQuerySnap = await db
-        .collection(`pax/${item.paxId}/days`)
-        .withConverter(TDayConverter)
-        .where("request", "==", request_ref)
-        .get()
-
-      daysQuerySnap.forEach((docSnap) => {
-        const data_update: Partial<TDay> = {
-          state: TDayState.CONFIRMED,
-        }
-        batch.set(docSnap.ref, data_update, { merge: true })
-      })
-
-      await batch.commit()
-
+      await confirmReservation(item)
       // When all done, reset the UI
       setIsConfirmationSubmitting(false)
     }
 
     const [isCancelingSubmitting, setIsCancelingSubmitting] = useState(false)
 
-    const cancelConfirmation = async () => {
+    const myCancelReservation = async () => {
       setIsCancelingSubmitting(true)
-
-      const batch = db.batch()
-      const request_ref = db.doc(`pax/${item.paxId}/requests/${item.id}`)
-      batch.delete(request_ref)
-
-      const daysQuerySnap = await db.collection(`pax/${item.paxId}/days`)
-        .where("request", "==", request_ref)
-        .get()
-
-      daysQuerySnap.forEach((docSnap) => {
-        batch.delete(docSnap.ref)
-      })
-
-      await batch.commit()
-
+      await cancelReservation(item)
       // When all done, reset the UI
       setIsCancelingSubmitting(false)
     }
@@ -125,7 +89,7 @@ export default function ReservationList({ isSupervisorMode = false }: { isSuperv
               onClick={() => history.push(`/reservation/${item.id}`)}>Modifier</Button>,
       <Popconfirm
         arrowPointAtCenter
-        onConfirm={cancelConfirmation}
+        onConfirm={myCancelReservation}
         title="Est-ce que tu veux annuler cette réservation ?"
         okText="Oui"
         cancelText="Non">
@@ -139,7 +103,7 @@ export default function ReservationList({ isSupervisorMode = false }: { isSuperv
     if (isSupervisorMode) {
       const confirm = <Popconfirm
         placement="topLeft"
-        onConfirm={confirmReservation}
+        onConfirm={myConfirmReservation}
         title="Est-ce que tu veux confirmer cette réservation ?"
         okText="Oui"
         cancelText="Non"

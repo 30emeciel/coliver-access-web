@@ -1,6 +1,6 @@
 import { faBed, faLaptopHouse, faUserClock } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Alert, Button, Col, Drawer, Row, Space } from "antd"
+import { Alert, Button, Col, Drawer, Modal, Row, Space } from "antd"
 import { DateTime } from "luxon"
 import { useContext, useEffect, useState } from "react"
 import { useCollectionData } from "react-firebase-hooks/firestore"
@@ -21,7 +21,7 @@ enum AppStates {
   Normal,
   ShowEmptyForm,
   ShowOccupiedForm,
-  NewCoworking,
+  CoworkingForm,
   ColivingForm,
   EditDays,
 }
@@ -67,7 +67,7 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: TPax }) => {
         //      .filter((day) => day.status === "PENDING_REVIEW")
         .map((day) => {
           // TODO: #1 DateTime should be TZ insensitive
-          let d = day.on
+          const d = day.on
           return [d.toMillis(), day] as [number, TDay]
         }),
     )
@@ -95,7 +95,7 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: TPax }) => {
 
   const onClickDayFct = (d: Date) => {
     //if (appState === AppStates.Normal) {
-    let dt = DateTime.fromJSDate(d)
+    const dt = DateTime.fromJSDate(d)
     setCalValue(d)
     if (calendarContext.userDays.has(dt.toMillis())) {
       setAppState(AppStates.ShowOccupiedForm)
@@ -127,35 +127,33 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: TPax }) => {
               onClickDay={onClickDayFct}
             />
             <>
-              <Drawer
-                visible={new Set([AppStates.ShowEmptyForm]).has(appState)}
-                width={520}
-                onClose={() => {
-                  setCalValue(null)
-                  setAppState(AppStates.Normal)
-                }}
-              >
+              <Modal visible={new Set([AppStates.ShowEmptyForm]).has(appState)} onCancel={() => {
+                setCalValue(null)
+                setAppState(AppStates.Normal)
+              }} footer={[<Button key="back" onClick={() => {
+                setCalValue(null)
+                setAppState(AppStates.Normal)
+              }}>Annuler</Button>]}>
                 <p>Que veux-tu réserver ?</p>
                 <Space direction="vertical">
                   <Button type="primary" onClick={() => setAppState(AppStates.ColivingForm)}>
                     <FontAwesomeIcon icon={faBed} /> Coliving
                   </Button>
-                  <Button type="primary" onClick={() => setAppState(AppStates.NewCoworking)}>
+                  <Button type="primary" onClick={() => setAppState(AppStates.CoworkingForm)}>
                     <FontAwesomeIcon icon={faLaptopHouse} /> Coworking
                   </Button>
                 </Space>
-              </Drawer>
+              </Modal>
             </>
 
             <>
-              <Drawer
-                visible={new Set([AppStates.ShowOccupiedForm]).has(appState)}
-                width={520}
-                onClose={() => {
-                  setCalValue(null)
-                  setAppState(AppStates.Normal)
-                }}
-              >
+              <Modal visible={new Set([AppStates.ShowOccupiedForm]).has(appState)} onCancel={() => {
+                setCalValue(null)
+                setAppState(AppStates.Normal)
+              }} footer={[<Button key="back" onClick={() => {
+                setCalValue(null)
+                setAppState(AppStates.Normal)
+              }}>Annuler</Button>]}>
                 <ReservationLoader
                   calendarPax={pax}
                   calValue={calValue!}
@@ -164,7 +162,7 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: TPax }) => {
                     setAppState(AppStates.Normal)
                   }}
                 />
-              </Drawer>
+              </Modal>
             </>
           </Col>
         </Row>
@@ -184,7 +182,7 @@ const MyPresenceCalendar = ({ pax: initialPax }: { pax?: TPax }) => {
         />
       )}
 
-      {appState === AppStates.NewCoworking && (
+      {appState === AppStates.CoworkingForm && (
         <CoworkingForm
           calendarContext={calendarContext}
           firstCalValue={calValue!}

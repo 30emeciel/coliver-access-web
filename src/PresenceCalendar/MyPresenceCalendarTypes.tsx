@@ -26,7 +26,7 @@ export class TCalendarContext {
   }
 
   isDisabledDay(dt: DateTime) {
-    let ds = this.globalDays.get(dt.toMillis())
+    const ds = this.globalDays.get(dt.toMillis())
     return ds === GlobalDayStates.Disabled
   }
 }

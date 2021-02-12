@@ -25,7 +25,7 @@ const TheCalendar = ({
   const isFirstTimer = false
 
   const pendingDaysTiles = ({ activeStartDate, date, view }: CalendarTileProperties) => {
-    let day = calendarContext.userDays.get(date.getTime())
+    const day = calendarContext.userDays.get(date.getTime())
     if (!day) {
       return ""
     }

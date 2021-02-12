@@ -20,7 +20,7 @@ export interface TPax {
 
 export const TPaxConverter: admin.firestore.FirestoreDataConverter<TPax> = {
   fromFirestore: (snapshot, options) => {
-    const data = snapshot.data(options)!
+    const data = snapshot.data(options)
 
     return {
       sub: data.sub,
