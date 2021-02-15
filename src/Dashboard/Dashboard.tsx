@@ -3,5 +3,5 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 export default function Dashboard() {
 
-  return <h3>Ici, tu trouveras le futur <strong>tableau de bord</strong> <FontAwesomeIcon icon={faTv} />. Pour continuer, je t'invite à utiliser le menu au-dessus <FontAwesomeIcon icon={faHandPointUp} /></h3>
+  return <h3>Ici, tu trouveras le futur <strong>tableau de bord</strong> <FontAwesomeIcon icon={faTv} />. Pour continuer, tu peux à utiliser le menu ci-dessus <FontAwesomeIcon icon={faHandPointUp} /></h3>
 }

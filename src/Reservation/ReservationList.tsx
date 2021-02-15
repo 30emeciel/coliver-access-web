@@ -195,7 +195,10 @@ export default function ReservationList({ mode = ReservationListMode.Current }: 
       }
     </h2>
 
-    <Table bordered={true} dataSource={listRequests} loading={listRequestsLoading} pagination={false}>
+    <Table bordered={true} dataSource={listRequests} loading={listRequestsLoading} pagination={false}
+           size="small"
+           scroll={{ "x": 1000 }}
+    >
       <Column title="Type" key="kind" dataIndex="kind" render={(kind: TReservationRequestKind) => {
         const kindFields = kind2fields[kind] || ["?", "pink", faQuestionCircle]
         return <Tag color={kindFields[1]}><FontAwesomeIcon icon={kindFields[2]} /> {kindFields[0]}</Tag>
