@@ -21,7 +21,7 @@ const getIntervalFromDateArr = (dateArr:Date[] | null) => {
     return null
   }
   const [arrivalDate, departureDate] = dateArr
-  if (departureDate == arrivalDate) {
+  if (departureDate.getDate() === arrivalDate.getDate()) {
     return null
   }
   const interval = Interval.fromDateTimes(arrivalDate, departureDate)
