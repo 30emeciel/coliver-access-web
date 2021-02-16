@@ -1,4 +1,4 @@
-import { Space, Spin } from "antd"
+import { Col, Row, Space, Spin } from "antd"
 import Calendar, { CalendarTileProperties } from "react-calendar"
 import "react-calendar/dist/Calendar.css"
 import "./Calendar.css"
@@ -48,6 +48,8 @@ const TheCalendar = ({
         </>
       ) : (
         <>
+          <Row justify="center">
+            <Col flex={"350px"}>
           <Calendar
             selectRange={isRangeMode}
             view="month"
@@ -61,17 +63,37 @@ const TheCalendar = ({
             onChange={onChange}
             onClickDay={onClickDay}
           />
+            </Col>
+          </Row>
           <br />
-          <Space>
-              <span className="calendar-legend-box coliving-pending_review mr-1"></span>
-              <span>Coliving En attente</span> <span className="calendar-legend-box coliving-confirmed mr-1"></span>
-              <span>Coliving Confirmé</span>
-              <span className="calendar-legend-box coworking-pending_review mr-1"></span>
-              <span>Coworking En attente</span>{" "}
-              <span className="calendar-legend-box coworking-confirmed mr-1"></span>
-              <span>Coworking Confirmé</span>
-          </Space>
+          <Row gutter={[8, 8]} justify="center">
+            <Col>
+              <Space direction="horizontal">
+                <span className="calendar-legend-box coliving-pending_review"/>
+                <span>Coliving En attente</span>
+              </Space>
+            </Col>
+            <Col>
+              <Space direction="horizontal">
+                <span className="calendar-legend-box coliving-confirmed"/>
+                <span>Coliving Confirmé</span>
+              </Space>
+            </Col>
+            <Col>
+              <Space direction="horizontal">
+                <span className="calendar-legend-box coworking-pending_review"/>
+                <span>Coworking En attente</span>
+              </Space>
+            </Col>
+            <Col>
+              <Space direction="horizontal">
+                <span className="calendar-legend-box coworking-confirmed"/>
+                <span>Coworking Confirmé</span>
+              </Space>
+            </Col>
+          </Row>
         </>
+
       )}
     </>
   )

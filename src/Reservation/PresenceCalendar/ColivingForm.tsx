@@ -129,22 +129,16 @@ const ColivingForm = ({
       </>
   }
 
-  return (
-    <>
-      <Row gutter={[8, 8]}>
-        <Col>
+  return <>
+      <Row gutter={[8, 8]} justify="center">
+        <Col flex="350px">
           <Collapse isOpened={true} initialStyle={{height: 0, overflow: 'hidden'}}>
             <Alert message={<Form/>}/>
           </Collapse>
         </Col>
       </Row>
-      <Row>
-        <Col>
-          <TheCalendar calendarContext={calendarContext} isRangeMode={true} calValue={calValue} onClickDay={onChangeFct} />
-        </Col>
-      </Row>
+      <TheCalendar calendarContext={calendarContext} isRangeMode={true} calValue={calValue} onClickDay={onChangeFct} />
     </>
-  )
 }
 
 export default ColivingForm

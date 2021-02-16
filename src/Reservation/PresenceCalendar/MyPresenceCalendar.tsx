@@ -117,56 +117,47 @@ export default function MyPresenceCalendar({ pax: initialPax }: { pax?: TPax }) 
         message="Pour réserver, commence par cliquer sur le jour de ta venue." />
       {isFirstTimer && <FirstTimerIntro />}
       <br />
-      {new Set([AppStates.Normal, AppStates.ShowEmptyForm, AppStates.ShowOccupiedForm]).has(appState) && (
-        <Row gutter={8}>
-          <Col>
-            <TheCalendar
-              calendarContext={calendarContext}
-              isRangeMode={false}
-              calValue={calValue}
-              onClickDay={onClickDayFct}
-            />
-            <>
-              <Modal visible={new Set([AppStates.ShowEmptyForm]).has(appState)} onCancel={() => {
-                setCalValue(null)
-                setAppState(AppStates.Normal)
-              }} footer={[<BackButton onClick={() => {
-                setCalValue(null)
-                setAppState(AppStates.Normal)
-              }}/>]}>
-                <p>Que veux-tu réserver ?</p>
-                <Space direction="vertical">
-                  <Button type="primary" onClick={() => setAppState(AppStates.ColivingForm)}>
-                    <FontAwesomeIcon icon={faBed} /> Coliving
-                  </Button>
-                  <Button type="primary" onClick={() => setAppState(AppStates.CoworkingForm)}>
-                    <FontAwesomeIcon icon={faLaptopHouse} /> Coworking
-                  </Button>
-                </Space>
-              </Modal>
-            </>
-
-            <>
-              <Modal visible={new Set([AppStates.ShowOccupiedForm]).has(appState)} onCancel={() => {
-                setCalValue(null)
-                setAppState(AppStates.Normal)
-              }} footer={[<BackButton onClick={() => {
-                setCalValue(null)
-                setAppState(AppStates.Normal)
-              }}/>]}>
-                <ReservationLoader
-                  calendarPax={pax}
-                  calValue={calValue!}
-                  onSubmit={() => {
-                    setCalValue(null)
-                    setAppState(AppStates.Normal)
-                  }}
-                />
-              </Modal>
-            </>
-          </Col>
-        </Row>
-      )}
+      {new Set([AppStates.Normal, AppStates.ShowEmptyForm, AppStates.ShowOccupiedForm]).has(appState) && <>
+        <TheCalendar
+          calendarContext={calendarContext}
+          isRangeMode={false}
+          calValue={calValue}
+          onClickDay={onClickDayFct}
+        />
+        <Modal visible={new Set([AppStates.ShowEmptyForm]).has(appState)} onCancel={() => {
+          setCalValue(null)
+          setAppState(AppStates.Normal)
+        }} footer={[<BackButton onClick={() => {
+          setCalValue(null)
+          setAppState(AppStates.Normal)
+        }}/>]}>
+          <p>Que veux-tu réserver ?</p>
+          <Space direction="vertical">
+            <Button type="primary" onClick={() => setAppState(AppStates.ColivingForm)}>
+              <FontAwesomeIcon icon={faBed} /> Coliving
+            </Button>
+            <Button type="primary" onClick={() => setAppState(AppStates.CoworkingForm)}>
+              <FontAwesomeIcon icon={faLaptopHouse} /> Coworking
+            </Button>
+          </Space>
+        </Modal>
+        <Modal visible={new Set([AppStates.ShowOccupiedForm]).has(appState)} onCancel={() => {
+          setCalValue(null)
+          setAppState(AppStates.Normal)
+        }} footer={[<BackButton onClick={() => {
+          setCalValue(null)
+          setAppState(AppStates.Normal)
+        }}/>]}>
+          <ReservationLoader
+            calendarPax={pax}
+            calValue={calValue!}
+            onSubmit={() => {
+              setCalValue(null)
+              setAppState(AppStates.Normal)
+            }}
+          />
+        </Modal>
+      </>}
 
       {appState === AppStates.ColivingForm && (
         <ColivingForm
