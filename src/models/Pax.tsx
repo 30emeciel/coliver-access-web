@@ -12,9 +12,9 @@ export enum TPaxStates {
 export interface TPax {
   sub: string;
   name: string;
-  state?: TPaxStates;
+  state: TPaxStates;
   picture?: string;
-  isSupervisor?: boolean;
+  isSupervisor: boolean;
   preregistrationFormEntryUrl?: string;
 }
 
@@ -25,9 +25,9 @@ export const TPaxConverter: admin.firestore.FirestoreDataConverter<TPax> = {
     return {
       sub: data.sub,
       name: data.name,
-      state: data.state,
+      state: data.state ?? TPaxStates.Authenticated,
       picture: data.picture,
-      isSupervisor: data.is_supervisor,
+      isSupervisor: data.is_supervisor ?? false,
       preregistrationFormEntryUrl: data.preregistration_form_entry_url
     }
   },
