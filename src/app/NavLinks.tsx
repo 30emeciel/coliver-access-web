@@ -1,8 +1,9 @@
 import { useAuth0 } from "@auth0/auth0-react"
 import {
+  faBaby,
   faBookReader,
   faCalendarAlt,
-  faCalendarCheck,
+  faCalendarCheck, faCertificate,
   faChartPie,
   faCheckDouble,
   faComments,
@@ -13,7 +14,7 @@ import {
   faUsers,
 } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Col, Menu, Row } from "antd"
+import { Col, Image, Menu, Row } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import Layout, { Content } from "antd/lib/layout/layout"
 import SubMenu from "antd/lib/menu/SubMenu"
@@ -23,6 +24,7 @@ import firebase from "src/core/myfirebase"
 import PaxContext from "src/core/paxContext"
 import { TPaxStates } from "src/models/Pax"
 import WorkInProgress from "src/core/WorkInProgress"
+import BabyColiver from "./BabyColiver.png"
 
 export function NavLinks({mobile}:{mobile:boolean}) {
   const history = useHistory()
@@ -91,6 +93,13 @@ export function NavLinks({mobile}:{mobile:boolean}) {
               </>
             }
           >
+            <Menu.Item icon={<FontAwesomeIcon icon={faBaby} />}>
+              <WorkInProgress>Niveau : Bébé Coliver</WorkInProgress>
+            </Menu.Item>
+            <Menu.Item icon={<FontAwesomeIcon icon={faCertificate} />}>
+              <WorkInProgress>Badges</WorkInProgress>
+            </Menu.Item>
+            <Menu.Divider />
             <Menu.Item
               onClick={async () => {
                 await firebase.auth().signOut()
