@@ -24,11 +24,18 @@ import PaxContext from "src/core/paxContext"
 import { TPaxStates } from "src/models/Pax"
 import WorkInProgress from "src/core/WorkInProgress"
 
-export function NavLinks({mobile}:{mobile:boolean}) {
+export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentMenuSelect?:() => void}) {
   const history = useHistory()
   const pc = useContext(PaxContext)
   const { logout } = useAuth0()
   const location = useLocation()
+
+  const onMenuSelect = (path:string) => {
+    history.push(path)
+    if (onParentMenuSelect)
+      onParentMenuSelect()
+  }
+
   return (<>
       <Menu mode={mobile ? "inline" : "horizontal"} theme={mobile ? "light" : "dark"} selectedKeys={[location.pathname]}>
         {pc.doc && pc.doc.state === TPaxStates.Confirmed && (
@@ -36,7 +43,7 @@ export function NavLinks({mobile}:{mobile:boolean}) {
             <Menu.Item
               key="/my-reservations"
               icon={<FontAwesomeIcon icon={faBookReader} />}
-              onClick={() => history.push("/my-reservations")}
+              onClick={() => onMenuSelect("/my-reservations")}
             >
               Mes réservations
             </Menu.Item>
@@ -64,16 +71,16 @@ export function NavLinks({mobile}:{mobile:boolean}) {
               icon={<FontAwesomeIcon icon={faEye} />}
               title="Supervisaire"
             >
-              <Menu.Item key="/supervisor/pax" icon={<FontAwesomeIcon icon={faUsers} />} onClick={() => history.push("/supervisor/pax")}>
+              <Menu.Item key="/supervisor/pax" icon={<FontAwesomeIcon icon={faUsers} />} onClick={() => onMenuSelect("/supervisor/pax")}>
                 Répertoire des pax
               </Menu.Item>
-              <Menu.Item key="/supervisor/reservations" icon={<FontAwesomeIcon icon={faCheckDouble} />} onClick={() => history.push("/supervisor/reservations")}>
+              <Menu.Item key="/supervisor/reservations" icon={<FontAwesomeIcon icon={faCheckDouble} />} onClick={() => onMenuSelect("/supervisor/reservations")}>
                 Réservations en attente
               </Menu.Item>
               <Menu.Item
                 key="/supervisor/presence-summary"
                 icon={<FontAwesomeIcon icon={faCalendarCheck} />}
-                onClick={() => history.push("/supervisor/presence-summary")}
+                onClick={() => onMenuSelect("/supervisor/presence-summary")}
               >
                 Tableau des présences
               </Menu.Item>

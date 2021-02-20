@@ -11,7 +11,7 @@ import { NavLinks } from "./NavLinks"
 import { NoUserContent } from "./NoUserContent"
 import { UserContent } from "./UserContent"
 import { TPaxStates } from "../models/Pax"
-import { Alert, Button, Col, Drawer, Row, Space } from "antd"
+import { Button, Col, Drawer, Row } from "antd"
 import { MenuOutlined } from "@ant-design/icons"
 import { useState } from "react"
 
@@ -53,7 +53,7 @@ const App = () => {
                 <Col xs={{span: 23}} md={{span: 23}} lg={{span: 0}} style={{textAlign: "end"}}>
                   <Button style={{marginRight: 16}} icon={<MenuOutlined  />} onClick={switchMobileMenu}/>
                   <Drawer visible={mobileMenuOpened} onClose={switchMobileMenu} closeIcon={null} width="300">
-                    <NavLinks mobile={true} />
+                    <NavLinks mobile={true} onParentMenuSelect={switchMobileMenu} />
                   </Drawer>
                 </Col>
               </Row>
