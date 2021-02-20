@@ -2,8 +2,8 @@ import { useAuth0 } from "@auth0/auth0-react"
 import {
   faBaby,
   faBookReader,
-  faCalendarAlt,
-  faCalendarCheck, faCertificate,
+  faCalendarCheck,
+  faCertificate,
   faChartPie,
   faCheckDouble,
   faComments,
@@ -14,9 +14,8 @@ import {
   faUsers,
 } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Col, Image, Menu, Row } from "antd"
+import { Menu } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
-import Layout, { Content } from "antd/lib/layout/layout"
 import SubMenu from "antd/lib/menu/SubMenu"
 import { useContext } from "react"
 import { useHistory, useLocation } from "react-router-dom"
@@ -24,7 +23,6 @@ import firebase from "src/core/myfirebase"
 import PaxContext from "src/core/paxContext"
 import { TPaxStates } from "src/models/Pax"
 import WorkInProgress from "src/core/WorkInProgress"
-import BabyColiver from "./BabyColiver.png"
 
 export function NavLinks({mobile}:{mobile:boolean}) {
   const history = useHistory()
