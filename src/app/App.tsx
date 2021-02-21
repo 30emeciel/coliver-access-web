@@ -11,23 +11,27 @@ import { NavLinks } from "./NavLinks"
 import { NoUserContent } from "./NoUserContent"
 import { UserContent } from "./UserContent"
 import { TPaxStates } from "../models/Pax"
-import { Button, Col, Drawer, Row } from "antd"
+import { Button, Col, Divider, Drawer, Row } from "antd"
 import { MenuOutlined } from "@ant-design/icons"
 import { useState } from "react"
+import { getEnvOrFail } from "src/core/getEnvOrFail"
+import Text from "antd/es/typography/Text"
+
+const VERSION = getEnvOrFail("VERSION")
 
 const App = () => {
   const {
     isLoading: isUserLoading,
     isAuthenticated: isUserAuthenticated,
     userData: userDoc,
-    docRef: userDocRef,
+    docRef: userDocRef
   } = useUser()
 
   const userContextValue: TPaxContext = {
     isLoading: isUserLoading,
     isAuthenticated: isUserAuthenticated,
     doc: userDoc,
-    ref: userDocRef,
+    ref: userDocRef
   }
   const [mobileMenuOpened, setMobileMenuOpened] = useState(false)
   const switchMobileMenu = () => {
@@ -68,7 +72,7 @@ const App = () => {
                 )}
               </ErrorBoundary>
             </Content>
-            <Footer style={{ textAlign: "center" }}>30ème Ciel 🌈</Footer>
+            <Footer><Divider plain><Text type="secondary">Fait avec ❤ au 30ème Ciel 🌈 - {VERSION}</Text></Divider></Footer>
           </Layout>
         </PaxContext.Provider>
       </BrowserRouter>

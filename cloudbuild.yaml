@@ -9,6 +9,7 @@ steps:
   args: ['run', 'build']
   env:
   - 'REACT_APP_PREREGISTRATION_FORM_ID=$_PREREGISTRATION_FORM_ID'
+  - 'REACT_APP_VERSION=$TAG_NAME($SHORT_SHA)'
 - name: firebase
   args: ['deploy', '--project=trentiemeciel', '--only=hosting']
 

@@ -25,7 +25,6 @@ const useUser = () => {
   const [firebaseAuthUser, firebaseAuthIsLoading, firebaseAuthError] = useFirebaseAuthState(firebase.auth())
 
   const [auth0Token, setAuth0Token] = useState<string | null>(null)
-  const [isLoadingTris, setIsLoadingTris] = useState(true)
   const [auth0isTokenLoading, setAuth0IsTokenLoading] = useState(false)
   useEffect(() => {
     if (auth0IsLoading || !auth0User) {
@@ -76,6 +75,7 @@ const useUser = () => {
         })
 
       log.debug("firebase auth signInWithCustomToken")
+      localStorage.setItem("ERROR_REPORTING_API_KEY", exchange_token_response.data.error_reporting_api_key)
       await firebase.auth().signInWithCustomToken(exchange_token_response.data.firebase_token)
       log.debug("firebase auth signInWithCustomToken DONE")
     })()
@@ -95,7 +95,6 @@ const useUser = () => {
   const [userDocSnap, isUserDocLoading, userDocError] = useDocument(userDocRef)
   const error = auth0Error || firebaseAuthError || userDocError
   const isAuthenticated = auth0IsAuthenticated && firebaseAuthUser != null
-  const isLoadingBis = auth0IsLoading || firebaseAuthIsLoading || isUserDocLoading || userDocSnap?.exists === undefined
   const isLoading =
     auth0IsLoading ||
     auth0isTokenLoading ||
@@ -104,22 +103,16 @@ const useUser = () => {
     isUserDocLoading ||
     (isAuthenticated && !userDocSnap)
 
-  useEffect(() => {
-    if (error || (isAuthenticated && !userDocSnap) || userDocSnap?.exists) {
-      setIsLoadingTris(false)
-    }
-  }, [setIsLoadingTris, error, isAuthenticated, userDocSnap])
-
   const ret = {
     isLoading: isLoading,
     isAuthenticated: isAuthenticated,
     userSnap: isAuthenticated ? userDocSnap : undefined,
     userData: isAuthenticated ? userDocSnap?.data() as TPax : undefined,
     docRef: isAuthenticated ? userDocRef : undefined,
-    error: error,
+    error: error
   }
   log.debug(
-    `isLoading ${isLoading} isLoadingBis ${isLoadingBis} isLoadingTris: ${isLoadingTris} isAuthenticated: ${isAuthenticated} userDocSnap: ${!!userDocSnap} userDocSnap?.exists: ${
+    `isLoading ${isLoading} isAuthenticated: ${isAuthenticated} userDocSnap: ${!!userDocSnap} userDocSnap?.exists: ${
       userDocSnap?.exists
     } userDocSnap?.data(): ${!!userDocSnap?.data()} docRef: ${!!userDocRef} error: ${!!error}`
   )
