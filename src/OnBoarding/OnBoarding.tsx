@@ -83,7 +83,7 @@ export default function OnBoarding() {
   return (
     <>
           <Card>
-            <Steps current={uc.doc!.state === TPaxStates.Registered ? 1 : 0}>
+            <Steps current={uc.doc!.state === TPaxStates.Registered ? 1 : 0} responsive={true}>
               <Step title="Préinscription" description="Aide-moi à mieux te connaître" icon={<SolutionOutlined />}/>
               <Step title="Confirmation" description="Attends la confirmation de ta préinscription" icon={uc.doc!.state === TPaxStates.Registered ? <LoadingOutlined /> : <CheckSquareOutlined />}/>
               <Step title="C'est parti !" icon={<SmileOutlined />} />
