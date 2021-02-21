@@ -1,5 +1,5 @@
-import { Result, Spin } from "antd"
-import React, { useContext } from "react"
+import { Col, Result, Row, Skeleton, Spin } from "antd"
+import React, { lazy, Suspense, useContext } from "react"
 import { useDocumentData } from "react-firebase-hooks/firestore"
 import { Route, Switch, useParams } from "react-router-dom"
 import Account from "src/Account/Account"
@@ -7,12 +7,12 @@ import ReservationList, { ReservationListMode } from "src/Reservation/Reservatio
 import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
 import { TPax } from "src/models/Pax"
-import Dashboard from "src/Dashboard/Dashboard"
-import PaxList from "src/Supervisor/PaxList"
-import PresenceList from "src/Supervisor/PresenceList"
-import MyPresenceCalendar from "src/Reservation/PresenceCalendar/MyPresenceCalendar"
-import EditReservation from "../Reservation/EditReservation"
-import ReservationIndex from "../Reservation/ReservationIndex"
+const Dashboard = lazy(() => import("src/Dashboard/Dashboard"))
+const PaxList = lazy(() => import("src/Supervisor/PaxList"))
+const PresenceList = lazy(() => import("src/Supervisor/PresenceList"))
+const MyPresenceCalendar = lazy(() => import("src/Reservation/PresenceCalendar/MyPresenceCalendar"))
+const EditReservation = lazy(() => import("../Reservation/EditReservation"))
+const ReservationIndex = lazy(() => import("../Reservation/ReservationIndex"))
 
 
 type IdParams = {
@@ -56,47 +56,51 @@ const SupervisorReservationLoader = () => {
   const { paxId, reservationId } = useParams<PaxReservationParams>()
   return <EditReservation paxId={paxId} requestId={reservationId} />
 }
-
+const SubPageLoading = () => {
+  return <>
+    <Skeleton active />
+  </>
+}
 export function UserContent() {
   const uc = useContext(PaxContext);
 
   if (!uc.doc) {
     throw Error("pax is empty!");
   }
-
   return (
-    <Switch>
-      <Route exact path="/">
-        <Dashboard />
-      </Route>
-      <Route exact path="/my-reservations">
-        <ReservationIndex />
-      </Route>
-      <Route exact path="/reservation/:id">
-        <ReservationLoader />
-      </Route>
-      <Route exact path="/supervisor/pax/:paxId/reservation/:reservationId">
-        <SupervisorReservationLoader />
-      </Route>
-      <Route exact path="/supervisor/pax">
-        <PaxList />
-      </Route>
-      <Route exact path="/supervisor/pax/:id/presence">
-        <MyPresenceCalendarLoader />
-      </Route>
-      <Route exact path="/supervisor/pax/:id/account">
-        <AccountLoader />
-      </Route>
-      <Route exact path="/supervisor/presence-summary">
-        <PresenceList />
-      </Route>
-      <Route exact path="/supervisor/reservations">
-        <ReservationList mode={ReservationListMode.Supervisor}/>
-      </Route>
-      <Route>
-        <Result status="404" title={"Perdu 😐"}/>
-      </Route>
-
-    </Switch>
+    <Suspense fallback={<SubPageLoading />}>
+      <Switch>
+        <Route exact path="/">
+          <Dashboard />
+        </Route>
+        <Route exact path="/my-reservations">
+          <ReservationIndex />
+        </Route>
+        <Route exact path="/reservation/:id">
+          <ReservationLoader />
+        </Route>
+        <Route exact path="/supervisor/pax/:paxId/reservation/:reservationId">
+          <SupervisorReservationLoader />
+        </Route>
+        <Route exact path="/supervisor/pax">
+          <PaxList />
+        </Route>
+        <Route exact path="/supervisor/pax/:id/presence">
+          <MyPresenceCalendarLoader />
+        </Route>
+        <Route exact path="/supervisor/pax/:id/account">
+          <AccountLoader />
+        </Route>
+        <Route exact path="/supervisor/presence-summary">
+          <PresenceList />
+        </Route>
+        <Route exact path="/supervisor/reservations">
+          <ReservationList mode={ReservationListMode.Supervisor}/>
+        </Route>
+        <Route>
+          <Result status="404" title={"Perdu 😐"}/>
+        </Route>
+      </Switch>
+    </Suspense>
   );
 }
