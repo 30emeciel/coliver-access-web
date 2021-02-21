@@ -31,7 +31,6 @@ import firebase from "firebase"
 
 const { Column } = Table
 type CollectionReference = firebase.firestore.CollectionReference
-type DocumentData = firebase.firestore.DocumentData
 type Query = firebase.firestore.Query
 
 const log = myloglevel.getLogger("ReservationList")
@@ -51,15 +50,6 @@ const getCollectionFromMode = (mode: ReservationListMode, pax: TPax) => {
   }
   let q:CollectionReference|Query = db.collection(`pax/${pax.sub}/requests`)
 
-  /*
-  if (mode == ReservationListMode.PendingReviewMode) {
-    q = q.where("state", "==", "PENDING_REVIEW")
-  }
-  else {
-    // Current and Past modes
-    q = q.where("state", "==", "CONFIRMED")
-  }
-  */
   const today = DateTime.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).toJSDate()
 
   if (mode == ReservationListMode.Current) {
