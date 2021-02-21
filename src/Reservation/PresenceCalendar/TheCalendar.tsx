@@ -3,6 +3,7 @@ import Calendar, { CalendarTileProperties } from "react-calendar"
 import "react-calendar/dist/Calendar.css"
 import "./Calendar.css"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
+import { DateTime } from "luxon"
 
 const TheCalendar = ({
   isRangeMode,
@@ -24,18 +25,25 @@ const TheCalendar = ({
   const isTestNotAvailable = false
   const isFirstTimer = false
 
-  const pendingDaysTiles = ({ activeStartDate, date, view }: CalendarTileProperties) => {
+  const pendingDaysTiles = ({date}: CalendarTileProperties) => {
+    const d = DateTime.fromJSDate(date)
+    const today = DateTime.now().set({hour: 0, minute: 0, second: 0, millisecond: 0})
     const day = calendarContext.userDays.get(date.getTime())
-    if (!day) {
-      return ""
+    const ret:string[] = []
+    if (d < today) {
+      ret.push("react-calendar-past")
     }
-    return `${day.kind}-${day.state}`.toLowerCase()
+    if (day) {
+      ret.push(`${day.kind}-${day.state}`.toLowerCase())
+    }
+
+    return ret
   }
 
-  const disabledTiles = ({ activeStartDate, date, view }: CalendarTileProperties) =>
-    isTestNotAvailable ? (date.getDay() === 3 ? true : false) : isFirstTimer ? date.getDay() !== 1 : false
+  const disabledTiles = ({date}: CalendarTileProperties) =>
+    isTestNotAvailable ? (date.getDay() === 3) : isFirstTimer ? date.getDay() !== 1 : false
 
-  const contentTiles = ({ activeStartDate, date, view }: CalendarTileProperties) =>
+  const contentTiles = ({date}: CalendarTileProperties) =>
     isTestNotAvailable ? date.getDay() === 3 ? <div>Sold out</div> : null : null
 
   return (
