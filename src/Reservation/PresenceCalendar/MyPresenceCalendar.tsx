@@ -124,7 +124,7 @@ export default function MyPresenceCalendar({ pax: initialPax }: { pax?: TPax }) 
           calValue={calValue}
           onClickDay={onClickDayFct}
         />
-        <Modal visible={new Set([AppStates.ShowEmptyForm]).has(appState)} onCancel={() => {
+        <Modal destroyOnClose={true} visible={new Set([AppStates.ShowEmptyForm]).has(appState)} onCancel={() => {
           setCalValue(null)
           setAppState(AppStates.Normal)
         }} footer={[<BackButton onClick={() => {
@@ -141,7 +141,7 @@ export default function MyPresenceCalendar({ pax: initialPax }: { pax?: TPax }) 
             </Button>
           </Space>
         </Modal>
-        <Modal visible={new Set([AppStates.ShowOccupiedForm]).has(appState)} onCancel={() => {
+        <Modal destroyOnClose={true} visible={new Set([AppStates.ShowOccupiedForm]).has(appState)} onCancel={() => {
           setCalValue(null)
           setAppState(AppStates.Normal)
         }} footer={[<BackButton onClick={() => {
