@@ -25,9 +25,9 @@ import db from "../core/db"
 import { TPax, TPaxConverter } from "../models/Pax"
 import { DateTime } from "luxon"
 import PaxContext from "../core/paxContext"
-import { useHistory } from "react-router-dom"
 import myloglevel from "../core/myloglevel"
 import firebase from "firebase"
+import WorkInProgress from "../core/WorkInProgress"
 
 const { Column } = Table
 type CollectionReference = firebase.firestore.CollectionReference
@@ -37,7 +37,6 @@ const log = myloglevel.getLogger("ReservationList")
 
 export enum ReservationListMode {
   Supervisor,
-  PendingReview,
   Current,
   Past
 }
@@ -65,7 +64,6 @@ const getCollectionFromMode = (mode: ReservationListMode, pax: TPax) => {
 export default function ReservationList({ mode = ReservationListMode.Current }: { mode?: ReservationListMode }) {
   const pc = useContext(PaxContext)
   const pax = pc.doc!
-  const history = useHistory()
 
   const [listRequests, listRequestsLoading, ] = useCollectionData<TReservationRequest>(
     getCollectionFromMode(mode, pax)
@@ -106,11 +104,10 @@ export default function ReservationList({ mode = ReservationListMode.Current }: 
 
 
     const actions = [
-      <Button
+      <WorkInProgress><Button
         key="edit"
         size="small"
-              icon={<FontAwesomeIcon icon={faEdit} />}
-              onClick={() => history.push(`/reservation/${item.id}`)}>Modifier</Button>,
+        icon={<FontAwesomeIcon icon={faEdit} />}>Modifier</Button></WorkInProgress>,
       <Popconfirm
         key="cancel"
         arrowPointAtCenter
@@ -170,11 +167,14 @@ export default function ReservationList({ mode = ReservationListMode.Current }: 
   }
 
   const reservationText = (item: TReservationRequest) => {
-    if (item.kind == TReservationRequestKind.COWORKING) {
-      return `le ${item.arrivalDate.setLocale("fr-fr").toLocaleString(DateTime.DATE_MED)}`
+    if (item.kind == TReservationRequestKind.COLIVING) {
+      if (!item.departureDate || !item.numberOfNights) {
+        throw new Error("invalid values")
+      }
+      return `du ${item.arrivalDate.setLocale("fr-fr").toLocaleString(DateTime.DATE_MED)} au ${item.departureDate.setLocale("fr-fr").toLocaleString(DateTime.DATE_MED)} (${item.numberOfNights} nuits)`
     }
     else {
-      return `du ${item.arrivalDate.setLocale("fr-fr").toLocaleString(DateTime.DATE_MED)} au ${item.departureDate!.setLocale("fr-fr").toLocaleString(DateTime.DATE_MED)} (${item.numberOfNights!} nuits)`
+      return `le ${item.arrivalDate.setLocale("fr-fr").toLocaleString(DateTime.DATE_MED)}`
     }
   }
 
@@ -189,15 +189,18 @@ export default function ReservationList({ mode = ReservationListMode.Current }: 
            size="small"
            scroll={{ "x": 1000 }}
     >
-      <Column title="Type" key="kind" dataIndex="kind" render={(kind: TReservationRequestKind) => {
-        const kindFields = kind2fields[kind] || ["?", "pink", faQuestionCircle]
-        return <Tag color={kindFields[1]}><FontAwesomeIcon icon={kindFields[2]} /> {kindFields[0]}</Tag>
-      }} />
       {mode == ReservationListMode.Supervisor &&
       <Column title="Pax" key="paxId" dataIndex="paxId" render={paxId => <PaxField pax={paxMap?.get(paxId)} />} />}
       <Column key="text"
               title="Description"
-              render={(text, record:TReservationRequest) => reservationText(record)} />
+              render={(text, record:TReservationRequest) => {
+                const kind = record.kind
+                const kindFields = kind2fields[kind] || ["?", "pink", faQuestionCircle]
+                return <>
+                  <Tag color={kindFields[1]}><FontAwesomeIcon icon={kindFields[2]} /> {kindFields[0]}</Tag>
+                  {reservationText(record)}
+                </>
+              }} />
       <Column title="Status" key="state" dataIndex="state" render={(state: TReservationRequestState) => {
         const stateFields = state2fields[state] || ["?", "pink", faQuestionCircle]
         return <Tag color={stateFields[1]}><FontAwesomeIcon icon={stateFields[2]} /> {stateFields[0]}</Tag>

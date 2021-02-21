@@ -1,4 +1,4 @@
-import { faExclamationCircle, faUserEdit } from "@fortawesome/free-solid-svg-icons"
+import { faEdit, faExclamationCircle, faUserEdit } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Button, Space, Spin } from "antd"
 import myfirebase from "src/core/myfirebase"
@@ -15,6 +15,7 @@ import {
   TReservationRequestState,
 } from "../../models/ReservationRequest"
 import { TDay, TDayConverter } from "../../models/Day"
+import WorkInProgress from "../../core/WorkInProgress"
 
 export default function ReservationLoader({
                                             calendarPax,
@@ -36,8 +37,13 @@ export default function ReservationLoader({
   return <>
     <p>Que veux-tu faire ?</p>
     <Space direction="vertical">
+      <WorkInProgress>
+      <Button block icon={<FontAwesomeIcon icon={faEdit} />}>
+        Modifier ma réservation
+      </Button></WorkInProgress>
       <Button
         danger
+        block
         loading={isCancellationSubmitting}
         onClick={async () => {
           setIsCancellationSubmitting(true)
@@ -49,8 +55,8 @@ export default function ReservationLoader({
         Annuler ma réservation
       </Button>
       {pc.doc!.isSupervisor && (
-        <Button
-          type="primary"
+        <Button block
+                type="primary"
           disabled={reservation.state === TReservationRequestState.CONFIRMED}
           loading={isConfirmationSubmitting}
           onClick={async () => {

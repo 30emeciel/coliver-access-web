@@ -1,8 +1,8 @@
 import { faBed, faLaptopHouse, faUserClock } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Alert, Button, Col, Drawer, Modal, Row, Space } from "antd"
+import { Alert, Button, Modal, Space } from "antd"
 import { DateTime } from "luxon"
-import { useContext, useEffect, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
@@ -24,7 +24,6 @@ enum AppStates {
   ShowOccupiedForm,
   CoworkingForm,
   ColivingForm,
-  EditDays,
 }
 
 export default function MyPresenceCalendar({ pax: initialPax }: { pax?: TPax }) {
@@ -34,10 +33,9 @@ export default function MyPresenceCalendar({ pax: initialPax }: { pax?: TPax }) 
   /******************************************************************************************************************
    * States
    *****************************************************************************************************************/
-  const [isFirstTimer, setIsFirstTimer] = useState(false)
   const [appState, setAppState] = useState(AppStates.Normal)
 
-  const [listDays, listDaysLoading, listDaysError] = useCollectionData<TDay>(
+  const [listDays, listDaysLoading, ] = useCollectionData<TDay>(
     db.collection(`pax/${pax.sub}/days`).withConverter(TDayConverter).orderBy("on", "asc"),
   )
 
@@ -83,17 +81,6 @@ export default function MyPresenceCalendar({ pax: initialPax }: { pax?: TPax }) 
    * Inner Components
    *****************************************************************************************************************/
 
-  const FirstTimerIntro = () => {
-    return (
-      <Row>
-        <Alert
-          type="warning"
-          message="You are a new! Welcome 👋😀. For ease of integration, you recommand you to book a Coworking day on any Monday."
-        />
-      </Row>
-    )
-  }
-
   const onClickDayFct = (d: Date) => {
     //if (appState === AppStates.Normal) {
     const dt = DateTime.fromJSDate(d)
@@ -115,8 +102,7 @@ export default function MyPresenceCalendar({ pax: initialPax }: { pax?: TPax }) 
       <Alert
         type="info"
         message="Pour réserver, commence par cliquer sur le jour de ta venue." />
-      {isFirstTimer && <FirstTimerIntro />}
-      <br />
+        <br />
       {new Set([AppStates.Normal, AppStates.ShowEmptyForm, AppStates.ShowOccupiedForm]).has(appState) && <>
         <TheCalendar
           calendarContext={calendarContext}
@@ -133,10 +119,10 @@ export default function MyPresenceCalendar({ pax: initialPax }: { pax?: TPax }) 
         }}/>]}>
           <p>Que veux-tu réserver ?</p>
           <Space direction="vertical">
-            <Button type="primary" onClick={() => setAppState(AppStates.ColivingForm)}>
+            <Button block type="primary" onClick={() => setAppState(AppStates.ColivingForm)}>
               <FontAwesomeIcon icon={faBed} /> Coliving
             </Button>
-            <Button type="primary" onClick={() => setAppState(AppStates.CoworkingForm)}>
+            <Button block type="primary" onClick={() => setAppState(AppStates.CoworkingForm)}>
               <FontAwesomeIcon icon={faLaptopHouse} /> Coworking
             </Button>
           </Space>
@@ -186,7 +172,6 @@ export default function MyPresenceCalendar({ pax: initialPax }: { pax?: TPax }) 
           }}
         />
       )}
-      {appState === AppStates.EditDays && <div></div>}
     </>
   )
 }
