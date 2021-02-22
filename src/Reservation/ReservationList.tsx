@@ -2,8 +2,9 @@ import { Avatar, Button, Popconfirm, Space, Spin, Table, Tag } from "antd"
 import {
   cancelReservation,
   confirmReservation,
-  TReservationRequest,
-  TReservationRequestConverter,
+  TColivingReservation,
+  TCoworkingReservation,
+  TReservation, TReservationRequestConverter,
   TReservationRequestKind,
   TReservationRequestState,
 } from "../models/ReservationRequest"
@@ -20,7 +21,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useContext, useEffect, useState } from "react"
-import { useCollectionData } from "react-firebase-hooks/firestore"
+import { useCollection, useCollectionData } from "react-firebase-hooks/firestore"
 import db from "../core/db"
 import { TPax, TPaxConverter } from "../models/Pax"
 import { DateTime } from "luxon"
@@ -28,6 +29,8 @@ import PaxContext from "../core/paxContext"
 import myloglevel from "../core/myloglevel"
 import firebase from "firebase"
 import WorkInProgress from "../core/WorkInProgress"
+import { dtFromFirestore } from "../models/utils"
+import admin from "firebase"
 
 const { Column } = Table
 type CollectionReference = firebase.firestore.CollectionReference
@@ -61,29 +64,41 @@ const getCollectionFromMode = (mode: ReservationListMode, pax: TPax) => {
   return q
 }
 
+function useTypedCollectionData<C, T=firebase.firestore.DocumentData>(query: firebase.firestore.Query<T>, tx: admin.firestore.FirestoreDataConverter<C>):[C[] | undefined, boolean, Error | undefined] {
+  const [snapshot, loading, error]:[firebase.firestore.QuerySnapshot<T> | undefined, boolean, Error | undefined] = useCollection(
+    query
+  )
+  const [typedList, setTypedList] = useState<C[] | undefined>()
+  useEffect(() => {
+    if (!snapshot)
+      return
+    setTypedList(snapshot.docs.map((i) => tx.fromFirestore(i, {})))
+  }, [snapshot])
+  return [typedList, loading, error]
+}
+
 export default function ReservationList({ mode = ReservationListMode.Current }: { mode?: ReservationListMode }) {
   const pc = useContext(PaxContext)
   const pax = pc.doc!
 
-  const [listRequests, listRequestsLoading, ] = useCollectionData<TReservationRequest>(
-    getCollectionFromMode(mode, pax)
-      .withConverter(TReservationRequestConverter),
-    { idField: "id" },
+  const [listRequests, listRequestsLoading, ] = useTypedCollectionData<TReservation>(
+    getCollectionFromMode(mode, pax),
+    TReservationRequestConverter
   )
 
-
   const state2fields: Record<TReservationRequestState, [string, string, IconDefinition]> = {
-    "CONFIRMED": ["Confirmée", "green", faCheckCircle],
-    "PENDING_REVIEW": ["En attente", "orange", faClock],
+    CONFIRMED: ["Confirmée", "green", faCheckCircle],
+    PENDING_REVIEW: ["En attente", "orange", faClock],
+    CANCELED: ["Annulée", "red", faExclamationCircle],
   }
 
   const kind2fields: Record<TReservationRequestKind, [string, string, IconDefinition]> = {
-    "COLIVING": ["Coliving", "#606dbc", faBed],
-    "COWORKING": ["Coworking", "#6dbc6d", faBriefcase],
+    COLIVING: ["Coliving", "#606dbc", faBed],
+    COWORKING: ["Coworking", "#6dbc6d", faBriefcase],
   }
 
 
-  const ActionButtons = ({ item }: { item: TReservationRequest }) => {
+  const ActionButtons = ({ item }: { item: TReservation }) => {
     const [isConfirmationSubmitting, setIsConfirmationSubmitting] = useState(false)
 
     const myConfirmReservation = async () => {
@@ -166,16 +181,8 @@ export default function ReservationList({ mode = ReservationListMode.Current }: 
     </Space>
   }
 
-  const reservationText = (item: TReservationRequest) => {
-    if (item.kind == TReservationRequestKind.COLIVING) {
-      if (!item.departureDate || !item.numberOfNights) {
-        throw new Error("invalid values")
-      }
-      return `du ${item.arrivalDate.setLocale("fr-fr").toLocaleString(DateTime.DATE_MED)} au ${item.departureDate.setLocale("fr-fr").toLocaleString(DateTime.DATE_MED)} (${item.numberOfNights} nuits)`
-    }
-    else {
-      return `le ${item.arrivalDate.setLocale("fr-fr").toLocaleString(DateTime.DATE_MED)}`
-    }
+  const reservationText = (item: TReservation) => {
+    return item.toDescription()
   }
 
   return <>
@@ -193,7 +200,7 @@ export default function ReservationList({ mode = ReservationListMode.Current }: 
       <Column title="Pax" key="paxId" dataIndex="paxId" render={paxId => <PaxField pax={paxMap?.get(paxId)} />} />}
       <Column key="text"
               title="Description"
-              render={(text, record:TReservationRequest) => {
+              render={(text, record:TReservation) => {
                 const kind = record.kind
                 const kindFields = kind2fields[kind] || ["?", "pink", faQuestionCircle]
                 return <>
@@ -205,7 +212,7 @@ export default function ReservationList({ mode = ReservationListMode.Current }: 
         const stateFields = state2fields[state] || ["?", "pink", faQuestionCircle]
         return <Tag color={stateFields[1]}><FontAwesomeIcon icon={stateFields[2]} /> {stateFields[0]}</Tag>
       }} />
-      <Column key="actions" title="Actions" render={(text, record:TReservationRequest) => <ActionButtons item={record} />} />
+      <Column key="actions" title="Actions" render={(text, record:TReservation) => <ActionButtons item={record} />} />
     </Table>
   </>
 }

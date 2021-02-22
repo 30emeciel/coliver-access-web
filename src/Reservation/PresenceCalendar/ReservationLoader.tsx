@@ -10,7 +10,7 @@ import { TPax } from "src/models/Pax"
 import {
   cancelReservation,
   confirmReservation,
-  TReservationRequest,
+  TReservation,
   TReservationRequestConverter,
   TReservationRequestState,
 } from "../../models/ReservationRequest"
@@ -26,7 +26,7 @@ export default function ReservationLoader({
     .doc(`pax/${calendarPax.sub}/days/${DateTime.fromJSDate(calValue).toISODate()}`)
     .withConverter(TDayConverter)
   const [dayDoc, ] = useDocumentData<TDay>(docDayRef)
-  const [reservation, ] = useDocumentData<TReservationRequest>(dayDoc?.request?.withConverter(TReservationRequestConverter), {idField: 'id'})
+  const [reservation, ] = useDocumentData<TReservation>(dayDoc?.request?.withConverter(TReservationRequestConverter), {idField: 'id'})
   const pc = useContext(PaxContext)
   const [isCancellationSubmitting, setIsCancellationSubmitting] = useState(false)
   const [isConfirmationSubmitting, setIsConfirmationSubmitting] = useState(false)

@@ -5,7 +5,7 @@ import React, { useContext } from "react"
 import { useDocumentData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
-import { TReservationRequest } from "src/models/ReservationRequest"
+import { TReservation } from "src/models/ReservationRequest"
 
 
 export default function EditReservation({paxId, requestId}:{paxId:string, requestId:string}) {
@@ -13,7 +13,7 @@ export default function EditReservation({paxId, requestId}:{paxId:string, reques
   const paxContext = useContext(PaxContext)
   const paxDocRef = paxId ? db.doc(`pax/${paxId}`) : paxContext.ref!
   const requestDocRef = db.doc(`pax/${paxDocRef.id}/requests/${requestId}`)
-  const [requestDoc, requestDocIsLoading, requestDocError] = useDocumentData<TReservationRequest>(requestDocRef)
+  const [requestDoc, requestDocIsLoading, requestDocError] = useDocumentData<TReservation>(requestDocRef)
 
   if (!requestDoc) {
     return <Spin />

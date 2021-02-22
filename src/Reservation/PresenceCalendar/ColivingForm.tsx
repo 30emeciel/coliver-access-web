@@ -1,19 +1,12 @@
-import { faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
+import { faCheckCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Alert, Button, Col, Drawer, message, Modal, Row, Space } from "antd"
-import { DateTime, Duration, Interval } from "luxon"
+import { Alert, Button, Col, Row, Space } from "antd"
+import { Interval } from "luxon"
 import React, { useEffect, useState } from "react"
-import db from "src/core/db"
-import {
-  TReservationRequest,
-  TReservationRequestConverter,
-  TReservationRequestKind,
-  TReservationRequestState,
-} from "src/models/ReservationRequest"
+import { createReservation, TColivingReservation } from "src/models/ReservationRequest"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
-import { TDayConverter, TDayKind, TDayState } from "../../models/Day"
-import {Collapse} from 'react-collapse';
+import { Collapse } from "react-collapse"
 import BackButton from "../../Buttons/BackButton"
 
 const getIntervalFromDateArr = (dateArr:Date[] | null) => {
@@ -57,49 +50,17 @@ const ColivingForm = ({
     if (!interval || !numberOfNights) {
       return
     }
-    const arrivalDate = interval.start
-    const departureDate = interval.end
 
     setIsFormSubmitting(true)
-    const oneDay = Duration.fromObject({ days: 1 })
 
-    // Get all the days that contains the selected range
-    const res: DateTime[] = []
-    let i = arrivalDate.plus({}) // clone
-    while (i <= departureDate) {
-      if (calendarContext.isDisabledDay(i)) {
-        continue
-      }
-      res.push(i)
-      i = i.plus(oneDay)
-    }
-
-    const request_data: TReservationRequest = {
-      paxId: currentUser.sub,
-      state: TReservationRequestState.PENDING_REVIEW,
-      arrivalDate: arrivalDate,
-      departureDate: departureDate,
-      kind: TReservationRequestKind.COLIVING,
-      numberOfNights: numberOfNights,
-    }
-    const request_doc = await db
-      .collection(`pax/${currentUser.sub}/requests`)
-      .withConverter(TReservationRequestConverter)
-      .add(request_data)
-
-    const batch = db.batch()
-
-    res.forEach((r) => {
-      batch.set(db.collection(`pax/${currentUser.sub}/days`).doc(r.toISODate()).withConverter(TDayConverter), {
-        on: r,
-        request: request_doc,
-        state: TDayState.PENDING_REVIEW,
-        kind: TDayKind.COLIVING,
-      })
-    })
-
-    await batch.commit()
-
+    const arrivalDate = interval.start
+    const departureDate = interval.end
+    const request_data = new TColivingReservation(
+      currentUser.sub,
+      arrivalDate,
+      departureDate,
+    )
+    await createReservation(request_data)
     onSubmit()
   }
 

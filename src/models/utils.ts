@@ -24,6 +24,6 @@ export function optionalDtToFirestore(dt?: DateTime) {
   return dt ? dtToFirestore(dt) : undefined
 }
 
-export function makePartialData(o:Record<string, unknown>) {
+export function makePartialData(o:Record<string, unknown>): { [p: string]: unknown } {
   return Object.fromEntries(Object.entries(o).filter(([, value]:[string, unknown]) => value !== undefined))
 }

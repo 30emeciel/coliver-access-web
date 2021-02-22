@@ -1,19 +1,11 @@
-import { faArrowCircleLeft, faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
+import { faCheckCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Alert, Button, Col, Drawer, Row, Space } from "antd"
+import { Alert, Button, Col, Row, Space } from "antd"
 import { DateTime } from "luxon"
 import React, { useState } from "react"
-import db from "src/core/db"
-import LoadingButton from "src/core/LoadingButton"
-import {
-  TReservationRequest,
-  TReservationRequestConverter,
-  TReservationRequestKind,
-  TReservationRequestState,
-} from "src/models/ReservationRequest"
+import { createReservation, TCoworkingReservation } from "src/models/ReservationRequest"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
-import { TDayConverter, TDayKind, TDayState } from "../../models/Day"
 import { Collapse } from "react-collapse"
 import BackButton from "../../Buttons/BackButton"
 
@@ -37,28 +29,20 @@ const CoworkingForm = ({
     if (!calValue) {
       return
     }
-    setIsFormSubmitting(true)
-    const start = DateTime.fromJSDate(calValue)
 
-    const request_data: TReservationRequest = {
-      paxId: currentUser.sub,
-      arrivalDate: start,
-      kind: TReservationRequestKind.COWORKING,
-      state: TReservationRequestState.PENDING_REVIEW,
-    }
-    const request_doc = await db
-      .collection(`pax/${currentUser.sub}/requests`)
-      .withConverter(TReservationRequestConverter)
-      .add(request_data)
-    await db.collection(`pax/${currentUser.sub}/days`).doc(start.toISODate()).withConverter(TDayConverter).set({
-      on: start,
-      request: request_doc,
-      state: TDayState.PENDING_REVIEW,
-      kind: TDayKind.COWORKING,
-    })
+    setIsFormSubmitting(true)
+
+    const start = DateTime.fromJSDate(calValue)
+    const request_data = new TCoworkingReservation(
+      currentUser.sub,
+      start
+    )
+
+    await createReservation(request_data)
 
     onSubmit()
   }
+
   const Form = () => {
     return <>
       <h3>Coworking</h3>
