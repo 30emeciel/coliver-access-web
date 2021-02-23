@@ -1,20 +1,20 @@
 import { Result, Skeleton, Spin } from "antd"
-import React, { lazy, Suspense, useContext } from "react"
+import { lazy, Suspense, useContext } from "react"
 import { useDocumentData } from "react-firebase-hooks/firestore"
 import { Route, Switch, useParams } from "react-router-dom"
-import Account from "src/Account/Account"
-import ReservationList, { ReservationListMode } from "src/Reservation/ReservationList"
 import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
 import { TPax } from "src/models/Pax"
+import { ReservationListMode } from "src/Reservation/ReservationList"
 
 const Dashboard = lazy(() => import("src/Dashboard/Dashboard"))
 const PaxList = lazy(() => import("src/Supervisor/PaxList"))
 const PresenceList = lazy(() => import("src/Supervisor/PresenceList"))
 const MyPresenceCalendar = lazy(() => import("src/Reservation/PresenceCalendar/MyPresenceCalendar"))
-const EditReservation = lazy(() => import("../Reservation/EditReservation"))
-const ReservationIndex = lazy(() => import("../Reservation/ReservationIndex"))
-
+const EditReservation = lazy(() => import("src/Reservation/EditReservation"))
+const ReservationIndex = lazy(() => import("src/Reservation/ReservationIndex"))
+const Account = lazy(() => import("src/Account/Account"))
+const ReservationList = lazy(() => import("src/Reservation/ReservationList"))
 
 type IdParams = {
   id: string
