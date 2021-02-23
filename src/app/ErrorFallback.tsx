@@ -3,7 +3,7 @@ import casse from "./cassé.jpg"
 import { open as freshdeskOpen } from "src/core/freshdesk"
 import { useEffect } from "react"
 import axios from "axios"
-import { getEnvOrFail } from "../core/getEnvOrFail"
+import { getEnvOrFail } from "src/core/getEnvOrFail"
 
 const VERSION = getEnvOrFail("VERSION")
 
@@ -13,7 +13,7 @@ export function ErrorFallback({ error }: { error: Error; }) {
   const extra = <Button onClick={freshdeskOpen}>Envoyer une demande de support</Button>
 
   useEffect(() => {
-    if (!errorReportingApiKey)
+    if (!errorReportingApiKey && process.env.NODE_ENV == "production")
       return
     const data = {
       "message": error.stack,
