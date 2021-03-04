@@ -18,7 +18,7 @@ import { $enum } from "ts-enum-util"
 import { Row, Spin, Table } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import Column from "antd/lib/table/Column"
-import { TReservationRequestKind } from "../models/ReservationRequest"
+import { TReservationKind } from "../models/ReservationRequest"
 import { TDay, TDayConverter, TDayState } from "../models/Day"
 
 const log = loglevel.getLogger("PresenceList")
@@ -56,7 +56,7 @@ const WithContent = ({
 
   const history = useHistory()
 
-  const grouped = paxSnaps.docs.reduce<Map<string, Map<number, (TReservationRequestKind | null)>>>((previousValue, daySnap) => {
+  const grouped = paxSnaps.docs.reduce<Map<string, Map<number, (TReservationKind | null)>>>((previousValue, daySnap) => {
     (() => {
       const userId = daySnap.ref.parent!.parent!.id
       const day = daySnap.data()
@@ -66,11 +66,11 @@ const WithContent = ({
       const dt = day.on.toMillis()
       let barr = previousValue.get(userId)
       if (!barr) {
-        barr = new Map<number, TReservationRequestKind | null>()
+        barr = new Map<number, TReservationKind | null>()
         previousValue.set(userId, barr)
       }
 
-      barr.set(dt, $enum(TReservationRequestKind).asValueOrThrow(day.kind))
+      barr.set(dt, $enum(TReservationKind).asValueOrThrow(day.kind))
     })()
     return previousValue
   }, new Map())
@@ -84,7 +84,7 @@ const WithContent = ({
 
   const tdFct = (i: any) => {
     if (!i) return <></>
-    const r: [string, IconDefinition] = i === TReservationRequestKind.COLIVING ? ["#606dbc", faBed] : ["#6dbc6d", faBriefcase]
+    const r: [string, IconDefinition] = i === TReservationKind.COLIVING ? ["#606dbc", faBed] : ["#6dbc6d", faBriefcase]
     return <FontAwesomeIcon style={{ color: r[0] }} icon={r[1]} />
   }
 

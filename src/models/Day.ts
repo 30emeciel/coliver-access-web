@@ -1,6 +1,6 @@
 import { DateTime } from "luxon"
 import admin from "firebase"
-import { TReservation, TReservationRequestKind } from "./ReservationRequest"
+import { TReservation, TReservationKind } from "./ReservationRequest"
 import myfirebase from "src/core/myfirebase"
 import { dtFromFirestore, makePartialData, optionalDtFromFirestore, optionalDtToFirestore } from "./utils"
 
@@ -12,7 +12,7 @@ export enum TDayState {
 export interface TDay {
   created?: DateTime,
   on: DateTime
-  kind: TReservationRequestKind
+  kind: TReservationKind
   state: TDayState
   request?: myfirebase.firestore.DocumentReference<TReservation>
 }

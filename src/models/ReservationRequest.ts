@@ -1,71 +1,76 @@
 import admin from "firebase"
+import firebase from "firebase"
 import { DateTime, Duration, Interval } from "luxon"
-import { dtFromFirestore, makePartialData, optionalDtFromFirestore, optionalDtToFirestore } from "./utils"
+import { dtFromFirestore, dtToFirestore, makePartialData, optionalDtFromFirestore } from "./utils"
 import db from "src/core/db"
 import { TDay, TDayConverter, TDayState } from "./Day"
 import { Memoize } from "typescript-memoize"
 
-export enum TReservationRequestState {
+type QueryDocumentSnapshot<T> = firebase.firestore.QueryDocumentSnapshot<T>
+
+export enum TReservationState {
   PENDING_REVIEW = "PENDING_REVIEW",
   CONFIRMED = "CONFIRMED",
   CANCELED = "CANCELED"
 }
 
-export enum TReservationRequestKind {
+export enum TReservationKind {
   COLIVING = "COLIVING",
   COWORKING = "COWORKING"
 }
 
+export interface TReservationDto {
+  created?: admin.firestore.Timestamp
+  kind: TReservationKind
+  state: TReservationState
+  arrival_date: admin.firestore.Timestamp
+  departure_date: admin.firestore.Timestamp
+}
+
 export abstract class TReservation {
+  protected constructor(
+    public paxId: string,
+    public arrivalDate: DateTime,
+    public id?: string,
+    public created?: DateTime,
+    public state= TReservationState.PENDING_REVIEW
+) {}
 
-  constructor(paxId: string, arrivalDate: DateTime, id?: string) {
-    this.id = id
-    this.paxId = paxId
-    this.arrivalDate = arrivalDate
-  }
 
-  id?: string
-  paxId: string
-  created?: DateTime
-  state: TReservationRequestState = TReservationRequestState.PENDING_REVIEW
-  arrivalDate: DateTime
-
-  abstract get kind() : TReservationRequestKind
+  abstract get kind() : TReservationKind
 
   get isEditable() {
     return true
   }
   get isCancelable() {
-    return this.isEditable && this.state != TReservationRequestState.CANCELED
+    return this.isEditable && this.state != TReservationState.CANCELED
   }
 
   abstract toDescription():string
 
   abstract toRangeDays(): DateTime[]
 
-  protected static fromBaseFirestore(snapshot: admin.firestore.DocumentSnapshot) {
-    const data = snapshot.data()
-    if (!data) {
-      throw Error("request has invalid data")
-    }
+  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):Pick<TReservation, "id" | "paxId" | "created" | "state" | "arrivalDate"> {
+    const dto = snapshot.data()
     const paxId = snapshot.ref.parent?.parent?.id
     if (!paxId) {
       throw Error("request has no valid pax")
     }
     return {
       id: snapshot.id,
+      created: optionalDtFromFirestore(dto.created),
       paxId: paxId,
-      arrival_date: dtFromFirestore(data.arrival_date),
-      rest: data,
+      state: dto.state,
+      arrivalDate: dtFromFirestore(dto.arrival_date)
     }
   }
 
-  toFirestore(): { [p: string]: unknown } {
+  toFirestore(): Partial<TReservationDto> {
     return makePartialData({
-      created: this.created ?? admin.firestore.FieldValue.serverTimestamp(),
+      created: this.created ? dtToFirestore(this.created) : admin.firestore.FieldValue.serverTimestamp(),
       kind: this.kind,
       state: this.state ,
-      arrival_date: optionalDtToFirestore(this.arrivalDate),
+      arrival_date: dtToFirestore(this.arrivalDate),
     })
   }
 
@@ -73,13 +78,19 @@ export abstract class TReservation {
 
 export class TColivingReservation extends TReservation {
 
-  constructor(paxId: string, arrivalDate: DateTime, departureDate: DateTime, id?: string) {
-    super(paxId, arrivalDate, id)
-    this.departureDate = departureDate
+  constructor(
+    paxId: string,
+    arrivalDate: DateTime,
+    public departureDate: DateTime,
+    id?: string,
+    created?: DateTime,
+    state?: TReservationState
+  ) {
+    super(paxId, arrivalDate, id, created, state)
   }
 
-  protected static KIND = TReservationRequestKind.COLIVING
-  departureDate: DateTime
+
+  protected static KIND = TReservationKind.COLIVING
 
   get kind() {
     return TColivingReservation.KIND
@@ -118,34 +129,44 @@ export class TColivingReservation extends TReservation {
     return TColivingReservation.calculateNumberOfNights(this)
   }
 
-  static supports(snapshot: admin.firestore.DocumentSnapshot) {
-    const data = snapshot.data()
-    return data && data.kind === TColivingReservation.KIND
-  }
-
-  static fromFirestore(snapshot: admin.firestore.DocumentSnapshot) {
-    const data = TReservation.fromBaseFirestore(snapshot)
-
+  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):TColivingReservation {
+    const { ...rest } = TReservation.fromFirestore(snapshot)
+    const dto = snapshot.data()
+    const data = {
+      departureDate: dtFromFirestore(dto.departure_date)
+    }
     return new TColivingReservation(
-      data.paxId,
-      data.arrival_date,
-      dtFromFirestore(data.rest.departure_date),
-      data.id,
+      rest.paxId,
+      rest.arrivalDate,
+      data.departureDate,
+      rest.id,
+      rest.created,
+      rest.state
     )
   }
 
   toFirestore() {
     const ret = super.toFirestore()
     return {...ret, ...makePartialData({
-      departure_date: optionalDtToFirestore(this.departureDate),
+      departure_date: dtToFirestore(this.departureDate),
       number_of_nights: this.numberOfNights,
-    })}
+    })} as TReservationDto
   }
 }
 
 export class TCoworkingReservation extends TReservation {
 
-  protected static KIND = TReservationRequestKind.COWORKING
+  constructor(
+    paxId: string,
+    arrivalDate: DateTime,
+    id?: string,
+    created?: DateTime,
+    state?: TReservationState
+  ) {
+    super(paxId, arrivalDate, id, created, state)
+  }
+
+  protected static KIND = TReservationKind.COWORKING
 
   get kind() {
     return TCoworkingReservation.KIND
@@ -159,17 +180,14 @@ export class TCoworkingReservation extends TReservation {
     return [this.arrivalDate]
   }
 
-  static supports(snapshot: admin.firestore.DocumentSnapshot) {
-    const data = snapshot.data()
-    return data && data.kind === TCoworkingReservation.KIND
-  }
-
-  static fromFirestore(snapshot: admin.firestore.DocumentSnapshot) {
-    const data = TReservation.fromBaseFirestore(snapshot)
+  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):TCoworkingReservation {
+    const { ...rest } = TReservation.fromFirestore(snapshot)
     return new TCoworkingReservation(
-      data.paxId,
-      data.arrival_date,
-      data.id,
+      rest.paxId,
+      rest.arrivalDate,
+      rest.id,
+      rest.created,
+      rest.state
     )
   }
 
@@ -178,26 +196,28 @@ export class TCoworkingReservation extends TReservation {
     return {
       ...ret, ...makePartialData({
         // coworking has same arrival and departure dates, for filtering purpose
-        departure_date: optionalDtToFirestore(this.arrivalDate),
+        departure_date: dtToFirestore(this.arrivalDate),
       })
-    }
+    } as TReservationDto
   }
 }
 
-export const TReservationRequestConverter: admin.firestore.FirestoreDataConverter<TReservation> = {
-  fromFirestore: (snapshot) => {
+const kind2class : Record<TReservationKind, typeof TColivingReservation | typeof TCoworkingReservation> = {
+  COLIVING: TColivingReservation,
+  COWORKING: TCoworkingReservation,
+}
 
-    if (TColivingReservation.supports(snapshot)) {
-      return TColivingReservation.fromFirestore(snapshot)
-    }
-    else if(TCoworkingReservation.supports(snapshot)) {
-      return TCoworkingReservation.fromFirestore(snapshot)
-    }
-    throw new Error("invalid data")
+export const TReservationRequestConverter: admin.firestore.FirestoreDataConverter<TReservation> = {
+
+  fromFirestore: (snapshot:QueryDocumentSnapshot<TReservationDto>) => {
+    const data = snapshot.data()
+    const clazz = kind2class[data.kind]
+    return clazz.fromFirestore(snapshot)
+
   },
-  toFirestore: (entity: TReservation) => {
+  toFirestore: (entity: TReservation) : Partial<TReservationDto> => {
     return entity.toFirestore()
-  },
+  }
 }
 
 export async function createReservation(reservation:TReservation) {
@@ -229,11 +249,9 @@ export async function confirmReservation(reservation: TReservation) {
   const batch = db.batch()
   const request_ref = db.doc(`pax/${reservation.paxId}/requests/${reservation.id}`)
     .withConverter(TReservationRequestConverter)
+  reservation.state = TReservationState.CONFIRMED
 
-  const request_data: Partial<TReservation> = {
-    state: TReservationRequestState.CONFIRMED,
-  }
-  batch.set(request_ref, request_data, { merge: true })
+  batch.set(request_ref, reservation, { merge: true })
 
   const daysQuerySnap = await db
     .collection(`pax/${reservation.paxId}/days`)
@@ -259,10 +277,9 @@ export async function cancelReservation(reservation:TReservation) {
   const request_ref = db.doc(`pax/${reservation.paxId}/requests/${reservation.id}`)
     .withConverter(TReservationRequestConverter)
 
-  const request_data: Partial<TReservation> = {
-    state: TReservationRequestState.CANCELED,
-  }
-  batch.set(request_ref, request_data, { merge: true })
+  reservation.state = TReservationState.CANCELED
+
+  batch.set(request_ref, reservation, { merge: true })
 
   const daysQuerySnap = await db.collection(`pax/${reservation.paxId}/days`)
     .withConverter(TDayConverter)

@@ -34,9 +34,9 @@ const CoworkingForm = ({
 
     const start = DateTime.fromJSDate(calValue)
     const request_data = new TCoworkingReservation(
-      currentUser.sub,
-      start
-    )
+        currentUser.sub,
+        start
+      )
 
     await createReservation(request_data)
 

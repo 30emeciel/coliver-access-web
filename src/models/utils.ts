@@ -9,7 +9,7 @@ export function dtFromFirestore(firestore_timestamp: admin.firestore.Timestamp) 
   return DateTime.fromMillis((firestore_timestamp).toMillis())
 }
 
-export function optionalDtFromFirestore(firestore_timestamp: admin.firestore.Timestamp) {
+export function optionalDtFromFirestore(firestore_timestamp?: admin.firestore.Timestamp) {
   return firestore_timestamp ? dtFromFirestore(firestore_timestamp) : undefined
 }
 

@@ -2,11 +2,10 @@ import { Avatar, Button, Popconfirm, Space, Spin, Table, Tag } from "antd"
 import {
   cancelReservation,
   confirmReservation,
-  TColivingReservation,
-  TCoworkingReservation,
-  TReservation, TReservationRequestConverter,
-  TReservationRequestKind,
-  TReservationRequestState,
+  TReservation,
+  TReservationRequestConverter,
+  TReservationKind,
+  TReservationState,
 } from "../models/ReservationRequest"
 import {
   faBed,
@@ -21,7 +20,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useContext, useEffect, useState } from "react"
-import { useCollection, useCollectionData } from "react-firebase-hooks/firestore"
+import { useCollectionData } from "react-firebase-hooks/firestore"
 import db from "../core/db"
 import { TPax, TPaxConverter } from "../models/Pax"
 import { DateTime } from "luxon"
@@ -29,8 +28,7 @@ import PaxContext from "../core/paxContext"
 import myloglevel from "../core/myloglevel"
 import firebase from "firebase"
 import WorkInProgress from "../core/WorkInProgress"
-import { dtFromFirestore } from "../models/utils"
-import admin from "firebase"
+import { useTypedCollectionData } from "../core/UseTypedCollectionData"
 
 const { Column } = Table
 type CollectionReference = firebase.firestore.CollectionReference
@@ -64,19 +62,6 @@ const getCollectionFromMode = (mode: ReservationListMode, pax: TPax) => {
   return q
 }
 
-function useTypedCollectionData<C, T=firebase.firestore.DocumentData>(query: firebase.firestore.Query<T>, tx: admin.firestore.FirestoreDataConverter<C>):[C[] | undefined, boolean, Error | undefined] {
-  const [snapshot, loading, error]:[firebase.firestore.QuerySnapshot<T> | undefined, boolean, Error | undefined] = useCollection(
-    query
-  )
-  const [typedList, setTypedList] = useState<C[] | undefined>()
-  useEffect(() => {
-    if (!snapshot)
-      return
-    setTypedList(snapshot.docs.map((i) => tx.fromFirestore(i, {})))
-  }, [snapshot])
-  return [typedList, loading, error]
-}
-
 export default function ReservationList({ mode = ReservationListMode.Current }: { mode?: ReservationListMode }) {
   const pc = useContext(PaxContext)
   const pax = pc.doc!
@@ -86,13 +71,13 @@ export default function ReservationList({ mode = ReservationListMode.Current }: 
     TReservationRequestConverter
   )
 
-  const state2fields: Record<TReservationRequestState, [string, string, IconDefinition]> = {
+  const state2fields: Record<TReservationState, [string, string, IconDefinition]> = {
     CONFIRMED: ["Confirmée", "green", faCheckCircle],
     PENDING_REVIEW: ["En attente", "orange", faClock],
     CANCELED: ["Annulée", "red", faExclamationCircle],
   }
 
-  const kind2fields: Record<TReservationRequestKind, [string, string, IconDefinition]> = {
+  const kind2fields: Record<TReservationKind, [string, string, IconDefinition]> = {
     COLIVING: ["Coliving", "#606dbc", faBed],
     COWORKING: ["Coworking", "#6dbc6d", faBriefcase],
   }
@@ -181,10 +166,6 @@ export default function ReservationList({ mode = ReservationListMode.Current }: 
     </Space>
   }
 
-  const reservationText = (item: TReservation) => {
-    return item.toDescription()
-  }
-
   return <>
     <h2>
       {mode == ReservationListMode.Supervisor &&
@@ -205,10 +186,10 @@ export default function ReservationList({ mode = ReservationListMode.Current }: 
                 const kindFields = kind2fields[kind] || ["?", "pink", faQuestionCircle]
                 return <>
                   <Tag color={kindFields[1]}><FontAwesomeIcon icon={kindFields[2]} /> {kindFields[0]}</Tag>
-                  {reservationText(record)}
+                  {record.toDescription()}
                 </>
               }} />
-      <Column title="Status" key="state" dataIndex="state" render={(state: TReservationRequestState) => {
+      <Column title="Status" key="state" dataIndex="state" render={(state: TReservationState) => {
         const stateFields = state2fields[state] || ["?", "pink", faQuestionCircle]
         return <Tag color={stateFields[1]}><FontAwesomeIcon icon={stateFields[2]} /> {stateFields[0]}</Tag>
       }} />
