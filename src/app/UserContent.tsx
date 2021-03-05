@@ -10,7 +10,6 @@ import { ReservationListMode } from "src/Reservation/ReservationList"
 const Dashboard = lazy(() => import("src/Dashboard/Dashboard"))
 const PaxList = lazy(() => import("src/Supervisor/PaxList"))
 const PresenceList = lazy(() => import("src/Supervisor/PresenceList"))
-const MyPresenceCalendar = lazy(() => import("src/Reservation/PresenceCalendar/MyPresenceCalendar"))
 const EditReservation = lazy(() => import("src/Reservation/EditReservation"))
 const ReservationIndex = lazy(() => import("src/Reservation/ReservationIndex"))
 const Account = lazy(() => import("src/Account/Account"))
@@ -25,14 +24,14 @@ type PaxReservationParams = {
   reservationId: string
 }
 
-const MyPresenceCalendarLoader = () => {
+const ReservationIndexLoader = () => {
   const { id: userId } = useParams<IdParams>()
   const [pax, , error] = useDocumentData<TPax>(db.doc(`pax/${userId}`))
   if (error) {
     throw error
   }
   if (pax) {
-    return <MyPresenceCalendar pax={pax} />
+    return <ReservationIndex pax={pax} />
   } else {
     return (
         <Spin />
@@ -87,7 +86,7 @@ export function UserContent() {
           <PaxList />
         </Route>
         <Route exact path="/supervisor/pax/:id/presence">
-          <MyPresenceCalendarLoader />
+          <ReservationIndexLoader />
         </Route>
         <Route exact path="/supervisor/pax/:id/account">
           <AccountLoader />

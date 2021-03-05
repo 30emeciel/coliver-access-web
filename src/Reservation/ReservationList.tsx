@@ -62,9 +62,9 @@ const getCollectionFromMode = (mode: ReservationListMode, pax: TPax) => {
   return q
 }
 
-export default function ReservationList({ mode = ReservationListMode.Current }: { mode?: ReservationListMode }) {
+export default function ReservationList({ pax: initialPax, mode = ReservationListMode.Current }: { pax?: TPax, mode?: ReservationListMode }) {
   const pc = useContext(PaxContext)
-  const pax = pc.doc!
+  const pax = initialPax ? initialPax : pc.doc!
 
   const [listRequests, listRequestsLoading, ] = useTypedCollectionData<TReservation>(
     getCollectionFromMode(mode, pax),

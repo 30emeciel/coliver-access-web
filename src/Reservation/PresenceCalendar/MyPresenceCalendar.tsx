@@ -26,9 +26,7 @@ enum AppStates {
   ColivingForm,
 }
 
-export default function MyPresenceCalendar({ pax: initialPax }: { pax?: TPax }) {
-  const { doc: currentUserData } = useContext(PaxContext)
-  const pax = initialPax ? initialPax : currentUserData!
+export default function MyPresenceCalendar({ pax }: { pax: TPax }) {
 
   /******************************************************************************************************************
    * States
@@ -96,9 +94,6 @@ export default function MyPresenceCalendar({ pax: initialPax }: { pax?: TPax }) 
 
   return (
     <>
-      <h2>
-        {!(pax === currentUserData) && <> <FontAwesomeIcon icon={faUserClock} /> Calendrier de présence de {pax.name}</>}
-      </h2>
       <Alert
         type="info"
         message="Pour réserver, commence par cliquer sur le jour de ta venue." />
