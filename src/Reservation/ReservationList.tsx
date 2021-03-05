@@ -3,8 +3,8 @@ import {
   cancelReservation,
   confirmReservation,
   TReservation,
-  TReservationRequestConverter,
   TReservationKind,
+  TReservationRequestConverter,
   TReservationState,
 } from "../models/ReservationRequest"
 import {
@@ -83,12 +83,12 @@ export default function ReservationList({ pax: initialPax, mode = ReservationLis
   }
 
 
-  const ActionButtons = ({ item }: { item: TReservation }) => {
+  const ActionButtons = ({ reservation }: { reservation: TReservation }) => {
     const [isConfirmationSubmitting, setIsConfirmationSubmitting] = useState(false)
 
     const myConfirmReservation = async () => {
       setIsConfirmationSubmitting(true)
-      await confirmReservation(item)
+      await confirmReservation(reservation)
       // When all done, reset the UI
       setIsConfirmationSubmitting(false)
     }
@@ -97,7 +97,7 @@ export default function ReservationList({ pax: initialPax, mode = ReservationLis
 
     const myCancelReservation = async () => {
       setIsCancelingSubmitting(true)
-      await cancelReservation(item)
+      await cancelReservation(reservation)
       // When all done, reset the UI
       setIsCancelingSubmitting(false)
     }
@@ -117,6 +117,7 @@ export default function ReservationList({ pax: initialPax, mode = ReservationLis
         cancelText="Non">
         <Button
           danger
+          disabled={reservation.state == TReservationState.CANCELED}
           size="small"
           loading={isCancelingSubmitting}
           icon={<FontAwesomeIcon icon={faExclamationCircle} />}>Annuler</Button>
@@ -193,7 +194,7 @@ export default function ReservationList({ pax: initialPax, mode = ReservationLis
         const stateFields = state2fields[state] || ["?", "pink", faQuestionCircle]
         return <Tag color={stateFields[1]}><FontAwesomeIcon icon={stateFields[2]} /> {stateFields[0]}</Tag>
       }} />
-      <Column key="actions" title="Actions" render={(text, record:TReservation) => <ActionButtons item={record} />} />
+      <Column key="actions" title="Actions" render={(text, record:TReservation) => <ActionButtons reservation={record} />} />
     </Table>
   </>
 }
