@@ -5,6 +5,7 @@ import { dtFromFirestore, dtToFirestore, makePartialData, optionalDtFromFirestor
 import db from "src/core/db"
 import { TDay, TDayConverter, TDayState } from "./Day"
 import { Memoize } from "typescript-memoize"
+import { zip } from "../core/zip"
 
 type QueryDocumentSnapshot<T> = firebase.firestore.QueryDocumentSnapshot<T>
 
@@ -221,24 +222,34 @@ export const TReservationRequestConverter: admin.firestore.FirestoreDataConverte
 }
 
 export async function createReservation(reservation:TReservation) {
+  const rangeDays = reservation.toRangeDays()
+  const rangeDaysDocRef = rangeDays.map((d) =>
+    db.doc(`pax/${reservation.paxId}/days/${d.toISODate()}`)
+      .withConverter(TDayConverter)
+  )
 
-  const request_doc = await db
-    .collection(`pax/${reservation.paxId}/requests`)
-    .withConverter(TReservationRequestConverter)
-    .add(reservation)
+  await db.runTransaction(async (transaction) => {
+    const rangeDaysDocsPromise = rangeDaysDocRef.map((docRef) => transaction.get(docRef))
+    const rangeDaysDocs = await Promise.all(rangeDaysDocsPromise)
+    if (rangeDaysDocs.some((d) => d.exists)) {
+      throw new Error("Cannot reserve because one of the day is already reserved.")
+    }
+    const reservationDocRef = db
+      .collection(`pax/${reservation.paxId}/requests`)
+      .doc()
+      .withConverter(TReservationRequestConverter)
+    transaction.set(reservationDocRef, reservation)
 
-  const batch = db.batch()
-
-  reservation.toRangeDays().forEach((r) => {
-    batch.set(db.collection(`pax/${reservation.paxId}/days`).doc(r.toISODate()).withConverter(TDayConverter), {
-      on: r,
-      request: request_doc,
-      state: TDayState.PENDING_REVIEW,
-      kind: reservation.kind,
-    })
+    zip(rangeDays, rangeDaysDocRef).forEach(([r, dayDocRef],) => {
+        transaction.set(dayDocRef, {
+          on: r,
+          request: reservationDocRef,
+          state: TDayState.PENDING_REVIEW,
+          kind: reservation.kind,
+        })
+      })
   })
 
-  await batch.commit()
 }
 
 
