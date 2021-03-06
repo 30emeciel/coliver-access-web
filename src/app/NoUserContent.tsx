@@ -26,7 +26,7 @@ export function NoUserContent({ isUserLoading }: { isUserLoading: boolean; }) {
                   type="primary"
                   block
                   loading={isLoading}
-                  onClick={() => loginWithRedirect( /*auth0_options*/)}
+                  onClick={() => loginWithRedirect()}
                 >
                   Connexion
                 </Button>
@@ -36,7 +36,7 @@ export function NoUserContent({ isUserLoading }: { isUserLoading: boolean; }) {
                 <Button icon={<FontAwesomeIcon icon={faUserPlus} />} size="large"
                   type="default"
                   block
-                  loading={isLoading} onClick={() => loginWithRedirect()}>
+                  loading={isLoading} onClick={() => loginWithRedirect({ screen_hint: 'signup' })}>
                   Je suis nouveau, je veux créer mon compte
                 </Button>
               </Row>
