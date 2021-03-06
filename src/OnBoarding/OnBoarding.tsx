@@ -5,6 +5,9 @@ import PaxContext from "src/core/paxContext"
 import { TPax, TPaxConverter, TPaxStates } from "src/models/Pax"
 import { getEnvOrFail } from "src/core/getEnvOrFail"
 import myloglevel from "src/core/myloglevel"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import {  faUserCheck } from "@fortawesome/free-solid-svg-icons"
+import {  faEnvelope, faEnvelopeOpen, } from "@fortawesome/free-regular-svg-icons"
 
 const log = myloglevel.getLogger("OnBoarding")
 
@@ -85,7 +88,7 @@ export default function OnBoarding() {
           <Card>
             <Steps current={uc.doc!.state === TPaxStates.Registered ? 1 : 0} responsive={true}>
               <Step title="Étape 1 : Préinscription" description="Aide-moi à mieux te connaître" icon={<SolutionOutlined />}/>
-              <Step title="Étape 2 : Confirmation" description="Attends la confirmation de ta préinscription" icon={uc.doc!.state === TPaxStates.Registered ? <LoadingOutlined /> : <CheckSquareOutlined />}/>
+              <Step title="Étape 2 : Confirmation" description="Attends la confirmation de ta préinscription" icon={<FontAwesomeIcon icon={faUserCheck} />}/>
               <Step title="C'est parti !" icon={<SmileOutlined />} />
             </Steps>
             </Card>
@@ -104,7 +107,7 @@ export default function OnBoarding() {
               <>
                 <h3>Confirmation</h3>
                 <p>
-                  Attends que le rôle <strong>Participante</strong> confirme ton inscription.
+                  J'ai envoyé ta préinscription au rôle <strong>Participante</strong> qui va revenir vers toi. Je t'invite à vérifier tes courriels <FontAwesomeIcon icon={faEnvelopeOpen} />
                 </p>
               </>
             )}
