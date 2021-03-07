@@ -50,7 +50,7 @@ const getCollectionFromMode = (mode: ReservationListMode, pax: TPax) => {
   }
   let q:CollectionReference|Query = db.collection(`pax/${pax.sub}/requests`)
 
-  const today = DateTime.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).toJSDate()
+  const today = DateTime.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).minus({days: 1}).toJSDate()
 
   if (mode == ReservationListMode.Current) {
     q = q.where("arrival_date", ">=", today)
