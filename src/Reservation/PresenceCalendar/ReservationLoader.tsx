@@ -14,20 +14,23 @@ import {
   TReservationRequestConverter,
   TReservationState,
 } from "../../models/ReservationRequest"
-import { TDay, TDayConverter } from "../../models/Day"
-import WorkInProgress from "../../core/WorkInProgress"
+import { TDay, TDayConverter } from "src/models/Day"
+import WorkInProgress from "src/core/WorkInProgress"
 import firebase from "firebase"
 import admin from "firebase"
 
+type QueryDocumentSnapshot<T> = firebase.firestore.QueryDocumentSnapshot<T>
+
 export function useTypedDocumentData<C, T = firebase.firestore.DocumentData>(tx: admin.firestore.FirestoreDataConverter<C>, docRef?: firebase.firestore.DocumentReference<T>): [C | undefined, boolean, Error | undefined] {
-  const [docSnap, loading, error]: [firebase.firestore.QueryDocumentSnapshot<T> | undefined, boolean, Error | undefined] = useDocument(
+  const [docSnap, loading, error] = useDocument(
     docRef,
   )
   const [typedDoc, setTypedList] = useState<C | undefined>()
   useEffect(() => {
-    if (!docSnap)
+    if (!docSnap || !docSnap.data())
       return
-    setTypedList(tx.fromFirestore(docSnap, {}))
+    const t = docSnap as QueryDocumentSnapshot<T>
+    setTypedList(tx.fromFirestore(t, {}))
   }, [docSnap])
   return [typedDoc, loading, error]
 }
