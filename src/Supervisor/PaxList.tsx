@@ -1,11 +1,18 @@
-import { faUser, faUserClock, faUsers } from "@fortawesome/free-solid-svg-icons"
+import { faExclamationTriangle, faUser, faUserClock, faUsers } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Button, List, Row, Spin } from "antd"
+import { Badge, Button, Collapse, List, Spin, Table } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
 import db from "src/core/db"
 import { TPax } from "src/models/Pax"
+import React from "react"
+import firebase from "firebase"
+
+type DocumentData = firebase.firestore.DocumentData
+
+
+const { Panel } = Collapse
 
 const WithContent = ({ paxDocs }: { paxDocs: TPax[] }) => {
   const history = useHistory()
@@ -32,17 +39,60 @@ const WithContent = ({ paxDocs }: { paxDocs: TPax[] }) => {
   )
 }
 
+
+const BadgeDocsCount = ({docs, isLoading}:{docs: DocumentData[] | undefined, isLoading: boolean}) => {
+  if (isLoading) {
+    return <Spin size="small" />
+  }
+  if (!docs) {
+    return <FontAwesomeIcon icon={faExclamationTriangle} />
+  }
+  return <>
+    <Badge count={docs?.length} showZero={true}/>
+  </>
+}
 const PaxList = () => {
-  const [paxDocs, paxDocLoading, paxDocsError] = useCollectionData<TPax>(db.collection("pax").orderBy("name", "asc"))
+  const [authenticatedPaxDocs, authenticatedPaxDocLoading, authenticatedPaxDocsError] = useCollectionData<TPax>(
+    db.collection("pax")
+      .where("state", "not-in", ["CONFIRMED", "REGISTERED"])
+//      .orderBy("name", "asc")
+  )
+
+  const [pendingReviewPaxDocs, pendingReviewPaxDocLoading, pendingReviewPaxDocsError] = useCollectionData<TPax>(
+    db.collection("pax")
+      .where("state", "==", "REGISTERED")
+//      .orderBy("name", "asc")
+  )
+
+  const [paxDocs, paxDocLoading, paxDocsError] = useCollectionData<TPax>(
+    db.collection("pax")
+      .where("state", "==", "CONFIRMED")
+//      .orderBy("name", "asc")
+  )
 
   return (
     <>
-      <Row>
-        <h2>
-          <FontAwesomeIcon icon={faUsers} /> Répertoire des pax
-        </h2>
-      </Row>
-      {!paxDocs ? <Spin /> : <WithContent paxDocs={paxDocs} />}
+      <h2>
+        <FontAwesomeIcon icon={faUsers} /> Répertoire des pax
+      </h2>
+
+
+      <Collapse ghost={true} defaultActiveKey="confirmed-pax-list">
+
+        <Panel key="authenticated-pax-list" header={<><strong>Pax en attente de préinscription</strong>{" "}<BadgeDocsCount docs={authenticatedPaxDocs} isLoading={authenticatedPaxDocLoading}/></>}>
+          {!authenticatedPaxDocs ? <Spin /> : <WithContent paxDocs={authenticatedPaxDocs} />}
+        </Panel>
+
+        <Panel key="pending-review-pax-list" header={<><strong>Pax en attente de validation</strong>{" "}<BadgeDocsCount docs={pendingReviewPaxDocs} isLoading={pendingReviewPaxDocLoading} /></>}>
+          {!pendingReviewPaxDocs ? <Spin /> : <WithContent paxDocs={pendingReviewPaxDocs} />}
+        </Panel>
+
+        <Panel key="confirmed-pax-list" header={<><strong>Pax confirmés</strong>{" "}<BadgeDocsCount docs={paxDocs} isLoading={paxDocLoading} /></>}>
+          {!paxDocs ? <Spin /> : <WithContent paxDocs={paxDocs} />}
+        </Panel>
+      </Collapse>
+
+
     </>
   )
 }
