@@ -12,6 +12,7 @@ export enum TPaxStates {
 export interface TPax {
   sub: string;
   name: string;
+  email: string;
   state: TPaxStates;
   picture?: string;
   isSupervisor: boolean;
@@ -25,6 +26,7 @@ export const TPaxConverter: admin.firestore.FirestoreDataConverter<TPax> = {
     return {
       sub: data.sub,
       name: data.name,
+      email: data.email,
       state: data.state ?? TPaxStates.Authenticated,
       picture: data.picture,
       isSupervisor: data.is_supervisor ?? false,
@@ -36,6 +38,7 @@ export const TPaxConverter: admin.firestore.FirestoreDataConverter<TPax> = {
       // prevent to change pax id
       // sub: entity.sub,
       name: entity.name,
+      email: entity.email,
       state: entity.state,
       picture: entity.picture,
       is_supervisor: entity.isSupervisor,
