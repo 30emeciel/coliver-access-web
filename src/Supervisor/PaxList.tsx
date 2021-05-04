@@ -1,40 +1,60 @@
 import { faExclamationTriangle, faUser, faUserClock, faUsers } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Badge, Button, Collapse, List, Spin, Table } from "antd"
+import { Badge, Button, Card, Collapse, List, Spin, Table } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
 import db from "src/core/db"
-import { TPax } from "src/models/Pax"
+import { TPax, TPaxConverter } from "src/models/Pax"
 import React from "react"
 import firebase from "firebase"
+import Meta from "antd/es/card/Meta"
 
+type Query = firebase.firestore.Query
 type DocumentData = firebase.firestore.DocumentData
 
 
 const { Panel } = Collapse
 
-const WithContent = ({ paxDocs }: { paxDocs: TPax[] }) => {
+const WithContent = ({ isLoading, paxDocs }: { isLoading: boolean, paxDocs: TPax[] | undefined }) => {
   const history = useHistory()
 
-  const buttons = ({ paxDoc }: { paxDoc: TPax }) => [
-    <Button type="primary" onClick={() => history.push(`/supervisor/pax/${paxDoc.sub}/account`)}>
-      <FontAwesomeIcon icon={faUser} /> Compte
-    </Button>,
-    <Button onClick={() => history.push(`/supervisor/pax/${paxDoc.sub}/presence`)} className="ml-2">
-      <FontAwesomeIcon icon={faUserClock} /> Présence
-    </Button>,
-  ]
+  const listItem = (paxDoc: TPax) => {
+    const goToAccountView = () => history.push(`/supervisor/pax/${paxDoc.sub}/account`)
+    const buttons = [
+      <Button size="small" type="primary" onClick={goToAccountView}>
+        <FontAwesomeIcon icon={faUser} /> Compte
+      </Button>,
+      <Button size="small" onClick={() => history.push(`/supervisor/pax/${paxDoc.sub}/presence`)} className="ml-2">
+        <FontAwesomeIcon icon={faUserClock} /> Présence
+      </Button>,
+    ]
+
+
+    return <>
+      <List.Item>
+        <Card hoverable={true} onClick={goToAccountView} actions={buttons}>
+          <Meta  avatar={<Avatar src={paxDoc.picture} />} title={paxDoc.name} />
+        </Card>
+      </List.Item>
+    </>
+  }
 
   return (
     <List
+      loading={isLoading}
+      size="small"
+      grid={{
+        gutter: 4,
+        xs: 1,
+        sm: 2,
+        md: 2,
+        lg: 3,
+        xl: 4,
+        xxl: 5,
+      }}
       dataSource={paxDocs}
-      renderItem={(paxDoc) => (
-        <List.Item actions={buttons({ paxDoc: paxDoc })}>
-            <List.Item.Meta avatar={<Avatar src={paxDoc.picture} />} title={paxDoc.name} />
-        </List.Item>
-
-      )}
+      renderItem={listItem}
     />
   )
 }
@@ -52,23 +72,24 @@ const BadgeDocsCount = ({docs, isLoading}:{docs: DocumentData[] | undefined, isL
   </>
 }
 const PaxList = () => {
-  const [authenticatedPaxDocs, authenticatedPaxDocLoading, authenticatedPaxDocsError] = useCollectionData<TPax>(
-    db.collection("pax")
-      .where("state", "not-in", ["CONFIRMED", "REGISTERED"])
-//      .orderBy("name", "asc")
-  )
 
-  const [pendingReviewPaxDocs, pendingReviewPaxDocLoading, pendingReviewPaxDocsError] = useCollectionData<TPax>(
-    db.collection("pax")
-      .where("state", "==", "REGISTERED")
-//      .orderBy("name", "asc")
-  )
+  const paxListPanel = (key: string, title: string, criteria: (query: Query) => Query) => {
+    const [paxDocs, paxDocLoading, paxDocsError] = useCollectionData<TPax>(
+      criteria(db.collection("pax"))
+        .orderBy("name", "asc")
+        .withConverter(TPaxConverter)
+    )
 
-  const [paxDocs, paxDocLoading, paxDocsError] = useCollectionData<TPax>(
-    db.collection("pax")
-      .where("state", "==", "CONFIRMED")
-//      .orderBy("name", "asc")
-  )
+    if (paxDocsError) {
+      throw paxDocsError
+    }
+
+    return <>
+      <Panel key={key} header={<><strong>{title}</strong>{" "}<BadgeDocsCount docs={paxDocs} isLoading={paxDocLoading}/></>}>
+        <WithContent isLoading={paxDocLoading} paxDocs={paxDocs} />
+      </Panel>
+    </>
+  }
 
   return (
     <>
@@ -78,18 +99,9 @@ const PaxList = () => {
 
 
       <Collapse ghost={true} defaultActiveKey="confirmed-pax-list">
-
-        <Panel key="authenticated-pax-list" header={<><strong>Pax en attente de préinscription</strong>{" "}<BadgeDocsCount docs={authenticatedPaxDocs} isLoading={authenticatedPaxDocLoading}/></>}>
-          {!authenticatedPaxDocs ? <Spin /> : <WithContent paxDocs={authenticatedPaxDocs} />}
-        </Panel>
-
-        <Panel key="pending-review-pax-list" header={<><strong>Pax en attente de validation</strong>{" "}<BadgeDocsCount docs={pendingReviewPaxDocs} isLoading={pendingReviewPaxDocLoading} /></>}>
-          {!pendingReviewPaxDocs ? <Spin /> : <WithContent paxDocs={pendingReviewPaxDocs} />}
-        </Panel>
-
-        <Panel key="confirmed-pax-list" header={<><strong>Pax confirmés</strong>{" "}<BadgeDocsCount docs={paxDocs} isLoading={paxDocLoading} /></>}>
-          {!paxDocs ? <Spin /> : <WithContent paxDocs={paxDocs} />}
-        </Panel>
+        {paxListPanel("authenticated-pax-list", "Pax en attente de préinscription", query => query.where("state", "==", "AUTHENTICATED"))}
+        {paxListPanel("pending-review-pax-list", "Pax en attente de validation", query => query.where("state", "==", "REGISTERED"))}
+        {paxListPanel("confirmed-pax-list", "Pax confirmés", query => query.where("state", "==", "CONFIRMED"))}
       </Collapse>
 
 

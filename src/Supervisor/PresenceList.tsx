@@ -136,7 +136,7 @@ const WithContent = ({
       bordered={true}
       pagination={false}
       size="small"
-      scroll={{ "x": 2600 }}
+      scroll={{ "x": 1800 }}
       dataSource={dataSource}>
       {columns}
     </Table>

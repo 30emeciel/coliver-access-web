@@ -7,6 +7,7 @@ import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
 import { TPax, TPaxConverter, TPaxStates } from "src/models/Pax"
 import { $enum } from "ts-enum-util"
+import Text from "antd/es/typography/Text"
 
 const LoadingFormItem = ({
                            label,
@@ -49,6 +50,9 @@ const Account = ({ paxId }: { paxId?: string }) => {
       <Form labelCol={{ span: 4 }} wrapperCol={{ span: 8 }}>
         <Form.Item label="Name" name="Name" initialValue={paxDoc.name}>
           <Input readOnly />
+        </Form.Item>
+        <Form.Item label="Lien vers la préinscription">
+          <a target="_blank" href={paxDoc.preregistrationFormEntryUrl}>{paxDoc.preregistrationFormEntryUrl}</a>
         </Form.Item>
         <LoadingFormItem label="State" name="State" initialValue={$enum(TPaxStates).getKeyOrThrow(paxDoc.state)}
                          render={(isLoading, setIsLoading) => <>

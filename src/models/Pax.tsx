@@ -3,7 +3,7 @@ import { makePartialData } from "./utils"
 
 
 export enum TPaxStates {
-  Authenticated = "",
+  Authenticated = "AUTHENTICATED",
   Registered = "REGISTERED",
   Confirmed = "CONFIRMED",
 }
