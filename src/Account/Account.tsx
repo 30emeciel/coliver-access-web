@@ -51,8 +51,11 @@ const Account = ({ paxId }: { paxId?: string }) => {
         <Form.Item label="Name" name="Name" initialValue={paxDoc.name}>
           <Input readOnly />
         </Form.Item>
+        <Form.Item label="Email" name="Email" initialValue={paxDoc.email}>
+          <Input readOnly />
+        </Form.Item>
         <Form.Item label="Lien vers la préinscription">
-          <a target="_blank" href={paxDoc.preregistrationFormEntryUrl}>{paxDoc.preregistrationFormEntryUrl}</a>
+          {paxDoc.preregistrationFormEntryUrl ? <a target="_blank" href={paxDoc.preregistrationFormEntryUrl}>{paxDoc.preregistrationFormEntryUrl}</a> : <Input readOnly value="Non renseigné"/> }
         </Form.Item>
         <LoadingFormItem label="State" name="State" initialValue={$enum(TPaxStates).getKeyOrThrow(paxDoc.state)}
                          render={(isLoading, setIsLoading) => <>
