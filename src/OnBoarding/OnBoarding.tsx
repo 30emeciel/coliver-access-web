@@ -1,4 +1,4 @@
-import { CheckSquareOutlined, LoadingOutlined, SmileOutlined, SolutionOutlined } from "@ant-design/icons"
+import { SmileOutlined, SolutionOutlined } from "@ant-design/icons"
 import { Card, Spin, Steps } from "antd"
 import { useContext, useEffect, useRef, useState } from "react"
 import PaxContext from "src/core/paxContext"
@@ -6,8 +6,8 @@ import { TPax, TPaxConverter, TPaxStates } from "src/models/Pax"
 import { getEnvOrFail } from "src/core/getEnvOrFail"
 import myloglevel from "src/core/myloglevel"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {  faUserCheck } from "@fortawesome/free-solid-svg-icons"
-import {  faEnvelope, faEnvelopeOpen, } from "@fortawesome/free-regular-svg-icons"
+import { faUserCheck } from "@fortawesome/free-solid-svg-icons"
+import { faEnvelopeOpen } from "@fortawesome/free-regular-svg-icons"
 
 const log = myloglevel.getLogger("OnBoarding")
 
@@ -93,7 +93,7 @@ export default function OnBoarding() {
             </Steps>
             </Card>
         <br />
-            {!uc.doc!.state && (
+            {uc.doc!.state == TPaxStates.Authenticated && (
               <>
                 <h3>Inscription</h3>
                 <p>
