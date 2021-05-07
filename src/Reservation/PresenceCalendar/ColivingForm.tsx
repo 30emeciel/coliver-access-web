@@ -3,7 +3,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Alert, Button, Col, Row, Space } from "antd"
 import { Interval } from "luxon"
 import React, { useEffect, useState } from "react"
-import { createReservation, TColivingReservation } from "src/models/ReservationRequest"
+import {
+  createReservation,
+  TColivingReservation,
+  TReservationContributionState,
+  TReservationState,
+} from "src/models/ReservationRequest"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
 import { Collapse } from "react-collapse"
@@ -59,6 +64,8 @@ const ColivingForm = ({
       currentUser.sub,
       arrivalDate,
       departureDate,
+      TReservationState.PENDING_REVIEW,
+      TReservationContributionState.START,
     )
     await createReservation(request_data)
     onSubmit()

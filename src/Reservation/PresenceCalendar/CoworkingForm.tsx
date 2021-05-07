@@ -3,7 +3,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Alert, Button, Col, Row, Space } from "antd"
 import { DateTime } from "luxon"
 import React, { useState } from "react"
-import { createReservation, TCoworkingReservation } from "src/models/ReservationRequest"
+import {
+  createReservation,
+  TCoworkingReservation,
+  TReservationContributionState,
+  TReservationState,
+} from "src/models/ReservationRequest"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import TheCalendar from "./TheCalendar"
 import { Collapse } from "react-collapse"
@@ -35,7 +40,9 @@ const CoworkingForm = ({
     const start = DateTime.fromJSDate(calValue)
     const request_data = new TCoworkingReservation(
         currentUser.sub,
-        start
+        start,
+        TReservationState.PENDING_REVIEW,
+        TReservationContributionState.START,
       )
 
     await createReservation(request_data)
