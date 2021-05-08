@@ -97,7 +97,7 @@ export class TColivingReservation extends TReservation {
     state?: TReservationState,
     contributionState?: TReservationContributionState,
   ) {
-    super(paxId, arrivalDate, id, created, state)
+    super(paxId, arrivalDate, id, created, state, contributionState)
   }
 
 
@@ -179,7 +179,7 @@ export class TCoworkingReservation extends TReservation {
     state?: TReservationState,
     contributionState?: TReservationContributionState,
   ) {
-    super(paxId, arrivalDate, id, created, state)
+    super(paxId, arrivalDate, id, created, state, contributionState)
   }
 
   protected static KIND = TReservationKind.COWORKING
