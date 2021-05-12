@@ -6,6 +6,12 @@ import db from "src/core/db"
 import { TDay, TDayConverter, TDayState } from "./Day"
 import { Memoize } from "typescript-memoize"
 import { zip } from "../core/zip"
+import React, { useState } from "react"
+import WorkInProgress from "../core/WorkInProgress"
+import { Button, Popconfirm, Space } from "antd"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faCheckDouble, faEdit, faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
+import { ReservationListMode } from "../Reservation/ReservationList"
 
 type QueryDocumentSnapshot<T> = firebase.firestore.QueryDocumentSnapshot<T>
 
@@ -318,4 +324,66 @@ export async function cancelReservation(reservation:TReservation) {
   })
 
   await batch.commit()
+}
+
+
+export const ActionButtons = ({ reservation, isSupervisor }: { reservation: TReservation, isSupervisor: boolean }) => {
+  const [isConfirmationSubmitting, setIsConfirmationSubmitting] = useState(false)
+
+  const myConfirmReservation = async () => {
+    setIsConfirmationSubmitting(true)
+    await confirmReservation(reservation)
+    // When all done, reset the UI
+    setIsConfirmationSubmitting(false)
+  }
+
+  const [isCancelingSubmitting, setIsCancelingSubmitting] = useState(false)
+
+  const myCancelReservation = async () => {
+    setIsCancelingSubmitting(true)
+    await cancelReservation(reservation)
+    // When all done, reset the UI
+    setIsCancelingSubmitting(false)
+  }
+
+
+  const actions = [
+    <WorkInProgress><Button
+      key="edit"
+      size="small"
+      icon={<FontAwesomeIcon icon={faEdit} />}>Modifier</Button></WorkInProgress>,
+    <Popconfirm
+      key="cancel"
+      arrowPointAtCenter
+      onConfirm={myCancelReservation}
+      title="Est-ce que tu veux annuler cette réservation ?"
+      okText="Oui"
+      cancelText="Non">
+      <Button
+        danger
+        disabled={reservation.state == TReservationState.CANCELED}
+        size="small"
+        loading={isCancelingSubmitting}
+        icon={<FontAwesomeIcon icon={faExclamationCircle} />}>Annuler</Button>
+    </Popconfirm>,
+  ]
+  if (isSupervisor) {
+    const confirm = <Popconfirm
+      key="confirm"
+      placement="topLeft"
+      onConfirm={myConfirmReservation}
+      title="Est-ce que tu veux confirmer cette réservation ?"
+      okText="Oui"
+      cancelText="Non"
+    ><Button
+      size="small"
+      disabled={[TReservationState.CANCELED, TReservationState.CONFIRMED].includes(reservation.state) }
+      loading={isConfirmationSubmitting}
+      type="primary"
+      icon={<FontAwesomeIcon icon={faCheckDouble} />}>Confirmer</Button>
+    </Popconfirm>
+    actions.push(confirm)
+  }
+  return <Space>{actions}</Space>
+
 }

@@ -1,6 +1,6 @@
 import { DateTime } from "luxon"
 import admin from "firebase"
-import { TReservation, TReservationKind } from "./ReservationRequest"
+import { TReservation, TReservationKind } from "./Reservation"
 import myfirebase from "src/core/myfirebase"
 import { dtFromFirestore, makePartialData, optionalDtFromFirestore, optionalDtToFirestore } from "./utils"
 

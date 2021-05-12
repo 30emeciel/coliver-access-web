@@ -13,7 +13,7 @@ import {
   TReservation,
   TReservationRequestConverter,
   TReservationState,
-} from "../../models/ReservationRequest"
+} from "../../models/Reservation"
 import { TDay, TDayConverter } from "src/models/Day"
 import WorkInProgress from "src/core/WorkInProgress"
 import firebase from "firebase"

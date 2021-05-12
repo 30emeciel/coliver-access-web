@@ -5,7 +5,7 @@ import React, { useContext } from "react"
 import { useDocumentData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
-import { TReservation } from "src/models/ReservationRequest"
+import { TReservation } from "src/models/Reservation"
 
 
 export default function EditReservation({paxId, requestId}:{paxId:string, requestId:string}) {

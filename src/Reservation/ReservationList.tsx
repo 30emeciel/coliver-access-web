@@ -1,12 +1,13 @@
 import { Avatar, Button, Popconfirm, Space, Spin, Table, Tag } from "antd"
 import {
+  ActionButtons,
   cancelReservation,
   confirmReservation,
   TReservation,
   TReservationKind,
   TReservationRequestConverter,
   TReservationState,
-} from "../models/ReservationRequest"
+} from "../models/Reservation"
 import {
   faBed,
   faBriefcase,
@@ -83,66 +84,6 @@ export default function ReservationList({ pax: initialPax, mode = ReservationLis
   }
 
 
-  const ActionButtons = ({ reservation }: { reservation: TReservation }) => {
-    const [isConfirmationSubmitting, setIsConfirmationSubmitting] = useState(false)
-
-    const myConfirmReservation = async () => {
-      setIsConfirmationSubmitting(true)
-      await confirmReservation(reservation)
-      // When all done, reset the UI
-      setIsConfirmationSubmitting(false)
-    }
-
-    const [isCancelingSubmitting, setIsCancelingSubmitting] = useState(false)
-
-    const myCancelReservation = async () => {
-      setIsCancelingSubmitting(true)
-      await cancelReservation(reservation)
-      // When all done, reset the UI
-      setIsCancelingSubmitting(false)
-    }
-
-
-    const actions = [
-      <WorkInProgress><Button
-        key="edit"
-        size="small"
-        icon={<FontAwesomeIcon icon={faEdit} />}>Modifier</Button></WorkInProgress>,
-      <Popconfirm
-        key="cancel"
-        arrowPointAtCenter
-        onConfirm={myCancelReservation}
-        title="Est-ce que tu veux annuler cette réservation ?"
-        okText="Oui"
-        cancelText="Non">
-        <Button
-          danger
-          disabled={reservation.state == TReservationState.CANCELED}
-          size="small"
-          loading={isCancelingSubmitting}
-          icon={<FontAwesomeIcon icon={faExclamationCircle} />}>Annuler</Button>
-      </Popconfirm>,
-    ]
-    if (mode == ReservationListMode.Supervisor) {
-      const confirm = <Popconfirm
-        key="confirm"
-        placement="topLeft"
-        onConfirm={myConfirmReservation}
-        title="Est-ce que tu veux confirmer cette réservation ?"
-        okText="Oui"
-        cancelText="Non"
-      ><Button
-        size="small"
-        loading={isConfirmationSubmitting}
-        type="primary"
-        icon={<FontAwesomeIcon icon={faCheckDouble} />}>Confirmer</Button>
-      </Popconfirm>
-      actions.push(confirm)
-    }
-    return <Space>{actions}</Space>
-
-  }
-
   const [paxList] = useCollectionData<TPax>(mode == ReservationListMode.Supervisor ? db.collection("/pax").withConverter(TPaxConverter) : null)
 
   const [paxMap, setPaxMap] = useState(new Map<string, TPax>())
@@ -194,7 +135,7 @@ export default function ReservationList({ pax: initialPax, mode = ReservationLis
         const stateFields = state2fields[state] || ["?", "pink", faQuestionCircle]
         return <Tag color={stateFields[1]}><FontAwesomeIcon icon={stateFields[2]} /> {stateFields[0]}</Tag>
       }} />
-      <Column key="actions" title="Actions" render={(text, record:TReservation) => <ActionButtons reservation={record} />} />
+      <Column key="actions" title="Actions" render={(text, record:TReservation) => <ActionButtons isSupervisor={mode == ReservationListMode.Supervisor} reservation={record} />} />
     </Table>
   </>
 }

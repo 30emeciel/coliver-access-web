@@ -1,9 +1,16 @@
-import { faBed, faBriefcase, faCalendarCheck, IconDefinition } from "@fortawesome/free-solid-svg-icons"
+import {
+  faBed,
+  faBriefcase,
+  faCalendarCheck, faCheckDouble,
+  faEdit,
+  faExclamationCircle,
+  IconDefinition,
+} from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import loglevel from "loglevel"
 import { DateTime, Interval } from "luxon"
-import { useState } from "react"
-import { useCollection, useDocumentData } from "react-firebase-hooks/firestore"
+import React, { useState } from "react"
+import { useCollection, useDocument, useDocumentData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
 import db from "src/core/db"
 import firebase from "src/core/myfirebase"
@@ -14,12 +21,19 @@ import DateRangePicker from "react-bootstrap-daterangepicker"
 // you will also need the css that comes with bootstrap-daterangepicker
 import "bootstrap-daterangepicker/daterangepicker.css"
 import moment, { Moment } from "moment"
-import { Badge, Checkbox, Space, Spin, Table } from "antd"
+import { Badge, Button, Checkbox, Popconfirm, Popover, Space, Spin, Table } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import Column from "antd/lib/table/Column"
-import { TReservationKind } from "../models/ReservationRequest"
+import {
+  ActionButtons,
+  TReservation,
+  TReservationKind,
+  TReservationRequestConverter,
+  TReservationState,
+} from "../models/Reservation"
 import { TDay, TDayConverter, TDayState } from "../models/Day"
 import { ClockCircleOutlined } from "@ant-design/icons"
+import WorkInProgress from "../core/WorkInProgress"
 
 const log = loglevel.getLogger("PresenceList")
 
@@ -86,11 +100,31 @@ const WithContent = (
     return Object.fromEntries(data.entries())
   }) : undefined
 
+  const ReservationLoader = ({day}: {day: TDay}) => {
+    const reservationDocRef = day.request
+    const [reservationDoc, reservationDocLoading, reservationDocError] =
+      useDocument<TReservation>(
+        reservationDocRef?.withConverter(TReservationRequestConverter)
+      )
+
+    const reservation = reservationDoc?.data()
+    if (reservationDocLoading || !reservation) {
+      return <Spin />
+    }
+    else {
+      return <ActionButtons isSupervisor={true} reservation={reservation}/>
+    }
+  }
+
   const tdFct = (i: TDay) => {
     if (!i)
       return <></>
     const r: [string, IconDefinition] = i.kind === TReservationKind.COLIVING ? ["#606dbc", faBed] : ["#6dbc6d", faBriefcase]
-    const icon = <FontAwesomeIcon style={{ color: r[0] }} icon={r[1]} />
+    const icon = <Popover
+      content={<ReservationLoader day={i}/>}
+      arrowPointAtCenter
+      trigger="click"
+    ><a><FontAwesomeIcon style={{ color: r[0] }} icon={r[1]} /></a></Popover>
     if (i.state == TDayState.PENDING_REVIEW) {
       return <Badge count={<ClockCircleOutlined />}>{icon}</Badge>
     }
@@ -128,8 +162,7 @@ const WithContent = (
         onClick: () => {
           goToPaxAccountView(history, record["paxId"])}, // click row
       };
-    }
-    }
+    }}
   />
 
   const columns = [pax_column].concat(day_columns)
