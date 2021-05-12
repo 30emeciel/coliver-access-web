@@ -14,12 +14,12 @@ import DateRangePicker from "react-bootstrap-daterangepicker"
 // you will also need the css that comes with bootstrap-daterangepicker
 import "bootstrap-daterangepicker/daterangepicker.css"
 import moment, { Moment } from "moment"
-import { $enum } from "ts-enum-util"
-import { Checkbox, Col, Row, Space, Spin, Table } from "antd"
+import { Badge, Checkbox, Space, Spin, Table } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import Column from "antd/lib/table/Column"
 import { TReservationKind } from "../models/ReservationRequest"
 import { TDay, TDayConverter, TDayState } from "../models/Day"
+import { ClockCircleOutlined } from "@ant-design/icons"
 
 const log = loglevel.getLogger("PresenceList")
 
@@ -45,80 +45,75 @@ const UserField = ({ paxId, showEmail }: { paxId: string, showEmail: boolean }) 
   }
 }
 
-const UserEmailField = ({ paxId }: { paxId: string }) => {
-  const paxDocRef = db.doc(`pax/${paxId}`)
-  const [paxData, isLoading, error] = useDocumentData<TPax>(paxDocRef)
-
-  if (paxData) {
-    return (
-      <>{paxData.email}
-      </>
-    )
-  } else {
-    return <Spin />
-  }
-}
-
-
-const WithContent = ({
-                       period,
-                       paxSnaps,
-                       showEmail,
-                     }: {
-  period: [DateTime, DateTime],
-  paxSnaps: firebase.firestore.QuerySnapshot<TDay>,
-  showEmail: boolean,
+const WithContent = (
+  {
+    period,
+    daySnaps,
+    showEmail,
+    isLoading,
+  }: {
+    period: [DateTime, DateTime],
+    daySnaps: firebase.firestore.QuerySnapshot<TDay> | undefined,
+    showEmail: boolean,
+    isLoading: boolean,
 }) => {
   log.debug(`period[0]=${period[0]} period[1]=${period[1]}`)
   const int = Interval.fromDateTimes(period[0], period[1])
   const row = int.splitBy({ days: 1 }).map((i) => i.start.toMillis())
-  const periodLength = row.length
 
   const history = useHistory()
 
-  const grouped = paxSnaps.docs.reduce<Map<string, Map<number, (TReservationKind | null)>>>((previousValue, daySnap) => {
+  const grouped = daySnaps?.docs.reduce<Map<string, Map<number, (TDay | null)>>>((previousValue, daySnap) => {
     (() => {
       const userId = daySnap.ref.parent!.parent!.id
       const day = daySnap.data()
-      if (day.state !== TDayState.CONFIRMED) {
-        return
-      }
       const dt = day.on.toMillis()
       let barr = previousValue.get(userId)
       if (!barr) {
-        barr = new Map<number, TReservationKind | null>()
+        barr = new Map<number, TDay | null>()
         previousValue.set(userId, barr)
       }
 
-      barr.set(dt, $enum(TReservationKind).asValueOrThrow(day.kind))
+      barr.set(dt, day)
     })()
     return previousValue
   }, new Map())
 
-  const dataSource = Array.from(grouped.entries()).map(([key, value]) => {
+  const dataSource = grouped ? Array.from(grouped.entries()).map(([key, value]) => {
     const dayFieldList = Array.from(value.entries()).map(([key, value]) => [key.toString(), value]) as [string, any][]
     const paxIdField = [["key", key], ["paxId", key]] as [string, any][]
     const data = new Map(paxIdField.concat(dayFieldList))
     return Object.fromEntries(data.entries())
-  })
+  }) : undefined
 
-  const tdFct = (i: any) => {
-    if (!i) return <></>
-    const r: [string, IconDefinition] = i === TReservationKind.COLIVING ? ["#606dbc", faBed] : ["#6dbc6d", faBriefcase]
-    return <FontAwesomeIcon style={{ color: r[0] }} icon={r[1]} />
+  const tdFct = (i: TDay) => {
+    if (!i)
+      return <></>
+    const r: [string, IconDefinition] = i.kind === TReservationKind.COLIVING ? ["#606dbc", faBed] : ["#6dbc6d", faBriefcase]
+    const icon = <FontAwesomeIcon style={{ color: r[0] }} icon={r[1]} />
+    if (i.state == TDayState.PENDING_REVIEW) {
+      return <Badge count={<ClockCircleOutlined />}>{icon}</Badge>
+    }
+    else {
+      return icon
+    }
   }
 
-  const day_columns = row.map((millis) => (
-    <Column
-      title={DateTime.fromMillis(millis).toLocaleString({
-        /* weekday: 'short',*/ month: "short",
-        day: "2-digit",
-      })}
-      dataIndex={millis.toString()}
-      key={millis.toString()}
-      render={(rk) => tdFct(rk)}
-    />
-  ))
+  const day_columns = row.map((millis) => {
+    const day_dt = DateTime.fromMillis(millis)
+    return (
+      <Column<Record<string, any>>
+        title={day_dt.toLocaleString({
+          /* weekday: 'short',*/ month: "short",
+          day: "2-digit",
+        })}
+        dataIndex={millis.toString()}
+        key={millis.toString()}
+        render={(rk) => tdFct(rk)}
+        className={[6, 7].includes(day_dt.weekday) ? "presence-list-weekend-cell" : ""}
+      />
+    )
+  })
 
   const pax_column = <Column<Record<string, string>>
     title="Pax"
@@ -144,6 +139,7 @@ const WithContent = ({
       bordered={true}
       pagination={false}
       size="small"
+      loading={isLoading}
       scroll={{ "x": 1800 }}
       dataSource={dataSource}>
       {columns}
@@ -157,10 +153,11 @@ const PresenceList = () => {
   const [period, setPeriod] = useState<[DateTime, DateTime]>([DateTime.local().startOf("month"), DateTime.local().endOf("month")])
   const [showEmail, setShowEmail] = useState(false)
 
-  const [paxSnaps, paxDocLoading, paxDocsError] = useCollection<TDay>(
+  const [daySnaps, daySnapsLoading, dayError] = useCollection<TDay>(
     db.collectionGroup("days").withConverter(TDayConverter)
       .where("on", ">=", period[0].toJSDate())
       .where("on", "<=", period[1].toJSDate())
+      .where("state", "in", ["CONFIRMED", "PENDING_REVIEW"])
       .orderBy("on", "asc"),
   )
 
@@ -169,7 +166,9 @@ const PresenceList = () => {
     setPeriod([DateTime.fromJSDate(start.toDate()), DateTime.fromJSDate(end.toDate())])
     //setEndPeriod(end)
   }
-
+  if (dayError) {
+    throw dayError
+  }
   return <>
       <h2>
         <FontAwesomeIcon icon={faCalendarCheck} /> Tableau des présences
@@ -226,15 +225,13 @@ const PresenceList = () => {
           {" "} Afficher les e-mails
         </span>
       </Space>
-      {!paxSnaps ? (
-        <Spin />
-      ) : (
-        <WithContent
+      <WithContent
           period={period}
-          paxSnaps={paxSnaps}
+          daySnaps={daySnaps}
+          isLoading={daySnapsLoading}
           showEmail={showEmail}
         />
-      )}
+
   </>
 }
 
