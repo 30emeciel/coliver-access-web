@@ -34,3 +34,25 @@ button>.svg-inline--fa+span, btn>.svg-inline--fa+span, .ant-btn>span+.svg-inline
 .presence-list-today-cell {
   background-color: lightcyan;
 }
+
+
+.fade-enter{
+  opacity: 0;
+//  transform: translateX(100%);
+}
+.fade-enter-active{
+  opacity: 1;
+  //  transform: translateX(0%);
+}
+.fade-exit{
+  opacity: 1;
+  //transform: translateX(0%);
+}
+.fade-exit-active {
+  opacity: 0;
+  //transform: translateX(-100%);
+}
+.fade-enter-active,
+.fade-exit-active {
+  transition: opacity 300ms;//, transform 500ms;
+}

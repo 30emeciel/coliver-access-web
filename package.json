@@ -23,6 +23,7 @@
     "@types/react-datepicker": "^3.1.8",
     "@types/react-dom": "^17.0.3",
     "@types/react-router-dom": "^5.1.7",
+    "@types/react-transition-group": "^4.4.1",
     "antd": "^4.15.3",
     "axios": "^0.21.1",
     "bootstrap-daterangepicker": "^3.1.0",
@@ -44,6 +45,7 @@
     "react-firebase-hooks": "^3.0.4",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "react-transition-group": "^4.4.1",
     "ts-enum-util": "^4.0.2",
     "typescript": "^4.2.4",
     "typescript-memoize": "^1.0.1"

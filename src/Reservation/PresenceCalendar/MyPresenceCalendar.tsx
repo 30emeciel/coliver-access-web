@@ -1,20 +1,17 @@
-import { faBed, faLaptopHouse, faUserClock } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Alert, Button, Modal, Space } from "antd"
+import { Alert, Modal } from "antd"
 import { DateTime } from "luxon"
-import React, { useContext, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import db from "src/core/db"
-import PaxContext from "src/core/paxContext"
 import { TPax } from "src/models/Pax"
-import ColivingForm from "./ColivingForm"
-import CoworkingForm from "./CoworkingForm"
 import { TCalendarContext, TMapDays, TMapGlobalDays } from "./MyPresenceCalendarTypes"
 import ReservationLoader from "./ReservationLoader"
 import TheCalendar from "./TheCalendar"
 import myloglevel from "src/core/myloglevel"
 import { TDay, TDayConverter } from "../../models/Day"
 import BackButton from "../../Buttons/BackButton"
+import NewReservation from "./NewReservation"
+import { TReservationKind } from "../../models/Reservation"
 
 const log = myloglevel.getLogger("MyPresenceCalendar")
 
@@ -22,8 +19,6 @@ enum AppStates {
   Normal,
   ShowEmptyForm,
   ShowOccupiedForm,
-  CoworkingForm,
-  ColivingForm,
 }
 
 export default function MyPresenceCalendar({ pax }: { pax: TPax }) {
@@ -98,30 +93,13 @@ export default function MyPresenceCalendar({ pax }: { pax: TPax }) {
         type="info"
         message="Pour réserver, commence par cliquer sur le jour de ta venue." />
         <br />
-      {new Set([AppStates.Normal, AppStates.ShowEmptyForm, AppStates.ShowOccupiedForm]).has(appState) && <>
-        <TheCalendar
-          calendarContext={calendarContext}
-          isRangeMode={false}
-          calValue={calValue}
-          onClickDay={onClickDayFct}
-        />
-        <Modal destroyOnClose={true} visible={new Set([AppStates.ShowEmptyForm]).has(appState)} onCancel={() => {
-          setCalValue(null)
-          setAppState(AppStates.Normal)
-        }} footer={[<BackButton onClick={() => {
-          setCalValue(null)
-          setAppState(AppStates.Normal)
-        }}/>]}>
-          <p>Que veux-tu réserver ?</p>
-          <Space direction="vertical">
-            <Button block type="primary" onClick={() => setAppState(AppStates.ColivingForm)}>
-              <FontAwesomeIcon icon={faBed} /> Coliving
-            </Button>
-            <Button block type="primary" onClick={() => setAppState(AppStates.CoworkingForm)}>
-              <FontAwesomeIcon icon={faLaptopHouse} /> Coworking
-            </Button>
-          </Space>
-        </Modal>
+      <TheCalendar
+        calendarContext={calendarContext}
+        isRangeMode={false}
+        calValue={calValue}
+        onClickDay={onClickDayFct}
+      />
+
         <Modal destroyOnClose={true} visible={new Set([AppStates.ShowOccupiedForm]).has(appState)} onCancel={() => {
           setCalValue(null)
           setAppState(AppStates.Normal)
@@ -138,35 +116,22 @@ export default function MyPresenceCalendar({ pax }: { pax: TPax }) {
             }}
           />
         </Modal>
-      </>}
 
-      {appState === AppStates.ColivingForm && (
-        <ColivingForm
-          calendarContext={calendarContext}
-          firstCalValue={calValue}
-          onSubmit={() => {
-            setCalValue(null)
-            setAppState(AppStates.Normal)
-          }}
-          onCancel={() => {
-            setAppState(AppStates.ShowEmptyForm)
-          }}
-        />
-      )}
 
-      {appState === AppStates.CoworkingForm && (
-        <CoworkingForm
-          calendarContext={calendarContext}
-          firstCalValue={calValue!}
-          onSubmit={() => {
-            setCalValue(null)
-            setAppState(AppStates.Normal)
-          }}
-          onCancel={() => {
-            setAppState(AppStates.ShowEmptyForm)
-          }}
-        />
-      )}
+      {appState == AppStates.ShowEmptyForm &&
+      <NewReservation
+        calendarContext={calendarContext}
+        firstCalValue={calValue!}
+        onSubmit={(kind) => {
+          setCalValue(null)
+          setAppState(AppStates.Normal)
+        }}
+        onCancel={() => {
+          setAppState(AppStates.Normal)
+        }}
+      />
+      }
+
     </>
   )
 }

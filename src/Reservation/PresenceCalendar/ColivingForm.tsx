@@ -1,6 +1,6 @@
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Alert, Button, Col, Row, Space } from "antd"
+import { Alert, Button, Carousel, Col, Row, Space } from "antd"
 import { Interval } from "luxon"
 import React, { useEffect, useState } from "react"
 import { createReservation, TColivingReservation } from "src/models/Reservation"
@@ -93,9 +93,11 @@ const ColivingForm = ({
   return <>
       <Row gutter={[8, 8]} justify="center">
         <Col flex="350px">
-          <Collapse isOpened={true} initialStyle={{height: 0, overflow: 'hidden'}}>
-            <Alert message={<Form/>}/>
-          </Collapse>
+          <Carousel dots={false}>
+            <div>
+              <h3>1</h3>
+            </div>
+          </Carousel>
         </Col>
       </Row>
       <TheCalendar calendarContext={calendarContext} isRangeMode={true} calValue={calValue} onClickDay={onChangeFct} />
