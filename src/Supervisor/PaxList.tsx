@@ -1,11 +1,11 @@
 import { faExclamationTriangle, faUser, faUserClock, faUsers } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Badge, Button, Card, Collapse, List, Spin, Table } from "antd"
+import { Badge, Button, Card, Collapse, List, Spin } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
 import db from "src/core/db"
-import { TPax, TPaxConverter } from "src/models/Pax"
+import { goToPaxAccountView, TPax, TPaxConverter } from "src/models/Pax"
 import React from "react"
 import firebase from "firebase"
 import Meta from "antd/es/card/Meta"
@@ -20,9 +20,8 @@ const WithContent = ({ isLoading, paxDocs }: { isLoading: boolean, paxDocs: TPax
   const history = useHistory()
 
   const listItem = (paxDoc: TPax) => {
-    const goToAccountView = () => history.push(`/supervisor/pax/${paxDoc.sub}/account`)
     const buttons = [
-      <Button size="small" type="primary" onClick={goToAccountView}>
+      <Button size="small" type="primary" onClick={() => goToPaxAccountView(history, paxDoc.sub)}>
         <FontAwesomeIcon icon={faUser} /> Compte
       </Button>,
       <Button size="small" onClick={() => history.push(`/supervisor/pax/${paxDoc.sub}/presence`)} className="ml-2">

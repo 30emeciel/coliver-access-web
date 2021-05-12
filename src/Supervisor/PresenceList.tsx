@@ -7,7 +7,7 @@ import { useCollection, useDocumentData } from "react-firebase-hooks/firestore"
 import { useHistory } from "react-router-dom"
 import db from "src/core/db"
 import firebase from "src/core/myfirebase"
-import { TPax } from "src/models/Pax"
+import { goToPaxAccountView, TPax } from "src/models/Pax"
 import DateRangePicker from "react-bootstrap-daterangepicker"
 // you will need the css that comes with bootstrap@3. if you are using
 // a tool like webpack, you can do the following:
@@ -120,13 +120,21 @@ const WithContent = ({
     />
   ))
 
-  const pax_column = <Column
+  const pax_column = <Column<Record<string, string>>
     title="Pax"
     dataIndex="paxId"
     key="paxId"
     render={(paxId) => <UserField showEmail={showEmail} paxId={paxId} />}
     width={280}
     fixed="left"
+    className="clickable-table-cell"
+    onCell={(record,) => {
+      return {
+        onClick: () => {
+          goToPaxAccountView(history, record["paxId"])}, // click row
+      };
+    }
+    }
   />
 
   const columns = [pax_column].concat(day_columns)

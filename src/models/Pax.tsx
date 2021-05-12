@@ -46,3 +46,7 @@ export const TPaxConverter: admin.firestore.FirestoreDataConverter<TPax> = {
     })
   },
 }
+
+export function goToPaxAccountView(history: { push: (a: string) => void }, paxId: string) {
+  history.push(`/supervisor/pax/${paxId}/account`)
+}
