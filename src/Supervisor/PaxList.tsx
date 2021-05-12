@@ -33,7 +33,7 @@ const WithContent = ({ isLoading, paxDocs }: { isLoading: boolean, paxDocs: TPax
 
     return <>
       <List.Item>
-        <Card hoverable={true} onClick={goToAccountView} actions={buttons}>
+        <Card hoverable={true} actions={buttons}>
           <Meta  avatar={<Avatar src={paxDoc.picture} />} title={paxDoc.name} />
         </Card>
       </List.Item>
