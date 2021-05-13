@@ -11,7 +11,6 @@ import WorkInProgress from "../core/WorkInProgress"
 import { Button, Popconfirm, Space } from "antd"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCheckDouble, faEdit, faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
-import { ReservationListMode } from "../Reservation/ReservationList"
 
 type QueryDocumentSnapshot<T> = firebase.firestore.QueryDocumentSnapshot<T>
 
