@@ -63,6 +63,9 @@ const CognitoFormSeamless = ({ entry, onSubmit }: { entry: any; onSubmit: (e: an
 export default function OnBoarding() {
   const uc = useContext(PaxContext)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  if (!uc?.doc) {
+    throw Error("!uc?.doc")
+  }
 
   const onSubmitFct = async (e: any, data: any) => {
     setIsSubmitting(true)
@@ -70,7 +73,10 @@ export default function OnBoarding() {
     const weirdId = data.entry.Id as string
     const [formId, entryId] = weirdId.split("-")
     const preregistrationFormEntryUrl = `https://www.cognitoforms.com/_30%C3%A8meCiel/${formId}/entries/${entryId}`
-    const userDocRef = uc.ref!
+    if (!uc.ref) {
+      throw Error("!uc.ref")
+    }
+    const userDocRef = uc.ref
     const data_update:Partial<TPax> = {
       state: TPaxStates.Registered,
       preregistrationFormEntryUrl: preregistrationFormEntryUrl
@@ -80,22 +86,22 @@ export default function OnBoarding() {
   }
 
   const cognitoFormEntry = {
-    Uid: uc.doc?.sub,
-    MyNameMonNom: uc.doc?.name,
-    CourrielEmail: uc.doc?.email,
+    Uid: uc.doc.sub,
+    MyNameMonNom: uc.doc.name,
+    CourrielEmail: uc.doc.email,
   }
 
   return (
     <>
           <Card>
-            <Steps current={uc.doc!.state === TPaxStates.Registered ? 1 : 0} responsive={true}>
+            <Steps current={uc.doc.state === TPaxStates.Registered ? 1 : 0} responsive={true}>
               <Step title="Étape 1 : Préinscription" description="Aide-moi à mieux te connaître" icon={<SolutionOutlined />}/>
               <Step title="Étape 2 : Confirmation" description="Attends la confirmation de ta préinscription" icon={<FontAwesomeIcon icon={faUserCheck} />}/>
               <Step title="C'est parti !" icon={<SmileOutlined />} />
             </Steps>
             </Card>
         <br />
-            {uc.doc!.state == TPaxStates.Authenticated && (
+            {uc.doc.state == TPaxStates.Authenticated && (
               <>
                 <h3>Inscription</h3>
                 <p>
@@ -105,7 +111,7 @@ export default function OnBoarding() {
                 {isSubmitting ? <Spin /> : <CognitoFormSeamless entry={cognitoFormEntry} onSubmit={onSubmitFct} />}
               </>
             )}
-            {uc.doc!.state === TPaxStates.Registered && (
+            {uc.doc.state === TPaxStates.Registered && (
               <>
                 <h3>Confirmation</h3>
                 <p>
