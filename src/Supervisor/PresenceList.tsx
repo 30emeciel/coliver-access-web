@@ -133,6 +133,8 @@ const WithContent = (
     }
   }
 
+  const today = DateTime.local().set({hour: 0, minute: 0, second: 0, millisecond: 0})
+
   const day_columns = row.map((millis) => {
     const day_dt = DateTime.fromMillis(millis)
     return (
@@ -144,7 +146,7 @@ const WithContent = (
         dataIndex={millis.toString()}
         key={millis.toString()}
         render={(rk) => tdFct(rk)}
-        className={[6, 7].includes(day_dt.weekday) ? "presence-list-weekend-cell" : ""}
+        className={day_dt.equals(today) ? "presence-list-today-cell" : ([6, 7].includes(day_dt.weekday) ? "presence-list-weekend-cell" : "")}
       />
     )
   })
@@ -233,7 +235,7 @@ const PresenceList = () => {
               daysOfWeek: ["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"],
               monthNames: [
                 "Janvier",
-                "Fevrier",
+                "Février",
                 "Mars",
                 "Avril",
                 "Mai",
