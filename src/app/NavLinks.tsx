@@ -9,7 +9,7 @@ import {
   faComments,
   faEye,
   faMoneyCheck,
-  faPlus,
+  faPlus, faQuestionCircle,
   faSignOutAlt,
   faUsers,
 } from "@fortawesome/free-solid-svg-icons"
@@ -23,6 +23,7 @@ import firebase from "src/core/myfirebase"
 import PaxContext from "src/core/paxContext"
 import { TPaxStates } from "src/models/Pax"
 import WorkInProgress from "src/core/WorkInProgress"
+import { open as freshdeskOpen } from "src/core/freshdesk"
 
 export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentMenuSelect?:() => void}) {
   const history = useHistory()
@@ -35,6 +36,11 @@ export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentM
     if (onParentMenuSelect)
       onParentMenuSelect()
   }
+
+  const freshDeskMenuItem = <Menu.Item
+    style={mobile ? {} : { float: "right" }}
+    onClick={() => {freshdeskOpen()}}
+      icon={<FontAwesomeIcon icon={faQuestionCircle} />}>Aide</Menu.Item>
 
   return (<>
       <Menu mode={mobile ? "inline" : "horizontal"} theme={mobile ? "light" : "dark"} selectedKeys={[location.pathname]}>
@@ -87,16 +93,12 @@ export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentM
             </SubMenu>
           </>
         )}
-        {pc.isAuthenticated && <>
+        {pc.isAuthenticated ? <>
           { mobile && <Menu.Divider />}
           <SubMenu
             style={mobile ? {} : { float: "right" }}
-            title={
-              <>
-                {pc.doc?.picture && <Avatar size="default" src={pc.doc?.picture} />}
-                <span style={{ margin: "0px 0px 0px 8px" }}>{pc.doc?.name ? pc.doc.name : "-"}</span>
-              </>
-            }
+            icon={pc.doc?.picture && <Avatar style={{margin: "0 4px 0 0"}} size="small" src={pc.doc.picture} />}
+            title={pc.doc?.name ? pc.doc.name : "-"}
           >
             <Menu.Item icon={<FontAwesomeIcon icon={faBaby} />}>
               <WorkInProgress>Niveau : Bébé Coliver</WorkInProgress>
@@ -105,6 +107,7 @@ export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentM
               <WorkInProgress>Badges</WorkInProgress>
             </Menu.Item>
             <Menu.Divider />
+            {freshDeskMenuItem}
             <Menu.Item
               onClick={async () => {
                 await firebase.auth().signOut()
@@ -115,7 +118,10 @@ export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentM
               Logout
             </Menu.Item>
           </SubMenu>
-        </>}
+        </>
+        :
+          freshDeskMenuItem
+        }
       </Menu>
     </>
   )

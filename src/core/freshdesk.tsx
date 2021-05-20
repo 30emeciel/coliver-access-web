@@ -28,6 +28,11 @@ export function logout() {
   FreshworksWidget('logout');
 }
 
-export function open() {
+export function openTicketForm() {
   FreshworksWidget('open', 'ticketForm');
 }
+
+export function open() {
+  FreshworksWidget('open');
+}
+

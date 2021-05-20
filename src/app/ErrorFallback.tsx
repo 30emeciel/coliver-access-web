@@ -1,6 +1,6 @@
 import { Button, Image, Result } from "antd"
 import casse from "./cassé.jpg"
-import { open as freshdeskOpen } from "src/core/freshdesk"
+import { openTicketForm as freshdeskOpen } from "src/core/freshdesk"
 import { useEffect } from "react"
 import axios from "axios"
 import { getEnvOrFail } from "src/core/getEnvOrFail"
