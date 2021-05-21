@@ -122,7 +122,7 @@ export default function MyPresenceCalendar({ pax }: { pax: TPax }) {
       <NewReservation
         calendarContext={calendarContext}
         firstCalValue={calValue!}
-        onSubmit={(kind) => {
+        onSubmit={() => {
           setCalValue(null)
           setAppState(AppStates.Normal)
         }}

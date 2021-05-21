@@ -38,7 +38,7 @@ export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentM
   }
 
   const freshDeskMenuItem = <Menu.Item
-    style={mobile ? {} : { float: "right" }}
+    style={mobile || pc.isAuthenticated ? {} : { float: "right" }}
     onClick={() => {freshdeskOpen()}}
       icon={<FontAwesomeIcon icon={faQuestionCircle} />}>Aide</Menu.Item>
 
