@@ -4,20 +4,16 @@ steps:
 - name: node
   entrypoint: npm
   args: ['install', '--production', '--silent']
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: 'gsutil'
+  args:
+    - cp
+    - gs://env-config.30emeciel.fr/live-web.env
+    - .env.production
 - name: node
   entrypoint: npm
   args: ['run', 'build']
   env:
-  - 'REACT_APP_PREREGISTRATION_FORM_ID=$_PREREGISTRATION_FORM_ID'
-  - 'REACT_APP_VERSION=$TAG_NAME build $SHORT_SHA'
+    - 'REACT_APP_VERSION=$TAG_NAME build $SHORT_SHA'
 - name: firebase
-  args: ['deploy', '--project=trentiemeciel', '--only=hosting']
-
-substitutions:
-  _PREREGISTRATION_FORM_ID: "9"
-
-# secretEnv: ['FIREBASE_TOKEN']
-# secrets:
-# - kmsKeyName: 'projects/trentiemeciel/locations/global/keyRings/cloudbuilder/cryptoKeys/firebase-token'
-#   secretEnv:
-#     FIREBASE_TOKEN: 'CiQADhD9N8Ner1hyKdVB0eLDAP0Jb2j+zSH0E75jFMIZF+ywwtYSkAEARHgwJJPqbEyXFua16WHn9c1lwsHQE8T7V7Agaq/o0oGWkcE/7c5d/2/A1dMzRpjyvzFsNhTztkW4soBApDQ+bmn0FxntUF45fzm4Q8eoM77MH8/pHdeOYL8iuac+nd8zpdfTvzk4TtrRSKhipNPmxxNX1/bVfO7Gihe72TRy8/X1kWKZsqfZChKcwC/SPEQ='
+  args: ['deploy',  '--only=hosting']

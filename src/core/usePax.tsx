@@ -8,11 +8,13 @@ import loglevel from "src/core/myloglevel"
 import { TPax, TPaxConverter } from "src/models/Pax"
 import { login as freshdeskLogin, logout as freshdeskLogout } from "./freshdesk"
 import db from "./db"
+import { getEnvOrFail } from "./getEnvOrFail"
 
 const auth0_options = {
   scope: "openid profile email",
 }
 
+const FUNCTIONS_HOST = getEnvOrFail("FUNCTIONS_HOST")
 const log = loglevel.getLogger("useUser")
 const useUser = () => {
   const {
@@ -70,7 +72,7 @@ const useUser = () => {
     setFirestoreIsTokenLoading(true);
     (async () => {
       const exchange_token_response = await axios
-        .post("https://europe-west3-trentiemeciel.cloudfunctions.net/auth0-firebase-token-exchange", {
+        .post(`${FUNCTIONS_HOST}/auth0-firebase-token-exchange`, {
           access_token: auth0Token,
         })
 
