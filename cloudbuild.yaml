@@ -1,5 +1,5 @@
 steps:
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:341.0.0'
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:341.0.0-alpine'
   entrypoint: 'gsutil'
   args:
     - cp
