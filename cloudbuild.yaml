@@ -1,19 +1,23 @@
 steps:
-- name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build', '-t', 'firebase', '-f', 'firebase.Dockerfile', '.' ]
-- name: node
-  entrypoint: npm
-  args: ['install', '--production', '--silent']
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:341.0.0'
   entrypoint: 'gsutil'
   args:
     - cp
     - gs://env-config.30emeciel.fr/live-web.env
-    - .env.production
-- name: node
-  entrypoint: npm
-  args: ['run', 'build']
+    - .env
+- name: 'gcr.io/kaniko-project/executor:v1.6.0'
+  args:
+    - --destination=gcr.io/$PROJECT_ID/coliver-access-web
+    - --cache=true
+    - --cache-ttl=8h
   env:
     - 'REACT_APP_VERSION=$TAG_NAME build $SHORT_SHA'
-- name: firebase
-  args: ['deploy',  '--only=hosting']
+- name: 'gcr.io/cloud-builders/docker:19.03.8'
+  entrypoint: bash
+  args: ['extract-build.sh']
+  env:
+    - 'PROJECT_ID=$PROJECT_ID'
+
+- name: gcr.io/trentiemeciel/firebase
+  args: ['deploy', '--project=$PROJECT_ID', '--only=hosting', '-m', '$TAG_NAME build $SHORT_SHA']
+
