@@ -39,7 +39,8 @@ export interface TReservationDto {
   contribution_state?: TReservationContributionState,
   arrival_date: admin.firestore.Timestamp
   arrival_time?: string,
-  departure_date?: admin.firestore.Timestamp
+  departure_date?: admin.firestore.Timestamp,
+  note?: string,
 }
 
 export abstract class TReservation {
@@ -52,6 +53,7 @@ export abstract class TReservation {
     public created?: DateTime,
     public state = TReservationState.PENDING_REVIEW,
     public arrivalTime?: string,
+    public note?: string,
 ) {}
 
 
@@ -68,7 +70,7 @@ export abstract class TReservation {
 
   abstract toRangeDays(): DateTime[]
 
-  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):Pick<TReservation, "id" | "paxId" | "created" | "arrivalDate" | "arrivalTime" | "state" | "price" | "contributionState"> {
+  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):Pick<TReservation, "id" | "paxId" | "created" | "arrivalDate" | "arrivalTime" | "state" | "price" | "contributionState" | "note"> {
     const dto = snapshot.data()
     const paxId = snapshot.ref.parent?.parent?.id
     if (!paxId) {
@@ -83,6 +85,7 @@ export abstract class TReservation {
       price: dto.price ?? null,
       contributionState: dto.contribution_state ?? TReservationContributionState.START,
       arrivalTime: dto.arrival_time,
+      note: dto.note,
     }
   }
 
@@ -95,6 +98,7 @@ export abstract class TReservation {
       contribution: this.price,
       contribution_state: this.contributionState,
       arrival_time: this.arrivalTime,
+      note: this.note,
     })
   }
 
@@ -112,8 +116,9 @@ export class TColivingReservation extends TReservation {
     created?: DateTime,
     state?: TReservationState,
     arrivalTime?: string,
+    note?: string,
   ) {
-    super(paxId, arrivalDate, price, contributionState, id, created, state, arrivalTime)
+    super(paxId, arrivalDate, price, contributionState, id, created, state, arrivalTime, note)
   }
 
 
@@ -175,6 +180,7 @@ export class TColivingReservation extends TReservation {
       rest.created,
       rest.state,
       rest.arrivalTime,
+      rest.note,
     )
   }
 
@@ -198,8 +204,9 @@ export class TCoworkingReservation extends TReservation {
     created?: DateTime,
     state?: TReservationState,
     arrivalTime?: string,
+    note?: string,
   ) {
-    super(paxId, arrivalDate, contribution, contributionState, id, created, state, arrivalTime)
+    super(paxId, arrivalDate, contribution, contributionState, id, created, state, arrivalTime, note)
   }
 
   protected static KIND = TReservationKind.COWORKING
@@ -227,6 +234,7 @@ export class TCoworkingReservation extends TReservation {
       rest.created,
       rest.state,
       rest.arrivalTime,
+      rest.note,
     )
   }
 

@@ -4,7 +4,7 @@ import {
   Col,
   Collapse,
   Divider,
-  Form,
+  Form, Input,
   InputNumber,
   message,
   Modal,
@@ -87,6 +87,7 @@ export default function NewReservation(
   const [arrivalTime, setArrivalTime] = useState<string | undefined>(undefined)
   const [departureDate, setDepartureDate] = useState<Date | null>(null)
   const [price, setPrice] = useState<number | undefined>(undefined)
+  const [note, setNote] = useState<string|undefined>(undefined)
 
   const [interval, setInterval] = useState<null | Interval>(null)
   useEffect(() => {
@@ -180,6 +181,9 @@ export default function NewReservation(
                 <Option value="soir">soir</Option>
 
               </Select>
+            </Form.Item>
+            <Form.Item label="Un message pour nous ?">
+              <Input.TextArea value={note} autoSize={{minRows: 3}} showCount={true} maxLength={1000} onChange={(e) => setNote(e.target.value)} />
             </Form.Item>
 
             {/*<Form.Item label="4h par jour" help="Je souhaite participer au Programme de la journée">
@@ -336,6 +340,11 @@ export default function NewReservation(
               departureDate,
               p,
               contributeLater ? TReservationContributionState.START : TReservationContributionState.PENDING,
+              undefined,
+              undefined,
+              undefined,
+              arrivalTime,
+              note,
             )
           }
           else {
@@ -345,6 +354,11 @@ export default function NewReservation(
               start,
               p,
               contributeLater ? TReservationContributionState.START : TReservationContributionState.PENDING,
+              undefined,
+              undefined,
+              undefined,
+              arrivalTime,
+              note,
             )
           }
           await createReservation(request_data)
