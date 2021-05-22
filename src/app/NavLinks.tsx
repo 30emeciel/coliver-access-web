@@ -93,7 +93,8 @@ export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentM
             </SubMenu>
           </>
         )}
-        {pc.isAuthenticated ? <>
+        {freshDeskMenuItem}
+        {pc.isAuthenticated && <>
           { mobile && <Menu.Divider />}
           <SubMenu
             style={mobile ? {} : { float: "right" }}
@@ -107,7 +108,6 @@ export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentM
               <WorkInProgress>Badges</WorkInProgress>
             </Menu.Item>
             <Menu.Divider />
-            {freshDeskMenuItem}
             <Menu.Item
               onClick={async () => {
                 await firebase.auth().signOut()
@@ -119,8 +119,6 @@ export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentM
             </Menu.Item>
           </SubMenu>
         </>
-        :
-          freshDeskMenuItem
         }
       </Menu>
     </>
