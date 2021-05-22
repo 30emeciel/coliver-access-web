@@ -10,7 +10,7 @@ import {
   Modal,
   Radio,
   Row,
-  Select,
+  Select, Slider,
   Space,
   Steps,
   Switch,
@@ -103,10 +103,12 @@ export default function NewReservation(
 
   const numberOfNights = interval ? interval.count("days") - 1 : null
 
-  const stay_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * COLIVING_PRICE_PER_NIGHT : null) : COWORKING_PRICE_PER_DAY
-  const misc_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * MISC_PRICE_PER_DAY : null) : MISC_PRICE_PER_DAY
-  const meal_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * MEAL_PRICE_PER_DAY : null) : MEAL_PRICE_PER_DAY
-  const total_suggested_price = stay_suggested_price && misc_suggested_price && meal_suggested_price ? stay_suggested_price + misc_suggested_price + meal_suggested_price : null
+  const stay_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * COLIVING_PRICE_PER_NIGHT : undefined) : COWORKING_PRICE_PER_DAY
+  const misc_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * MISC_PRICE_PER_DAY : undefined) : MISC_PRICE_PER_DAY
+  const meal_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * MEAL_PRICE_PER_DAY : undefined) : MEAL_PRICE_PER_DAY
+  const total_suggested_price = stay_suggested_price && misc_suggested_price && meal_suggested_price ? stay_suggested_price + misc_suggested_price + meal_suggested_price : undefined
+  const minPrice = total_suggested_price ? total_suggested_price - total_suggested_price / 2 : undefined
+  const maxPrice = total_suggested_price ? total_suggested_price + total_suggested_price / 2 : undefined
 
   function getStep(stepId: StepId) {
     return $enum.mapValue(stepId).with({
@@ -208,7 +210,7 @@ export default function NewReservation(
             Quelle que soit ta contribution, nous te remercions de nous aider à faire perdurer ce lieu 🏡 !
           </p>
 
-          <Form labelCol={{ span: 12 }} wrapperCol={{ span: 20 }}>
+          <Form labelCol={{ span: 10 }} wrapperCol={{ span: 24 }}>
 
             <Form.Item label="Contribution suggérée" wrapperCol={{ span: 4 }}>
               <Text strong>{total_suggested_price}€</Text>
@@ -223,7 +225,7 @@ export default function NewReservation(
                   <span>{stay_suggested_price}€</span>
                 </Form.Item>
                 <Form.Item label="Repas" help={`${MEAL_PRICE_PER_DAY}€ par jour`}
-                           tooltip={<p>Estimation pour 3 repas par jour</p>}>
+                           tooltip={<p>Estimation pour 3 repas bio et local par jour</p>}>
                   <span>{meal_suggested_price}€</span>
                 </Form.Item>
                 <Form.Item label="Autre" tooltip={<ul>
@@ -233,6 +235,7 @@ export default function NewReservation(
                   <li>Sécurisexe</li>
                   <li>Blanchisserie</li>
                   <li>Maintenance</li>
+                  <li>Les humains qui font vivre lieu</li>
                 </ul>} wrapperCol={{ span: 4 }} help={`${MISC_PRICE_PER_DAY}€ par jour`}>
                   <span>{misc_suggested_price}€</span>
                 </Form.Item>
@@ -249,25 +252,49 @@ export default function NewReservation(
               : <>
                 <Form.Item label="Ma contribution">
                   <Form.Item noStyle>
-                    <InputNumber<number> step={10} value={price} onChange={(e) => setPrice(e)}
-                                         placeholder={total_suggested_price?.toString()} />
-                  </Form.Item>
-                  <span className="ant-form-text"> €</span>
+                    <InputNumber<number>
+                      step={10}
+                      value={price}
+                      onChange={(e) => setPrice(e)}
+                      placeholder={total_suggested_price?.toString()} />
+
+                  </Form.Item>                  <span className="ant-form-text"> €</span>
+
+                </Form.Item>
+                <Form.Item>
+                  <Row gutter={{ xs: 2, sm: 4, md: 8, lg: 8 }} wrap={false}>
+                    <Col flex="none">Solidaire</Col>
+                    <Col flex="auto">
+                      <Slider
+                        marks={
+                          {
+                            [total_suggested_price ?? 0]: `${total_suggested_price}€`,
+                          }
+                        }
+                        min={minPrice}
+                        max={maxPrice}
+                        onChange={(e: number) => setPrice(e)}
+                        value={price}
+                      />
+                    </Col>
+                    <Col flex="none">Supportaire</Col>
+                  </Row>
+
                 </Form.Item>
 
                 <p>
                   Je t'invite à te rendre sur cette page <a
                   target="_blank"
                   href="https://lydia-app.com/collect/30eme-ciel/fr">https://lydia-app.com/collect/30eme-ciel/fr</a>.
-                  pour payer ta contribution, soit avec une carte bancaire ou Lydia directement si tu es sûr ton
-                  téléphone mobile.
+                  pour payer ta contribution, soit avec une carte bancaire ou avec Lydia si tu es sur ton
+                  téléphone portable.
                 </p>
                 <p>
                   Lorsque tu fais ta contribution, il est préférable que tu inscrives ton nom pour que nous puissions
                   plus
-                  facilement gérer notre comptabilité :)
+                  facilement gérer notre comptabilité 😉.
                 </p>
-                <p>Si ta réservation n'est pas validée, tu seras remboursé intégralement.</p>
+                <p>Si ta réservation n'est pas acceptée, tu seras remboursé intégralement.</p>
                 <p>
                   Une fois ta contribution faites, reviens sur cette page pour envoyer ta demande de réservation.
                 </p>
