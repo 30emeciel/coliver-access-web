@@ -57,12 +57,12 @@ enum StepId {
 
 const chooseToTransition = false
 
-const COLIVING_PRICE_PER_NIGHT = 20
+const COLIVING_PRICE_PER_NIGHT = 22
 const MISC_PRICE_PER_DAY = 2 // coliver resident => 19 euros
 
 const COWORKING_PRICE_PER_DAY = 13
 
-const MEAL_PRICE_PER_DAY = 6
+const MEAL_PRICE_PER_DAY = 7
 
 export default function NewReservation(
   {
@@ -218,26 +218,35 @@ export default function NewReservation(
             </Form.Item>
             <Collapse ghost={true}>
               <Collapse.Panel key="details" header="Détails du calcul">
-                <Form.Item label="Loyer" tooltip={<ul>
-                  <li>Loyer</li>
-                  <li>Assurance</li>
-                </ul>}
+                <Form.Item label="Loyer" tooltip={<p>
+                  Inclus ce qu'on peut attendre d'un Coliving classique :
+                  <ul>
+                    <li>Loyer</li>
+                    <li>Assurance</li>
+                    <li>Eau</li>
+                    <li>Électricité</li>
+                    <li>Internet</li>
+                    <li>Blanchisserie</li>
+                    <li>Maintenance</li>
+                </ul>
+                </p>}
                            help={`${kind == TReservationKind.COLIVING ? COLIVING_PRICE_PER_NIGHT : COWORKING_PRICE_PER_DAY}€ par jour`}>
                   <span>{stay_suggested_price}€</span>
                 </Form.Item>
                 <Form.Item label="Repas" help={`${MEAL_PRICE_PER_DAY}€ par jour`}
-                           tooltip={<p>Estimation pour 3 repas bio et local par jour</p>}>
+                           tooltip={<p>Estimation pour 3 repas bio, équilibré et local par jour</p>}>
                   <span>{meal_suggested_price}€</span>
                 </Form.Item>
-                <Form.Item label="Autre" tooltip={<ul>
-                  <li>Eau</li>
-                  <li>Électricité</li>
-                  <li>Internet</li>
-                  <li>Sécurisexe</li>
-                  <li>Blanchisserie</li>
-                  <li>Maintenance</li>
-                  <li>Les humains qui font vivre lieu</li>
-                </ul>} help={`${MISC_PRICE_PER_DAY}€ par jour`}>
+                <Form.Item label="Autre" tooltip={<p>
+                  Inclus ce qu'on ne retrouve pas dans les lieux traditionnels
+                  <ul>
+                    <li>Facilitation des cercles pour l'autogestion</li>
+                    <li>Support émotionnel</li>
+                    <li>Sécurisexe</li>
+                    <li>Accès à certains événements sur place</li>
+                    <li>Les humains qui font vivre lieu</li>
+                  </ul>
+                </p>} help={`${MISC_PRICE_PER_DAY}€ par jour`}>
                   <span>{misc_suggested_price}€</span>
                 </Form.Item>
               </Collapse.Panel>
