@@ -81,6 +81,7 @@ export default function NewReservation(
   const currentUser = calendarContext.pax
   const [kind, setKind] = useState<TReservationKind | null>(null)
   const [contributeLater, setContributeLater] = useState(false)
+  const [freePrice, setFreePrice] = useState(false)
   // const [fourHours, setFourHours] = useState(false)
 
   const [arrivalDate, setArrivalDate] = useState(firstCalValue)
@@ -204,15 +205,15 @@ export default function NewReservation(
         content: <>
 
           <p>
-            Le 30ème Ciel est un lieu à prix libre. C'est-à-dire que peu importe le montant de ta contribution,
+            Le 30ème Ciel est un lieu à prix juste. C'est-à-dire que peu importe le montant de ta contribution,
             l'important pour nous est que ce soit juste et parfait pour toi 😊.
             Tu peux contribuer plus ou moins que le montant suggéré.
             Quelle que soit ta contribution, nous te remercions de nous aider à faire perdurer ce lieu 🏡 !
           </p>
 
-          <Form labelCol={{ span: 10 }} wrapperCol={{ span: 24 }}>
+          <Form labelCol={{ span: 8 }} layout="horizontal">
 
-            <Form.Item label="Contribution suggérée" wrapperCol={{ span: 4 }}>
+            <Form.Item label="Contribution suggérée">
               <Text strong>{total_suggested_price}€</Text>
             </Form.Item>
             <Collapse ghost={true}>
@@ -220,7 +221,7 @@ export default function NewReservation(
                 <Form.Item label="Loyer" tooltip={<ul>
                   <li>Loyer</li>
                   <li>Assurance</li>
-                </ul>} wrapperCol={{ span: 4 }}
+                </ul>}
                            help={`${kind == TReservationKind.COLIVING ? COLIVING_PRICE_PER_NIGHT : COWORKING_PRICE_PER_DAY}€ par jour`}>
                   <span>{stay_suggested_price}€</span>
                 </Form.Item>
@@ -236,7 +237,7 @@ export default function NewReservation(
                   <li>Blanchisserie</li>
                   <li>Maintenance</li>
                   <li>Les humains qui font vivre lieu</li>
-                </ul>} wrapperCol={{ span: 4 }} help={`${MISC_PRICE_PER_DAY}€ par jour`}>
+                </ul>} help={`${MISC_PRICE_PER_DAY}€ par jour`}>
                   <span>{misc_suggested_price}€</span>
                 </Form.Item>
               </Collapse.Panel>
@@ -244,23 +245,34 @@ export default function NewReservation(
 
             <Divider />
 
-            <Form.Item label="Je souhaite contribuer après mon passage">
+            <Form.Item label="Je souhaite contribuer plus tard">
               <Switch checked={contributeLater} onChange={(e) => setContributeLater(e)} />
             </Form.Item>
             {contributeLater ?
               <p>Tu vas recevoir un e-mail à la fin de ton expérience</p>
               : <>
+                <Form.Item label="Je demande un prix libre">
+                  <Switch checked={freePrice} onChange={(e) => setFreePrice(e)} />
+                </Form.Item>
                 <Form.Item label="Ma contribution">
-                  <Form.Item noStyle>
-                    <InputNumber<number>
-                      step={10}
-                      value={price}
-                      onChange={(e) => setPrice(e)}
-                      placeholder={total_suggested_price?.toString()} />
+                  {freePrice ? <>
+                    <Form.Item noStyle>
+                      <InputNumber<number>
+                        step={10}
+                        min={0}
+                        value={price}
+                        onChange={(e) => setPrice(e)}
+                        placeholder={total_suggested_price?.toString()} />
 
-                  </Form.Item>                  <span className="ant-form-text"> €</span>
+                    </Form.Item>
+                    <span className="ant-form-text"> €</span>
+                    </>
+                    :
+                    <Text>{price} €</Text>
+                  }
 
                 </Form.Item>
+                {freePrice ||
                 <Form.Item>
                   <Row gutter={{ xs: 2, sm: 4, md: 8, lg: 8 }} wrap={false}>
                     <Col flex="none">Solidaire</Col>
@@ -281,12 +293,13 @@ export default function NewReservation(
                   </Row>
 
                 </Form.Item>
+                }
 
                 <p>
                   Je t'invite à te rendre sur cette page <a
                   target="_blank"
-                  href="https://lydia-app.com/collect/30eme-ciel/fr">https://lydia-app.com/collect/30eme-ciel/fr</a>.
-                  pour payer ta contribution, soit avec une carte bancaire ou avec Lydia si tu es sur ton
+                  href="https://lydia-app.com/collect/30eme-ciel/fr">https://lydia-app.com/collect/30eme-ciel/fr</a> pour
+                  payer ta contribution, soit avec une carte bancaire ou avec Lydia si tu es sur ton
                   téléphone portable.
                 </p>
                 <p>
