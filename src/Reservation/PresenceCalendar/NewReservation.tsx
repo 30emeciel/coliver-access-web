@@ -57,7 +57,7 @@ enum StepId {
 
 const chooseToTransition = false
 
-const COLIVING_PRICE_PER_NIGHT = 22
+const COLIVING_PRICE_PER_NIGHT = 20
 const MISC_PRICE_PER_DAY = 2 // coliver resident => 19 euros
 
 const COWORKING_PRICE_PER_DAY = 13
@@ -241,6 +241,7 @@ export default function NewReservation(
                   Inclus ce qu'on ne retrouve pas dans les lieux traditionnels
                   <ul>
                     <li>Facilitation des cercles pour l'autogestion</li>
+                    <li>Des activités de groupe (yoga, méditation, ...)</li>
                     <li>Support émotionnel</li>
                     <li>Sécurisexe</li>
                     <li>Accès à certains événements sur place</li>
@@ -423,7 +424,7 @@ export default function NewReservation(
 
 
   return <>
-    <Modal keyboard={true} maskClosable={false} visible={true} width={700} destroyOnClose={true} onCancel={onCancel} footer={buttons}>
+    <Modal keyboard={true} maskClosable={false} visible={true} width={800} destroyOnClose={true} onCancel={onCancel} footer={buttons}>
       <Steps
         type="navigation"
         current={currentStepId}
