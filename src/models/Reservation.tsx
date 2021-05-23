@@ -31,6 +31,13 @@ export enum TReservationContributionState {
   PENDING = "PENDING",
 }
 
+export enum TMealPlans {
+  ONE = "ONE",
+  TWO = "TWO",
+  THREE = "THREE",
+  NONE= "NONE",
+}
+
 export interface TReservationDto {
   created?: admin.firestore.Timestamp
   kind: TReservationKind
@@ -41,6 +48,8 @@ export interface TReservationDto {
   arrival_time?: string,
   departure_date?: admin.firestore.Timestamp,
   note?: string,
+  meal_plan? : TMealPlans,
+  conditional_arrival?: string,
 }
 
 export abstract class TReservation {
@@ -49,11 +58,13 @@ export abstract class TReservation {
     public arrivalDate: DateTime,
     public price: number | null,
     public contributionState : TReservationContributionState,
+    public mealPlan: TMealPlans,
     public id?: string,
     public created?: DateTime,
     public state = TReservationState.PENDING_REVIEW,
     public arrivalTime?: string,
     public note?: string,
+    public conditionalArrival?: string
 ) {}
 
 
@@ -70,7 +81,7 @@ export abstract class TReservation {
 
   abstract toRangeDays(): DateTime[]
 
-  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):Pick<TReservation, "id" | "paxId" | "created" | "arrivalDate" | "arrivalTime" | "state" | "price" | "contributionState" | "note"> {
+  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):Pick<TReservation, "id" | "paxId" | "created" | "arrivalDate" | "arrivalTime" | "state" | "price" | "contributionState" | "mealPlan" | "note" | "conditionalArrival"> {
     const dto = snapshot.data()
     const paxId = snapshot.ref.parent?.parent?.id
     if (!paxId) {
@@ -84,8 +95,10 @@ export abstract class TReservation {
       state: dto.state,
       price: dto.price ?? null,
       contributionState: dto.contribution_state ?? TReservationContributionState.START,
+      mealPlan: dto.meal_plan ?? TMealPlans.THREE,
       arrivalTime: dto.arrival_time,
       note: dto.note,
+      conditionalArrival: dto.conditional_arrival,
     }
   }
 
@@ -97,8 +110,10 @@ export abstract class TReservation {
       state: this.state ,
       contribution: this.price,
       contribution_state: this.contributionState,
+      meal_plan: this.mealPlan,
       arrival_time: this.arrivalTime,
       note: this.note,
+      conditional_arrival: this.conditionalArrival,
     })
   }
 
@@ -112,13 +127,15 @@ export class TColivingReservation extends TReservation {
     public departureDate: DateTime,
     price: number | null,
     contributionState: TReservationContributionState,
+    mealPlan: TMealPlans,
     id?: string,
     created?: DateTime,
     state?: TReservationState,
     arrivalTime?: string,
     note?: string,
+    conditionalArrival?: string,
   ) {
-    super(paxId, arrivalDate, price, contributionState, id, created, state, arrivalTime, note)
+    super(paxId, arrivalDate, price, contributionState, mealPlan, id, created, state, arrivalTime, note, conditionalArrival)
   }
 
 
@@ -176,11 +193,13 @@ export class TColivingReservation extends TReservation {
       data.departureDate,
       rest.price,
       rest.contributionState,
+      rest.mealPlan,
       rest.id,
       rest.created,
       rest.state,
       rest.arrivalTime,
       rest.note,
+      rest.conditionalArrival,
     )
   }
 
@@ -200,13 +219,15 @@ export class TCoworkingReservation extends TReservation {
     arrivalDate: DateTime,
     contribution: number | null,
     contributionState: TReservationContributionState,
+    mealPlan: TMealPlans,
     id?: string,
     created?: DateTime,
     state?: TReservationState,
     arrivalTime?: string,
     note?: string,
+    conditionalArrival?: string,
   ) {
-    super(paxId, arrivalDate, contribution, contributionState, id, created, state, arrivalTime, note)
+    super(paxId, arrivalDate, contribution, contributionState, mealPlan, id, created, state, arrivalTime, note, conditionalArrival)
   }
 
   protected static KIND = TReservationKind.COWORKING
@@ -230,11 +251,13 @@ export class TCoworkingReservation extends TReservation {
       rest.arrivalDate,
       rest.price,
       rest.contributionState,
+      rest.mealPlan,
       rest.id,
       rest.created,
       rest.state,
       rest.arrivalTime,
       rest.note,
+      rest.conditionalArrival
     )
   }
 

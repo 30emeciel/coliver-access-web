@@ -4,17 +4,18 @@ import {
   Col,
   Collapse,
   Divider,
-  Form, Input,
+  Form,
+  Input,
   InputNumber,
   message,
   Modal,
   Radio,
   Row,
-  Select, Slider,
+  Select,
+  Slider,
   Space,
   Steps,
   Switch,
-  Table,
 } from "antd"
 import TheCalendar from "./TheCalendar"
 import React, { useEffect, useState } from "react"
@@ -24,6 +25,7 @@ import {
   createReservation,
   TColivingReservation,
   TCoworkingReservation,
+  TMealPlans,
   TReservationContributionState,
   TReservationKind,
 } from "../../models/Reservation"
@@ -57,12 +59,28 @@ enum StepId {
 
 const chooseToTransition = false
 
-const COLIVING_PRICE_PER_NIGHT = 20
+const COLIVING_PRICE_PER_NIGHT = 22
 const MISC_PRICE_PER_DAY = 2 // coliver resident => 19 euros
 
 const COWORKING_PRICE_PER_DAY = 13
 
-const MEAL_PRICE_PER_DAY = 7
+const getMealPlanPrice = (mealPlan: TMealPlans) => {
+  return $enum.mapValue(mealPlan).with({
+    [TMealPlans.NONE]: 0,
+    [TMealPlans.ONE]: 3,
+    [TMealPlans.TWO]: 5,
+    [TMealPlans.THREE]: 7,
+  })
+}
+
+const getMealPlanTitle = (mealPlan: TMealPlans) => {
+  return $enum.mapValue(mealPlan).with({
+    [TMealPlans.NONE]: "Aucun",
+    [TMealPlans.ONE]: "1 repas par jour",
+    [TMealPlans.TWO]: "2 repas par jour",
+    [TMealPlans.THREE]: "3 repas par jour",
+  })
+}
 
 export default function NewReservation(
   {
@@ -87,6 +105,9 @@ export default function NewReservation(
   const [arrivalDate, setArrivalDate] = useState(firstCalValue)
   const [arrivalTime, setArrivalTime] = useState<string | undefined>(undefined)
   const [departureDate, setDepartureDate] = useState<Date | null>(null)
+  const [mealPlan, setMealPlan] = useState<TMealPlans | undefined>(undefined)
+  const [isConditionalArrival, setIsConditionalArrival] = useState(false)
+  const [conditionalArrival, setConditionalArrival] = useState<string | undefined>(undefined)
   const [price, setPrice] = useState<number | undefined>(undefined)
   const [note, setNote] = useState<string|undefined>(undefined)
 
@@ -106,8 +127,9 @@ export default function NewReservation(
 
   const stay_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * COLIVING_PRICE_PER_NIGHT : undefined) : COWORKING_PRICE_PER_DAY
   const misc_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * MISC_PRICE_PER_DAY : undefined) : MISC_PRICE_PER_DAY
-  const meal_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * MEAL_PRICE_PER_DAY : undefined) : MEAL_PRICE_PER_DAY
-  const total_suggested_price = stay_suggested_price && misc_suggested_price && meal_suggested_price ? stay_suggested_price + misc_suggested_price + meal_suggested_price : undefined
+  const meal_suggested_price_per_day = mealPlan ? getMealPlanPrice(mealPlan) : undefined
+  const meal_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights && meal_suggested_price_per_day != undefined ? numberOfNights * meal_suggested_price_per_day : undefined) : meal_suggested_price_per_day
+  const total_suggested_price = stay_suggested_price && misc_suggested_price && meal_suggested_price != undefined ? stay_suggested_price + misc_suggested_price + meal_suggested_price : undefined
   const minPrice = total_suggested_price ? total_suggested_price - total_suggested_price / 2 : undefined
   const maxPrice = total_suggested_price ? total_suggested_price + total_suggested_price / 2 : undefined
 
@@ -164,10 +186,19 @@ export default function NewReservation(
       [StepId.INFO]: {
         title: "Plus d'info",
         nextStep: StepId.CONTRIBUTION,
-        canGoNext: true,
+        canGoNext: mealPlan != undefined,
         canGoPrevious: true,
         content: <>
           <Form labelCol={{ span: 8 }} wrapperCol={{ span: 16 }}>
+            <Form.Item label="Je compte manger" required={true}>
+              <Radio.Group value={mealPlan} onChange={(e) => {setMealPlan(e.target.value)}}>
+                {$enum(TMealPlans).map((t) => {
+                  return <Radio key={t} value={t}>{getMealPlanTitle(t)}</Radio>
+                })}
+              </Radio.Group>
+
+            </Form.Item>
+
             <Form.Item label="Ton heure d'arrivée estimée" wrapperCol={{ span: 4 }}>
               <Select<string | undefined> allowClear={true} value={arrivalTime} onSelect={(e) => setArrivalTime(e)}>
                 <Option value="8h-10h">8h-10h</Option>
@@ -185,7 +216,16 @@ export default function NewReservation(
 
               </Select>
             </Form.Item>
-            <Form.Item label="Un message pour nous ?">
+            <Form.Item label="Ma venue est conditionnée par la venue d'une +1 ?">
+              <Switch checked={isConditionalArrival} onChange={(e) => setIsConditionalArrival(e)} />
+            </Form.Item>
+            {isConditionalArrival &&
+            <Form.Item label="Nom et/ou Facebook de ma +1">
+              <Input value={conditionalArrival} onChange={(e) => setConditionalArrival(e.target.value)} />
+            </Form.Item>
+            }
+
+            <Form.Item label="Autre chose à nous partager ?">
               <Input.TextArea value={note} autoSize={{minRows: 3}} showCount={true} maxLength={1000} onChange={(e) => setNote(e.target.value)} />
             </Form.Item>
 
@@ -233,7 +273,7 @@ export default function NewReservation(
                            help={`${kind == TReservationKind.COLIVING ? COLIVING_PRICE_PER_NIGHT : COWORKING_PRICE_PER_DAY}€ par jour`}>
                   <span>{stay_suggested_price}€</span>
                 </Form.Item>
-                <Form.Item label="Repas" help={`${MEAL_PRICE_PER_DAY}€ par jour`}
+                <Form.Item label="Repas" help={`${meal_suggested_price_per_day}€ par jour`}
                            tooltip={<p>Estimation pour 3 repas bio, équilibré et local par jour</p>}>
                   <span>{meal_suggested_price}€</span>
                 </Form.Item>
@@ -374,6 +414,10 @@ export default function NewReservation(
             throw new Error("!contributeLater && !price")
           }
 
+          if (!mealPlan) {
+            throw new Error("!mealPlan")
+          }
+
           const p = contributeLater || !price ? null : price // avoid compiler warning that price can be undefined
 
           setIsFormSubmitting(true)
@@ -390,11 +434,13 @@ export default function NewReservation(
               departureDate,
               p,
               contributeLater ? TReservationContributionState.START : TReservationContributionState.PENDING,
+              mealPlan,
               undefined,
               undefined,
               undefined,
               arrivalTime,
               note,
+              conditionalArrival,
             )
           }
           else {
@@ -404,11 +450,13 @@ export default function NewReservation(
               start,
               p,
               contributeLater ? TReservationContributionState.START : TReservationContributionState.PENDING,
+              mealPlan,
               undefined,
               undefined,
               undefined,
               arrivalTime,
               note,
+              conditionalArrival,
             )
           }
           await createReservation(request_data)
@@ -440,7 +488,7 @@ export default function NewReservation(
       <br />
       <SwitchTransition mode="out-in">
         <CSSTransition key={currentStepId} classNames="fade"
-                       addEndListener={(node: any, done: any) => node.addEventListener("transitionend", done, false)}>
+                       addEndListener={(node, done) => node.addEventListener("transitionend", done, false)}>
           <div className="steps-content">
             {currentStep.content}
           </div>
