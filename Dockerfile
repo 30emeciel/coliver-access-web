@@ -1,7 +1,7 @@
 FROM node:16
 WORKDIR /work
 COPY package*.json ./
-RUN npm install --production --silent
+RUN npm ci --production --silent
 COPY .env .
 ENV REACT_APP_VERSION=dev
 COPY .eslintrc craco.config.js tsconfig.json ./
