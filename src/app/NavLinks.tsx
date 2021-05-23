@@ -8,8 +8,8 @@ import {
   faCheckDouble,
   faComments,
   faEye,
-  faMoneyCheck,
-  faPlus, faQuestionCircle,
+  faPlus,
+  faQuestionCircle,
   faSignOutAlt,
   faUsers,
 } from "@fortawesome/free-solid-svg-icons"
@@ -54,15 +54,15 @@ export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentM
               Mes réservations
             </Menu.Item>
 
-            <Menu.Item key="my-contributions" icon={<FontAwesomeIcon icon={faMoneyCheck} />}>
-              <WorkInProgress>Mes contributions</WorkInProgress>
-            </Menu.Item>
 
             <SubMenu
               key="plus"
               icon={<FontAwesomeIcon icon={faPlus} />}
               title="Plus"
             >
+              {/*<Menu.Item key="my-contributions" icon={<FontAwesomeIcon icon={faMoneyCheck} />}>
+                <WorkInProgress>Mes contributions</WorkInProgress>
+              </Menu.Item>*/}
               <Menu.Item icon={<FontAwesomeIcon icon={faComments} />}>
                 <WorkInProgress>Communauté</WorkInProgress>
               </Menu.Item>
