@@ -133,6 +133,10 @@ export default function NewReservation(
   const minPrice = total_suggested_price ? total_suggested_price - total_suggested_price / 2 : undefined
   const maxPrice = total_suggested_price ? total_suggested_price + total_suggested_price / 2 : undefined
 
+  useEffect(() => {
+    setPrice(total_suggested_price)
+  }, [kind, mealPlan, interval, setPrice])
+
   function getStep(stepId: StepId) {
     return $enum.mapValue(stepId).with({
       [StepId.KIND]: {
@@ -201,6 +205,9 @@ export default function NewReservation(
 
             <Form.Item label="Ton heure d'arrivée estimée" wrapperCol={{ span: 4 }}>
               <Select<string | undefined> allowClear={true} value={arrivalTime} onSelect={(e) => setArrivalTime(e)}>
+                <Option value="matin">matin</Option>
+                <Option value="après-midi">après-midi</Option>
+                <Option value="soir">soir</Option>
                 <Option value="8h-10h">8h-10h</Option>
                 <Option value="10h-12h">10h-12h</Option>
                 <Option value="12h-14h">12h-14h</Option>
@@ -209,11 +216,6 @@ export default function NewReservation(
                 <Option value="18h-20h">18h-20h</Option>
                 <Option value="20h-22h">20h-22h</Option>
                 <Option value="22h-minuit">22h-minuit</Option>
-
-                <Option value="matin">matin</Option>
-                <Option value="après-midi">après-midi</Option>
-                <Option value="soir">soir</Option>
-
               </Select>
             </Form.Item>
             <Form.Item label="Ma venue est conditionnée par la venue d'une +1 ?">
@@ -464,7 +466,7 @@ export default function NewReservation(
           onSubmit()
 
         }}>
-          Envoyer <FontAwesomeIcon icon={faCheckCircle} />
+          { contributeLater ? <>Envoyer <FontAwesomeIcon icon={faCheckCircle} /> </> : <>J'ai contribué <FontAwesomeIcon icon={faCheckCircle} /> </> }
         </Button>
       }
     </Space>
