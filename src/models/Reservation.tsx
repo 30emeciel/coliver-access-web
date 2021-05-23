@@ -42,7 +42,7 @@ export interface TReservationDto {
   created?: admin.firestore.Timestamp
   kind: TReservationKind
   state: TReservationState
-  price?: number | null,
+  contribution?: number | null,
   contribution_state?: TReservationContributionState,
   arrival_date: admin.firestore.Timestamp
   arrival_time?: string,
@@ -56,7 +56,7 @@ export abstract class TReservation {
   protected constructor(
     public paxId: string,
     public arrivalDate: DateTime,
-    public price: number | null,
+    public contribution: number | null,
     public contributionState : TReservationContributionState,
     public mealPlan: TMealPlans,
     public id?: string,
@@ -81,7 +81,7 @@ export abstract class TReservation {
 
   abstract toRangeDays(): DateTime[]
 
-  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):Pick<TReservation, "id" | "paxId" | "created" | "arrivalDate" | "arrivalTime" | "state" | "price" | "contributionState" | "mealPlan" | "note" | "conditionalArrival"> {
+  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):Pick<TReservation, "id" | "paxId" | "created" | "arrivalDate" | "arrivalTime" | "state" | "contribution" | "contributionState" | "mealPlan" | "note" | "conditionalArrival"> {
     const dto = snapshot.data()
     const paxId = snapshot.ref.parent?.parent?.id
     if (!paxId) {
@@ -93,7 +93,7 @@ export abstract class TReservation {
       id: snapshot.id,
       created: optionalDtFromFirestore(dto.created),
       state: dto.state,
-      price: dto.price ?? null,
+      contribution: dto.contribution ?? null,
       contributionState: dto.contribution_state ?? TReservationContributionState.START,
       mealPlan: dto.meal_plan ?? TMealPlans.THREE,
       arrivalTime: dto.arrival_time,
@@ -108,7 +108,7 @@ export abstract class TReservation {
       arrival_date: dtToFirestore(this.arrivalDate),
       created: this.created ? dtToFirestore(this.created) : admin.firestore.FieldValue.serverTimestamp(),
       state: this.state ,
-      contribution: this.price,
+      contribution: this.contribution,
       contribution_state: this.contributionState,
       meal_plan: this.mealPlan,
       arrival_time: this.arrivalTime,
@@ -125,7 +125,7 @@ export class TColivingReservation extends TReservation {
     paxId: string,
     arrivalDate: DateTime,
     public departureDate: DateTime,
-    price: number | null,
+    contribution: number | null,
     contributionState: TReservationContributionState,
     mealPlan: TMealPlans,
     id?: string,
@@ -135,7 +135,7 @@ export class TColivingReservation extends TReservation {
     note?: string,
     conditionalArrival?: string,
   ) {
-    super(paxId, arrivalDate, price, contributionState, mealPlan, id, created, state, arrivalTime, note, conditionalArrival)
+    super(paxId, arrivalDate, contribution, contributionState, mealPlan, id, created, state, arrivalTime, note, conditionalArrival)
   }
 
 
@@ -191,7 +191,7 @@ export class TColivingReservation extends TReservation {
       rest.paxId,
       rest.arrivalDate,
       data.departureDate,
-      rest.price,
+      rest.contribution,
       rest.contributionState,
       rest.mealPlan,
       rest.id,
@@ -249,7 +249,7 @@ export class TCoworkingReservation extends TReservation {
     return new TCoworkingReservation(
       rest.paxId,
       rest.arrivalDate,
-      rest.price,
+      rest.contribution,
       rest.contributionState,
       rest.mealPlan,
       rest.id,

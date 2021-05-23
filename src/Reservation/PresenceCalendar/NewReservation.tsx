@@ -108,7 +108,7 @@ export default function NewReservation(
   const [mealPlan, setMealPlan] = useState<TMealPlans | undefined>(undefined)
   const [isConditionalArrival, setIsConditionalArrival] = useState(false)
   const [conditionalArrival, setConditionalArrival] = useState<string | undefined>(undefined)
-  const [price, setPrice] = useState<number | undefined>(undefined)
+  const [contribution, setContribution] = useState<number | undefined>(undefined)
   const [note, setNote] = useState<string|undefined>(undefined)
 
   const [interval, setInterval] = useState<null | Interval>(null)
@@ -134,8 +134,8 @@ export default function NewReservation(
   const maxPrice = total_suggested_price ? total_suggested_price + total_suggested_price / 2 : undefined
 
   useEffect(() => {
-    setPrice(total_suggested_price)
-  }, [kind, mealPlan, interval, setPrice])
+    setContribution(total_suggested_price)
+  }, [kind, mealPlan, interval, setContribution])
 
   function getStep(stepId: StepId) {
     return $enum.mapValue(stepId).with({
@@ -242,7 +242,7 @@ export default function NewReservation(
       [StepId.CONTRIBUTION]: {
         title: "Contribution",
         nextStep: null,
-        canGoNext: contributeLater || price != null,
+        canGoNext: contributeLater || contribution != null,
         canGoPrevious: true,
         content: <>
 
@@ -312,15 +312,15 @@ export default function NewReservation(
                       <InputNumber<number>
                         step={10}
                         min={0}
-                        value={price}
-                        onChange={(e) => setPrice(e)}
+                        value={contribution}
+                        onChange={(e) => setContribution(e)}
                         placeholder={total_suggested_price?.toString()} />
 
                     </Form.Item>
                     <span className="ant-form-text"> €</span>
                     </>
                     :
-                    <Text>{price} €</Text>
+                    <Text>{contribution} €</Text>
                   }
 
                 </Form.Item>
@@ -337,8 +337,8 @@ export default function NewReservation(
                         }
                         min={minPrice}
                         max={maxPrice}
-                        onChange={(e: number) => setPrice(e)}
-                        value={price}
+                        onChange={(e: number) => setContribution(e)}
+                        value={contribution}
                       />
                     </Col>
                     <Col flex="none">Supportaire</Col>
@@ -412,15 +412,15 @@ export default function NewReservation(
 
       :
         <Button loading={isFormSubmitting} disabled={!canGoNext} type="primary" onClick={async () => {
-          if (!contributeLater && !price) {
-            throw new Error("!contributeLater && !price")
+          if (!contributeLater && !contribution) {
+            throw new Error("!contributeLater && !contribution")
           }
 
           if (!mealPlan) {
             throw new Error("!mealPlan")
           }
 
-          const p = contributeLater || !price ? null : price // avoid compiler warning that price can be undefined
+          const p = contributeLater || !contribution ? null : contribution // avoid compiler warning that contribution can be undefined
 
           setIsFormSubmitting(true)
           let request_data
