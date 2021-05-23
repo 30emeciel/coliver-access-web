@@ -13,7 +13,7 @@ export function ErrorFallback({ error }: { error: Error; }) {
   const extra = <Button onClick={freshdeskOpen}>Envoyer une demande de support</Button>
 
   useEffect(() => {
-    if (!errorReportingApiKey && process.env.NODE_ENV == "production")
+    if (!errorReportingApiKey || process.env.NODE_ENV != "production")
       return
     const data = {
       "message": error.stack,
