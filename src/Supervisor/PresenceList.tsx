@@ -33,7 +33,7 @@ const log = loglevel.getLogger("PresenceList")
 
 const UserField = ({ paxId, showEmail }: { paxId: string, showEmail: boolean }) => {
   const paxDocRef = db.doc(`pax/${paxId}`)
-  const [paxData, isLoading, error] = useDocumentData<TPax>(paxDocRef)
+  const [paxData,,] = useDocumentData<TPax>(paxDocRef)
 
   if (paxData) {
     return (
@@ -96,13 +96,13 @@ const WithContent = (
 
   const ReservationLoader = ({day}: {day: TDay}) => {
     const reservationDocRef = day.request
-    const [reservationDoc, reservationDocLoading, reservationDocError] =
+    const [reservationDoc, reservationDocLoading,] =
       useDocument<TReservation>(
         reservationDocRef?.withConverter(TReservationRequestConverter)
       )
 
-    const reservation = reservationDoc?.data()
-    if (reservationDocLoading || !reservation) {
+    const r = reservationDoc?.data()
+    if (reservationDocLoading || !r) {
       return <Spin />
     }
     else {
@@ -112,42 +112,42 @@ const WithContent = (
             <Form.Item label="Contribution">
               <Space>
                 <Form.Item noStyle>
-                  <Input readOnly value={reservation.contribution?.toString()} />
+                  <Input readOnly value={r.contribution?.toString()} />
                 </Form.Item>
-                  <Tag color={$enum.mapValue(reservation.contributionState).with({
+                  <Tag color={$enum.mapValue(r.contributionState).with({
                     [TReservationContributionState.START]: "blue",
                     [TReservationContributionState.PENDING]: "yellow",
                     [TReservationContributionState.EMAILED]: "green",
-                  })}>{getContributionStateTitle(reservation.contributionState)}</Tag>
+                  })}>{getContributionStateTitle(r.contributionState)}</Tag>
               </Space>
             </Form.Item>
             <Form.Item label="Contribution suggérée">
               <Space>
                 <Form.Item noStyle>
-                  <Input readOnly value={reservation.suggestedContribution?.toString()} />
+                  <Input readOnly value={r.suggestedContribution?.toString()} />
                 </Form.Item>
-                <Text>{reservation.contribution && reservation.suggestedContribution ? `${Math.round(reservation.contribution / reservation.suggestedContribution) * 100}%` : undefined}</Text>
+                <Text>{r.contribution && r.suggestedContribution ? `${Math.round(r.contribution / r.suggestedContribution) * 100}%` : undefined}</Text>
               </Space>
             </Form.Item>
             <Form.Item label={"# repas/j"}>
-                <Radio.Group value={reservation.mealPlan}>
+                <Radio.Group value={r.mealPlan}>
                   {$enum(TMealPlans).map((t) => {
                     return <Radio key={t} value={t}>{getMealPlanTitle(t)}</Radio>
                   })}
                 </Radio.Group>
             </Form.Item>
             <Form.Item label={"Heure d'arrivée"}>
-              <Input readOnly value={reservation.arrivalTime}/>
+              <Input readOnly value={r.arrivalTime}/>
             </Form.Item>
             <Form.Item label={"+1"}>
-              <Input readOnly value={reservation.conditionalArrival} />
+              <Input readOnly value={r.conditionalArrival} />
             </Form.Item>
             <Form.Item label={"Note"}>
-              <Input.TextArea readOnly autoSize={true} value={reservation.note} />
+              <Input.TextArea readOnly autoSize={true} value={r.note} />
             </Form.Item>
 
           </Form>
-          <ActionButtons isSupervisor={true} reservation={reservation}/>
+          <ActionButtons isSupervisor={true} reservation={r}/>
         </Space>
 
       </>
