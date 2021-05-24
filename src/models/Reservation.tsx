@@ -11,6 +11,7 @@ import WorkInProgress from "../core/WorkInProgress"
 import { Button, Popconfirm, Space } from "antd"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCheckDouble, faEdit, faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
+import { $enum } from "ts-enum-util"
 
 type QueryDocumentSnapshot<T> = firebase.firestore.QueryDocumentSnapshot<T>
 
@@ -43,6 +44,7 @@ export interface TReservationDto {
   kind: TReservationKind
   state: TReservationState
   contribution?: number | null,
+  suggested_contribution?: number,
   contribution_state?: TReservationContributionState,
   arrival_date: admin.firestore.Timestamp
   arrival_time?: string,
@@ -57,6 +59,7 @@ export abstract class TReservation {
     public paxId: string,
     public arrivalDate: DateTime,
     public contribution: number | null,
+    public suggestedContribution: number | null,
     public contributionState : TReservationContributionState,
     public mealPlan: TMealPlans,
     public id?: string,
@@ -81,7 +84,7 @@ export abstract class TReservation {
 
   abstract toRangeDays(): DateTime[]
 
-  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):Pick<TReservation, "id" | "paxId" | "created" | "arrivalDate" | "arrivalTime" | "state" | "contribution" | "contributionState" | "mealPlan" | "note" | "conditionalArrival"> {
+  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):Pick<TReservation, "id" | "paxId" | "created" | "arrivalDate" | "arrivalTime" | "state" | "contribution" | "suggestedContribution" | "contributionState" | "mealPlan" | "note" | "conditionalArrival"> {
     const dto = snapshot.data()
     const paxId = snapshot.ref.parent?.parent?.id
     if (!paxId) {
@@ -94,6 +97,7 @@ export abstract class TReservation {
       created: optionalDtFromFirestore(dto.created),
       state: dto.state,
       contribution: dto.contribution ?? null,
+      suggestedContribution: dto.suggested_contribution ?? null,
       contributionState: dto.contribution_state ?? TReservationContributionState.START,
       mealPlan: dto.meal_plan ?? TMealPlans.THREE,
       arrivalTime: dto.arrival_time,
@@ -109,6 +113,7 @@ export abstract class TReservation {
       created: this.created ? dtToFirestore(this.created) : admin.firestore.FieldValue.serverTimestamp(),
       state: this.state ,
       contribution: this.contribution,
+      suggested_contribution: this.suggestedContribution ?? undefined,
       contribution_state: this.contributionState,
       meal_plan: this.mealPlan,
       arrival_time: this.arrivalTime,
@@ -126,6 +131,7 @@ export class TColivingReservation extends TReservation {
     arrivalDate: DateTime,
     public departureDate: DateTime,
     contribution: number | null,
+    suggestedContribution: number | null,
     contributionState: TReservationContributionState,
     mealPlan: TMealPlans,
     id?: string,
@@ -135,7 +141,7 @@ export class TColivingReservation extends TReservation {
     note?: string,
     conditionalArrival?: string,
   ) {
-    super(paxId, arrivalDate, contribution, contributionState, mealPlan, id, created, state, arrivalTime, note, conditionalArrival)
+    super(paxId, arrivalDate, contribution, suggestedContribution, contributionState, mealPlan, id, created, state, arrivalTime, note, conditionalArrival)
   }
 
 
@@ -192,6 +198,7 @@ export class TColivingReservation extends TReservation {
       rest.arrivalDate,
       data.departureDate,
       rest.contribution,
+      rest.suggestedContribution,
       rest.contributionState,
       rest.mealPlan,
       rest.id,
@@ -218,6 +225,7 @@ export class TCoworkingReservation extends TReservation {
     paxId: string,
     arrivalDate: DateTime,
     contribution: number | null,
+    suggestedContribution: number | null,
     contributionState: TReservationContributionState,
     mealPlan: TMealPlans,
     id?: string,
@@ -227,7 +235,7 @@ export class TCoworkingReservation extends TReservation {
     note?: string,
     conditionalArrival?: string,
   ) {
-    super(paxId, arrivalDate, contribution, contributionState, mealPlan, id, created, state, arrivalTime, note, conditionalArrival)
+    super(paxId, arrivalDate, contribution, suggestedContribution, contributionState, mealPlan, id, created, state, arrivalTime, note, conditionalArrival)
   }
 
   protected static KIND = TReservationKind.COWORKING
@@ -250,6 +258,7 @@ export class TCoworkingReservation extends TReservation {
       rest.paxId,
       rest.arrivalDate,
       rest.contribution,
+      rest.suggestedContribution,
       rest.contributionState,
       rest.mealPlan,
       rest.id,
@@ -433,4 +442,28 @@ export const ActionButtons = ({ reservation, isSupervisor }: { reservation: TRes
   }
   return <Space>{actions}</Space>
 
+}
+export const getMealPlanPrice = (mealPlan: TMealPlans) => {
+  return $enum.mapValue(mealPlan).with({
+    [TMealPlans.NONE]: 0,
+    [TMealPlans.ONE]: 3,
+    [TMealPlans.TWO]: 5,
+    [TMealPlans.THREE]: 7,
+  })
+}
+export const getMealPlanTitle = (mealPlan: TMealPlans) => {
+  return $enum.mapValue(mealPlan).with({
+    [TMealPlans.NONE]: "Aucun",
+    [TMealPlans.ONE]: "1",
+    [TMealPlans.TWO]: "2",
+    [TMealPlans.THREE]: "3",
+  })
+}
+
+export const getContributionStateTitle = (contributionState: TReservationContributionState) => {
+  return $enum.mapValue(contributionState).with({
+    [TReservationContributionState.START]: "Différé",
+    [TReservationContributionState.PENDING]: "A vérifier",
+    [TReservationContributionState.EMAILED]: "Email envoyé"
+  })
 }

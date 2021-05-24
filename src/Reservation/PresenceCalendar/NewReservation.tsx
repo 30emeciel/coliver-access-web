@@ -23,6 +23,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft, faArrowRight, faBed, faCheckCircle, faLaptopHouse } from "@fortawesome/free-solid-svg-icons"
 import {
   createReservation,
+  getMealPlanPrice,
+  getMealPlanTitle,
   TColivingReservation,
   TCoworkingReservation,
   TMealPlans,
@@ -64,24 +66,6 @@ const COLIVING_PRICE_PER_NIGHT = 22
 const MISC_PRICE_PER_DAY = 2 // coliver resident => 19 euros
 
 const COWORKING_PRICE_PER_DAY = 13
-
-const getMealPlanPrice = (mealPlan: TMealPlans) => {
-  return $enum.mapValue(mealPlan).with({
-    [TMealPlans.NONE]: 0,
-    [TMealPlans.ONE]: 3,
-    [TMealPlans.TWO]: 5,
-    [TMealPlans.THREE]: 7,
-  })
-}
-
-const getMealPlanTitle = (mealPlan: TMealPlans) => {
-  return $enum.mapValue(mealPlan).with({
-    [TMealPlans.NONE]: "Aucun",
-    [TMealPlans.ONE]: "1 repas par jour",
-    [TMealPlans.TWO]: "2 repas par jour",
-    [TMealPlans.THREE]: "3 repas par jour",
-  })
-}
 
 export default function NewReservation(
   {
@@ -195,7 +179,7 @@ export default function NewReservation(
         canGoPrevious: true,
         content: <>
           <Form labelCol={{ span: 8 }} wrapperCol={{ span: 16 }}>
-            <Form.Item label="Je compte manger" required={true}>
+            <Form.Item label="Nombre de repas par jour" required={true} tooltip="Moyenne de repas par jour que tu penses prendre pendant ton séjour. Ta contribution à la fin sera calculée en fonction de ton choix.">
               <Radio.Group value={mealPlan} onChange={(e) => {setMealPlan(e.target.value)}}>
                 {$enum(TMealPlans).map((t) => {
                   return <Radio key={t} value={t}>{getMealPlanTitle(t)}</Radio>
@@ -418,6 +402,10 @@ export default function NewReservation(
             throw new Error("!contributeLater && !contribution")
           }
 
+          if (!total_suggested_price) {
+            throw new Error("!total_suggested_price")
+          }
+
           if (!mealPlan) {
             throw new Error("!mealPlan")
           }
@@ -437,6 +425,7 @@ export default function NewReservation(
               arrivalDate,
               departureDate,
               p,
+              total_suggested_price,
               contributeLater ? TReservationContributionState.START : TReservationContributionState.PENDING,
               mealPlan,
               undefined,
@@ -453,6 +442,7 @@ export default function NewReservation(
               currentUser.sub,
               start,
               p,
+              total_suggested_price,
               contributeLater ? TReservationContributionState.START : TReservationContributionState.PENDING,
               mealPlan,
               undefined,

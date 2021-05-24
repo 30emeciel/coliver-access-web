@@ -1,11 +1,4 @@
-import {
-  faBed,
-  faBriefcase,
-  faCalendarCheck, faCheckDouble,
-  faEdit,
-  faExclamationCircle,
-  IconDefinition,
-} from "@fortawesome/free-solid-svg-icons"
+import { faBed, faBriefcase, faCalendarCheck, IconDefinition } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import loglevel from "loglevel"
 import { DateTime, Interval } from "luxon"
@@ -21,19 +14,20 @@ import DateRangePicker from "react-bootstrap-daterangepicker"
 // you will also need the css that comes with bootstrap-daterangepicker
 import "bootstrap-daterangepicker/daterangepicker.css"
 import moment, { Moment } from "moment"
-import { Badge, Button, Checkbox, Popconfirm, Popover, Space, Spin, Table } from "antd"
+import { Badge, Checkbox, Form, Input, Popover, Radio, Space, Spin, Table, Tag } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import Column from "antd/lib/table/Column"
 import {
-  ActionButtons,
+  ActionButtons, getContributionStateTitle, getMealPlanTitle, TMealPlans,
   TReservation,
+  TReservationContributionState,
   TReservationKind,
   TReservationRequestConverter,
-  TReservationState,
 } from "../models/Reservation"
 import { TDay, TDayConverter, TDayState } from "../models/Day"
 import { ClockCircleOutlined } from "@ant-design/icons"
-import WorkInProgress from "../core/WorkInProgress"
+import { $enum } from "ts-enum-util"
+import Text from "antd/es/typography/Text"
 
 const log = loglevel.getLogger("PresenceList")
 
@@ -112,7 +106,53 @@ const WithContent = (
       return <Spin />
     }
     else {
-      return <ActionButtons isSupervisor={true} reservation={reservation}/>
+      return <>
+        <Space direction="vertical">
+          <Form size="small" layout="vertical" colon={true}>
+            <Form.Item label="Contribution">
+              <Space>
+                <Form.Item noStyle>
+                  <Input readOnly value={reservation.contribution?.toString()} />
+                </Form.Item>
+                <Form.Item noStyle>
+                  <Tag color={$enum.mapValue(reservation.contributionState).with({
+                    [TReservationContributionState.START]: "blue",
+                    [TReservationContributionState.PENDING]: "yellow",
+                    [TReservationContributionState.EMAILED]: "green",
+                  })}>{getContributionStateTitle(reservation.contributionState)}</Tag>
+                </Form.Item>
+              </Space>
+            </Form.Item>
+            <Form.Item label="Contribution suggérée">
+              <Space>
+                <Form.Item noStyle>
+                  <Input readOnly value={reservation.suggestedContribution?.toString()} />
+                </Form.Item>
+                <Text>{reservation.contribution && reservation.suggestedContribution ? Math.round(reservation.contribution / reservation.suggestedContribution) * 100 : undefined}</Text>
+              </Space>
+            </Form.Item>
+            <Form.Item label={"# repas/j"}>
+                <Radio.Group value={reservation.mealPlan}>
+                  {$enum(TMealPlans).map((t) => {
+                    return <Radio key={t} value={t}>{getMealPlanTitle(t)}</Radio>
+                  })}
+                </Radio.Group>
+            </Form.Item>
+            <Form.Item label={"Heure d'arrivée"}>
+              <Input readOnly value={reservation.arrivalTime}/>
+            </Form.Item>
+            <Form.Item label={"+1"}>
+              <Input readOnly value={reservation.conditionalArrival} />
+            </Form.Item>
+            <Form.Item label={"Note"}>
+              <Input.TextArea readOnly autoSize={true} value={reservation.note} />
+            </Form.Item>
+
+          </Form>
+          <ActionButtons isSupervisor={true} reservation={reservation}/>
+        </Space>
+
+      </>
     }
   }
 
