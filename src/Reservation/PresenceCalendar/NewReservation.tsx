@@ -34,6 +34,7 @@ import { CSSTransition, SwitchTransition } from "react-transition-group"
 import { DateTime, Interval } from "luxon"
 import { $enum } from "ts-enum-util"
 import Text from "antd/es/typography/Text"
+import { useErrorHandler } from "react-error-boundary"
 
 const { Step } = Steps
 
@@ -397,6 +398,7 @@ export default function NewReservation(
     setStepIdsHistory(stepIdsHistory)
   }
 
+  const handleError = useErrorHandler()
 
   const buttons = <>
     <Space>
@@ -411,7 +413,7 @@ export default function NewReservation(
         </Button>
 
       :
-        <Button loading={isFormSubmitting} disabled={!canGoNext} type="primary" onClick={async () => {
+        <Button loading={isFormSubmitting} disabled={!canGoNext} type="primary" onClick={ () => {
           if (!contributeLater && !contribution) {
             throw new Error("!contributeLater && !contribution")
           }
@@ -461,9 +463,13 @@ export default function NewReservation(
               conditionalArrival,
             )
           }
-          await createReservation(request_data)
-          message.success("Ta demande de réservation est envoyée. Nous allons revenir vers toi bientôt. Merci ❤")
-          onSubmit()
+          createReservation(request_data).then(
+            () => {
+            message.success("Ta demande de réservation est envoyée. Nous allons revenir vers toi bientôt. Merci ❤")
+            onSubmit()
+            },
+            handleError
+          )
 
         }}>
           { contributeLater ? <>Envoyer <FontAwesomeIcon icon={faCheckCircle} /> </> : <>J'ai contribué <FontAwesomeIcon icon={faCheckCircle} /> </> }
