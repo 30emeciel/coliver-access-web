@@ -114,13 +114,11 @@ const WithContent = (
                 <Form.Item noStyle>
                   <Input readOnly value={reservation.contribution?.toString()} />
                 </Form.Item>
-                <Form.Item noStyle>
                   <Tag color={$enum.mapValue(reservation.contributionState).with({
                     [TReservationContributionState.START]: "blue",
                     [TReservationContributionState.PENDING]: "yellow",
                     [TReservationContributionState.EMAILED]: "green",
                   })}>{getContributionStateTitle(reservation.contributionState)}</Tag>
-                </Form.Item>
               </Space>
             </Form.Item>
             <Form.Item label="Contribution suggérée">
@@ -128,7 +126,7 @@ const WithContent = (
                 <Form.Item noStyle>
                   <Input readOnly value={reservation.suggestedContribution?.toString()} />
                 </Form.Item>
-                <Text>{reservation.contribution && reservation.suggestedContribution ? Math.round(reservation.contribution / reservation.suggestedContribution) * 100 : undefined}</Text>
+                <Text>{reservation.contribution && reservation.suggestedContribution ? `${Math.round(reservation.contribution / reservation.suggestedContribution) * 100}%` : undefined}</Text>
               </Space>
             </Form.Item>
             <Form.Item label={"# repas/j"}>
