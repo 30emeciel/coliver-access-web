@@ -62,8 +62,9 @@ enum StepId {
 
 const chooseToTransition = false
 
+// coliver resident => 19 euros
 const COLIVING_PRICE_PER_NIGHT = 22
-const MISC_PRICE_PER_DAY = 2 // coliver resident => 19 euros
+const MISC_PRICE_PER_DAY = 3
 
 const COWORKING_PRICE_PER_DAY = 13
 
@@ -245,7 +246,7 @@ export default function NewReservation(
             </Form.Item>
             <Collapse ghost={true}>
               <Collapse.Panel key="details" header="Détails du calcul">
-                <Form.Item label="Loyer" tooltip={<p>
+                <Form.Item label="Habitation" tooltip={<p>
                   Inclus ce qu'on peut attendre d'un Coliving classique :
                   <ul>
                     <li>Loyer</li>
