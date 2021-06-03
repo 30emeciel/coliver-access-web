@@ -1,6 +1,6 @@
 import {
   Alert,
-  Button,
+  Button, Checkbox,
   Col,
   Collapse,
   Divider,
@@ -20,7 +20,14 @@ import {
 import TheCalendar from "./TheCalendar"
 import React, { useEffect, useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowLeft, faArrowRight, faBed, faCheckCircle, faLaptopHouse } from "@fortawesome/free-solid-svg-icons"
+import {
+  faArrowLeft,
+  faArrowRight,
+  faBed,
+  faCheckCircle,
+  faExternalLinkAlt,
+  faLaptopHouse,
+} from "@fortawesome/free-solid-svg-icons"
 import {
   createReservation,
   getMealPlanPrice,
@@ -95,6 +102,7 @@ export default function NewReservation(
   const [isConditionalArrival, setIsConditionalArrival] = useState(false)
   const [conditionalArrival, setConditionalArrival] = useState<string | undefined>(undefined)
   const [contribution, setContribution] = useState<number | undefined>(undefined)
+  const [iContributed, setIContributed] = useState(false)
   const [note, setNote] = useState<string|undefined>(undefined)
 
   const [interval, setInterval] = useState<null | Interval>(null)
@@ -228,7 +236,7 @@ export default function NewReservation(
       [StepId.CONTRIBUTION]: {
         title: "Contribution",
         nextStep: null,
-        canGoNext: contributeLater || contribution != null,
+        canGoNext: contributeLater || (contribution != null && iContributed),
         canGoPrevious: true,
         content: <>
 
@@ -334,24 +342,22 @@ export default function NewReservation(
                 }
 
                 <p>
-                  Je t'invite à te rendre sur cette page <a
-                  target="_blank"
-                  href="https://lydia-app.com/collect/30eme-ciel/fr">https://lydia-app.com/collect/30eme-ciel/fr</a> pour
+                  Je t'invite à te rendre sur cette page pour
                   payer ta contribution, soit avec une carte bancaire ou avec Lydia si tu es sur ton
                   téléphone portable.
                 </p>
+                <Space direction="horizontal">
+                <Button type="primary" shape="round" target="_blank" href="https://lydia-app.com/collect/30eme-ciel/fr">Contribuer <FontAwesomeIcon icon={faExternalLinkAlt}/></Button>
+                <Checkbox checked={iContributed} onChange={(e) => setIContributed(e.target.checked)}>J'ai contribué</Checkbox>
+                </Space>
                 <p>
                   Lorsque tu fais ta contribution, il est préférable que tu inscrives ton nom pour que nous puissions
                   plus
                   facilement gérer notre comptabilité 😉.
                 </p>
                 <p>Si ta réservation n'est pas acceptée, tu seras remboursé intégralement.</p>
-                <p>
-                  Une fois ta contribution faites, reviens sur cette page pour envoyer ta demande de réservation.
-                </p>
               </>
             }
-
           </Form>
         </>,
       },
@@ -463,7 +469,7 @@ export default function NewReservation(
           )
 
         }}>
-          { contributeLater ? <>Envoyer <FontAwesomeIcon icon={faCheckCircle} /> </> : <>J'ai contribué <FontAwesomeIcon icon={faCheckCircle} /> </> }
+          { <>Envoyer <FontAwesomeIcon icon={faCheckCircle} /> </> }
         </Button>
       }
     </Space>
