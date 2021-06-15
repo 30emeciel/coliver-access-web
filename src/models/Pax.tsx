@@ -10,13 +10,14 @@ export enum TPaxStates {
 
 
 export interface TPax {
-  sub: string;
-  name: string;
-  email: string;
-  state: TPaxStates;
-  picture?: string;
-  isSupervisor: boolean;
-  preregistrationFormEntryUrl?: string;
+  sub: string
+  name: string
+  email: string
+  state: TPaxStates
+  picture?: string
+  isSupervisor: boolean
+  preregistrationFormEntryUrl?: string
+  allowDelayedContribution?: boolean
 }
 
 export const TPaxConverter: admin.firestore.FirestoreDataConverter<TPax> = {
@@ -30,6 +31,7 @@ export const TPaxConverter: admin.firestore.FirestoreDataConverter<TPax> = {
       state: data.state ?? TPaxStates.Authenticated,
       picture: data.picture,
       isSupervisor: data.is_supervisor ?? false,
+      allowDelayedContribution: data.allow_delayed_contribution ?? false,
       preregistrationFormEntryUrl: data.preregistration_form_entry_url
     }
   },
@@ -42,7 +44,8 @@ export const TPaxConverter: admin.firestore.FirestoreDataConverter<TPax> = {
       state: entity.state,
       picture: entity.picture,
       is_supervisor: entity.isSupervisor,
-      preregistration_form_entry_url: entity.preregistrationFormEntryUrl
+      preregistration_form_entry_url: entity.preregistrationFormEntryUrl,
+      allow_delayed_contribution: entity.allowDelayedContribution,
     })
   },
 }

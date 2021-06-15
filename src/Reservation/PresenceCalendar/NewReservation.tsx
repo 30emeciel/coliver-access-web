@@ -8,14 +8,14 @@ import {
   Input,
   InputNumber,
   message,
-  Modal,
+  Modal, Popover,
   Radio,
   Row,
   Select,
   Slider,
   Space,
   Steps,
-  Switch,
+  Switch, Tooltip,
 } from "antd"
 import TheCalendar from "./TheCalendar"
 import React, { useEffect, useState } from "react"
@@ -238,6 +238,12 @@ export default function NewReservation(
         nextStep: null,
         canGoNext: contributeLater || (contribution != null && iContributed),
         canGoPrevious: true,
+        extraButtons: currentUser.allowDelayedContribution ?
+          <Space direction="horizontal">
+            <Text>Je souhaite contribuer plus tard</Text>
+              <Switch checked={contributeLater} onChange={(e) => setContributeLater(e)} />
+          </Space>
+         : <></>,
         content: <>
 
           <p>
@@ -291,15 +297,9 @@ export default function NewReservation(
 
             <Divider />
 
-            <Form.Item label="Je souhaite contribuer plus tard">
-              <Switch checked={contributeLater} onChange={(e) => setContributeLater(e)} />
-            </Form.Item>
             {contributeLater ?
               <p>Tu vas recevoir un e-mail à la fin de ton expérience</p>
               : <>
-                <Form.Item label="Je demande un prix libre">
-                  <Switch checked={freePrice} onChange={(e) => setFreePrice(e)} />
-                </Form.Item>
                 <Form.Item label="Ma contribution">
                   {freePrice ? <>
                     <Form.Item noStyle>
@@ -314,7 +314,7 @@ export default function NewReservation(
                     <span className="ant-form-text"> €</span>
                     </>
                     :
-                    <Text>{contribution} €</Text>
+                    <Text strong>{contribution} €</Text>
                   }
 
                 </Form.Item>
@@ -340,6 +340,10 @@ export default function NewReservation(
 
                 </Form.Item>
                 }
+
+                <Form.Item label="Je demande un prix libre">
+                  <Switch checked={freePrice} onChange={(e) => setFreePrice(e)} />
+                </Form.Item>
 
                 <p>
                   Je t'invite à te rendre sur cette page pour
@@ -393,6 +397,7 @@ export default function NewReservation(
 
   const buttons = <>
     <Space>
+      {currentStep.extraButtons}
 
         <Button disabled={!canGoPrevious} onClick={() => prev()}>
           <FontAwesomeIcon icon={faArrowLeft} /> Précédent

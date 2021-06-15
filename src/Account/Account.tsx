@@ -15,8 +15,8 @@ const LoadingFormItem = ({
                            initialValue,
                            render,
                          }: {
-  label: string,
-  name: string,
+  label?: string,
+  name?: string,
   initialValue: any,
   render: (isLoading: boolean, setIsLoading: (b: boolean) => void) => any
 }) => {
@@ -79,7 +79,7 @@ const Account = ({ paxId }: { paxId?: string }) => {
                          </>
                          }
         />
-        <LoadingFormItem label="Supervisaire ?" name="Supervisaire ?" initialValue={!!paxDoc.isSupervisor}
+        <LoadingFormItem label="Supervisaire ?" initialValue={!!paxDoc.isSupervisor}
                          render={(isLoading, setIsLoading) => <>
                            <Radio.Group buttonStyle="solid" disabled={isLoading} value={!!paxDoc.isSupervisor}>
                              {[true, false].map((value, index) => (
@@ -90,6 +90,28 @@ const Account = ({ paxId }: { paxId?: string }) => {
                                    setIsLoading(true)
                                    const d = {
                                      isSupervisor: value,
+                                   }
+                                   await paxDocRef.set(d, { merge: true })
+                                   setIsLoading(false)
+                                 }}
+                               >
+                                 {value ? "Oui" : "Non"}
+                               </Radio.Button>
+                             ))}
+                           </Radio.Group>
+                         </>
+                         } />
+        <LoadingFormItem label="Contribution différée autorisée ?" initialValue={paxDoc.allowDelayedContribution}
+                         render={(isLoading, setIsLoading) => <>
+                           <Radio.Group buttonStyle="solid" disabled={isLoading} value={!!paxDoc.allowDelayedContribution}>
+                             {[true, false].map((value, index) => (
+                               <Radio.Button
+                                 key={index}
+                                 value={value}
+                                 onChange={async (e) => {
+                                   setIsLoading(true)
+                                   const d = {
+                                     allowDelayedContribution: value,
                                    }
                                    await paxDocRef.set(d, { merge: true })
                                    setIsLoading(false)
