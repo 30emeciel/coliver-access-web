@@ -64,7 +64,7 @@ enum StepId {
   KIND,
   COLIVING_DEPARTURE,
   INFO,
-  CONTRIBUTION,
+  PAYMENT,
 }
 
 const chooseToTransition = false
@@ -91,7 +91,7 @@ export default function NewReservation(
 ) {
   const currentUser = calendarContext.pax
   const [kind, setKind] = useState<TReservationKind | null>(null)
-  const [contributeLater, setContributeLater] = useState(false)
+  const [payLater, setPayLater] = useState(false)
   const [freePrice, setFreePrice] = useState(false)
   // const [fourHours, setFourHours] = useState(false)
 
@@ -101,8 +101,8 @@ export default function NewReservation(
   const [mealPlan, setMealPlan] = useState<TMealPlans | undefined>(undefined)
   const [isConditionalArrival, setIsConditionalArrival] = useState(false)
   const [conditionalArrival, setConditionalArrival] = useState<string | undefined>(undefined)
-  const [contribution, setContribution] = useState<number | undefined>(undefined)
-  const [iContributed, setIContributed] = useState(false)
+  const [price, setPrice] = useState<number | undefined>(undefined)
+  const [iPaid, setIPaid] = useState(false)
   const [note, setNote] = useState<string|undefined>(undefined)
 
   const [interval, setInterval] = useState<null | Interval>(null)
@@ -128,8 +128,8 @@ export default function NewReservation(
   const maxPrice = total_suggested_price ? total_suggested_price + total_suggested_price / 2 : undefined
 
   useEffect(() => {
-    setContribution(total_suggested_price)
-  }, [kind, mealPlan, interval, setContribution])
+    setPrice(total_suggested_price)
+  }, [kind, mealPlan, interval, setPrice])
 
   function getStep(stepId: StepId) {
     return $enum.mapValue(stepId).with({
@@ -183,12 +183,12 @@ export default function NewReservation(
       },
       [StepId.INFO]: {
         title: "Plus d'info",
-        nextStep: StepId.CONTRIBUTION,
+        nextStep: StepId.PAYMENT,
         canGoNext: mealPlan != undefined,
         canGoPrevious: true,
         content: <>
           <Form labelCol={{ span: 8 }} wrapperCol={{ span: 16 }}>
-            <Form.Item label="Nombre de repas par jour" required={true} tooltip="Moyenne de repas par jour que tu penses prendre pendant ton séjour. Ta contribution à la fin sera calculée en fonction de ton choix.">
+            <Form.Item label="Nombre de repas par jour" required={true} tooltip="Moyenne de repas par jour que tu penses prendre pendant ton séjour. Le prix suggéré à la fin sera calculée en fonction de ton choix.">
               <Radio.Group value={mealPlan} onChange={(e) => {setMealPlan(e.target.value)}}>
                 {$enum(TMealPlans).map((t) => {
                   return <Radio key={t} value={t}>{getMealPlanTitle(t)}</Radio>
@@ -233,15 +233,15 @@ export default function NewReservation(
 
         </>,
       },
-      [StepId.CONTRIBUTION]: {
-        title: "Contribution",
+      [StepId.PAYMENT]: {
+        title: "Paiement",
         nextStep: null,
-        canGoNext: contributeLater || (contribution != null && iContributed),
+        canGoNext: payLater || (price != null && iPaid),
         canGoPrevious: true,
         extraButtons: currentUser.allowDelayedContribution ?
           <Space direction="horizontal">
-            <Text>Je souhaite contribuer plus tard</Text>
-              <Switch checked={contributeLater} onChange={(e) => setContributeLater(e)} />
+            <Text>Je souhaite payer plus tard</Text>
+              <Switch checked={payLater} onChange={(e) => setPayLater(e)} />
           </Space>
          : <></>,
         content: <>
@@ -249,13 +249,13 @@ export default function NewReservation(
           <p>
             Le 30ème Ciel est un lieu à prix juste. C'est-à-dire que peu importe le montant de ta contribution,
             l'important pour nous est que ce soit juste et parfait pour toi 😊.
-            Tu peux contribuer plus ou moins que le montant suggéré.
+            Tu peux payer plus ou moins que le montant suggéré.
             Quelle que soit ta contribution, nous te remercions de nous aider à faire perdurer ce lieu 🏡 !
           </p>
 
           <Form labelCol={{ span: 8 }} layout="horizontal">
 
-            <Form.Item label="Contribution suggérée">
+            <Form.Item label="Prix suggéré">
               <Text strong>{total_suggested_price}€</Text>
             </Form.Item>
             <Collapse ghost={true}>
@@ -297,24 +297,24 @@ export default function NewReservation(
 
             <Divider />
 
-            {contributeLater ?
+            {payLater ?
               <p>Tu vas recevoir un e-mail à la fin de ton expérience</p>
               : <>
-                <Form.Item label="Ma contribution">
+                <Form.Item label="Mon prix">
                   {freePrice ? <>
                     <Form.Item noStyle>
                       <InputNumber<number>
                         step={10}
                         min={0}
-                        value={contribution}
-                        onChange={(e) => setContribution(e)}
+                        value={price}
+                        onChange={(e) => setPrice(e)}
                         placeholder={total_suggested_price?.toString()} />
 
                     </Form.Item>
                     <span className="ant-form-text"> €</span>
                     </>
                     :
-                    <Text strong>{contribution} €</Text>
+                    <Text strong>{price} €</Text>
                   }
 
                 </Form.Item>
@@ -331,8 +331,8 @@ export default function NewReservation(
                         }
                         min={minPrice}
                         max={maxPrice}
-                        onChange={(e: number) => setContribution(e)}
-                        value={contribution}
+                        onChange={(e: number) => setPrice(e)}
+                        value={price}
                       />
                     </Col>
                     <Col flex="none">Supportaire</Col>
@@ -346,20 +346,15 @@ export default function NewReservation(
                 </Form.Item>
 
                 <p>
-                  Je t'invite à te rendre sur cette page pour
-                  payer ta contribution, soit avec une carte bancaire ou avec Lydia si tu es sur ton
-                  téléphone portable.
-                </p>
-                <Space direction="horizontal">
-                <Button type="primary" shape="round" target="_blank" href="https://lydia-app.com/collect/30eme-ciel/fr">Contribuer <FontAwesomeIcon icon={faExternalLinkAlt}/></Button>
-                <Checkbox checked={iContributed} onChange={(e) => setIContributed(e.target.checked)}>J'ai contribué</Checkbox>
-                </Space>
-                <p>
-                  Lorsque tu fais ta contribution, il est préférable que tu inscrives ton nom pour que nous puissions
-                  plus
-                  facilement gérer notre comptabilité 😉.
+                  Tu peux payer soit avec une carte bancaire ou avec Lydia si tu es sur ton
+                  téléphone portable. Il est préférable que tu inscrives ton nom pour que nous puissions
+                  plus facilement gérer notre comptabilité 😉.
                 </p>
                 <p>Si ta réservation n'est pas acceptée, tu seras remboursé intégralement.</p>
+                <Space direction="horizontal">
+                  <Button type="primary" shape="round" target="_blank" href="https://lydia-app.com/collect/30eme-ciel/fr">Payer <FontAwesomeIcon icon={faExternalLinkAlt}/></Button>
+                  <Checkbox checked={iPaid} onChange={(e) => setIPaid(e.target.checked)}>Je confirme mon paiement</Checkbox>
+                </Space>
               </>
             }
           </Form>
@@ -410,7 +405,7 @@ export default function NewReservation(
 
       :
         <Button loading={isFormSubmitting} disabled={!canGoNext} type="primary" onClick={ () => {
-          if (!contributeLater && !contribution) {
+          if (!payLater && !price) {
             throw new Error("!contributeLater && !contribution")
           }
 
@@ -422,7 +417,7 @@ export default function NewReservation(
             throw new Error("!mealPlan")
           }
 
-          const p = contributeLater || !contribution ? null : contribution // avoid compiler warning that contribution can be undefined
+          const p = payLater || !price ? null : price // avoid compiler warning that contribution can be undefined
 
           setIsFormSubmitting(true)
           let request_data
@@ -438,7 +433,7 @@ export default function NewReservation(
               departureDate,
               p,
               total_suggested_price,
-              contributeLater ? TReservationContributionState.START : TReservationContributionState.PENDING,
+              payLater ? TReservationContributionState.START : TReservationContributionState.PENDING,
               mealPlan,
               undefined,
               undefined,
@@ -455,7 +450,7 @@ export default function NewReservation(
               start,
               p,
               total_suggested_price,
-              contributeLater ? TReservationContributionState.START : TReservationContributionState.PENDING,
+              payLater ? TReservationContributionState.START : TReservationContributionState.PENDING,
               mealPlan,
               undefined,
               undefined,
