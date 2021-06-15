@@ -44,6 +44,7 @@ import { DateTime, Interval } from "luxon"
 import { $enum } from "ts-enum-util"
 import Text from "antd/es/typography/Text"
 import { useErrorHandler } from "react-error-boundary"
+import MediaQuery from 'react-responsive'
 
 const { Step } = Steps
 
@@ -478,19 +479,20 @@ export default function NewReservation(
 
   return <>
     <Modal keyboard={true} maskClosable={false} visible={true} width={800} destroyOnClose={true} onCancel={onCancel} footer={buttons}>
-      <Steps
-        type="navigation"
-        current={currentStepId}
-        responsive={true}
-        size="small"
-      >
-        {$enum(StepId).getValues().map(stepNumber => {
-          const item = getStep(stepNumber)
-          return <Step key={item.title} title={item.title} disabled={item.disabled}
-                       status={item.disabled ? "error" : undefined} />
-        })}
-      </Steps>
-      <br />
+      <MediaQuery minWidth={600}>
+        <Steps
+          type="navigation"
+          current={currentStepId}
+          size="small"
+        >
+          {$enum(StepId).getValues().map(stepNumber => {
+            const item = getStep(stepNumber)
+            return <Step key={item.title} title={item.title} disabled={item.disabled}
+                         status={item.disabled ? "error" : undefined} />
+          })}
+        </Steps>
+        <br />
+      </MediaQuery>
       <SwitchTransition mode="out-in">
         <CSSTransition key={currentStepId} classNames="fade"
                        addEndListener={(node, done) => node.addEventListener("transitionend", done, false)}>
