@@ -126,7 +126,7 @@ const WithContent = (
                 <Form.Item noStyle>
                   <Input readOnly value={r.suggestedContribution?.toString()} />
                 </Form.Item>
-                <Text>{r.contribution && r.suggestedContribution ? `${Math.round(r.contribution / r.suggestedContribution) * 100}%` : undefined}</Text>
+                <Text>{r.contribution && r.suggestedContribution ? `${Math.round(r.contribution / r.suggestedContribution * 100)}%` : undefined}</Text>
               </Space>
             </Form.Item>
             <Form.Item label={"# repas/j"}>
