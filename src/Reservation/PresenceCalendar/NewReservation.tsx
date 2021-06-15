@@ -71,10 +71,9 @@ enum StepId {
 const chooseToTransition = false
 
 // coliver resident => 19 euros
-const COLIVING_PRICE_PER_NIGHT = 22
+const COLIVING_PRICE_PER_NIGHT = 24
+const COWORKING_PRICE_PER_DAY = 12
 const MISC_PRICE_PER_DAY = 3
-
-const COWORKING_PRICE_PER_DAY = 13
 
 export default function NewReservation(
   {
