@@ -1,6 +1,6 @@
 import {
   Alert,
-  Button, Checkbox,
+  Button,
   Col,
   Collapse,
   Divider,
@@ -8,14 +8,14 @@ import {
   Input,
   InputNumber,
   message,
-  Modal, Popover,
+  Modal,
   Radio,
   Row,
   Select,
   Slider,
   Space,
   Steps,
-  Switch, Tooltip,
+  Switch,
 } from "antd"
 import TheCalendar from "./TheCalendar"
 import React, { useEffect, useState } from "react"
@@ -44,7 +44,7 @@ import { DateTime, Interval } from "luxon"
 import { $enum } from "ts-enum-util"
 import Text from "antd/es/typography/Text"
 import { useErrorHandler } from "react-error-boundary"
-import MediaQuery from 'react-responsive'
+import MediaQuery from "react-responsive"
 
 const { Step } = Steps
 
@@ -102,7 +102,6 @@ export default function NewReservation(
   const [isConditionalArrival, setIsConditionalArrival] = useState(false)
   const [conditionalArrival, setConditionalArrival] = useState<string | undefined>(undefined)
   const [price, setPrice] = useState<number | undefined>(undefined)
-  const [iPaid, setIPaid] = useState(false)
   const [note, setNote] = useState<string|undefined>(undefined)
 
   const [interval, setInterval] = useState<null | Interval>(null)
@@ -236,7 +235,7 @@ export default function NewReservation(
       [StepId.PAYMENT]: {
         title: "Paiement",
         nextStep: null,
-        canGoNext: payLater || (price != null && iPaid),
+        canGoNext: payLater || (price != null),
         canGoPrevious: true,
         extraButtons: currentUser.allowDelayedContribution ?
           <Space direction="horizontal">
@@ -351,10 +350,6 @@ export default function NewReservation(
                   plus facilement gérer notre comptabilité 😉.
                 </p>
                 <p>Si ta réservation n'est pas acceptée, tu seras remboursé intégralement.</p>
-                <Space direction="horizontal">
-                  <Button type="primary" shape="round" target="_blank" href="https://lydia-app.com/collect/30eme-ciel/fr">Payer <FontAwesomeIcon icon={faExternalLinkAlt}/></Button>
-                  <Checkbox checked={iPaid} onChange={(e) => setIPaid(e.target.checked)}>Je confirme mon paiement</Checkbox>
-                </Space>
               </>
             }
           </Form>
@@ -462,14 +457,20 @@ export default function NewReservation(
           }
           createReservation(request_data).then(
             () => {
-            message.success("Ta demande de réservation est envoyée. Nous allons revenir vers toi bientôt. Merci ❤")
-            onSubmit()
+              if (payLater) {
+                message.success("Ta demande de réservation est envoyée. Nous allons revenir vers toi bientôt. Merci ❤")
+                  .then()
+              }
+              else {
+                window.location.href = "https://lydia-app.com/collect/30eme-ciel/fr"
+              }
+              onSubmit()
             },
             handleError
           )
 
         }}>
-          { <>Envoyer <FontAwesomeIcon icon={faCheckCircle} /> </> }
+          { payLater ? <>Envoyer <FontAwesomeIcon icon={faCheckCircle} /> </> :<>Payer <FontAwesomeIcon icon={faExternalLinkAlt}/></> }
         </Button>
       }
     </Space>
