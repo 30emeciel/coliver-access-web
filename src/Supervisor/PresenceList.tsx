@@ -14,7 +14,7 @@ import DateRangePicker from "react-bootstrap-daterangepicker"
 // you will also need the css that comes with bootstrap-daterangepicker
 import "bootstrap-daterangepicker/daterangepicker.css"
 import moment, { Moment } from "moment"
-import { Badge, Checkbox, Form, Input, Popover, Radio, Space, Spin, Table, Tag } from "antd"
+import { Badge, Checkbox, Form, Input, Popover, Radio, Skeleton, Space, Spin, Table, Tag } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import Column from "antd/lib/table/Column"
 import {
@@ -101,9 +101,12 @@ const WithContent = (
         reservationDocRef?.withConverter(TReservationRequestConverter)
       )
 
+
     const r = reservationDoc?.data()
     if (reservationDocLoading || !r) {
-      return <Spin />
+      return <Space direction="vertical">
+        <Skeleton paragraph={{rows: 10, width: 200}} active />
+      </Space>
     }
     else {
       return <>
@@ -160,8 +163,6 @@ const WithContent = (
     const r: [string, IconDefinition] = i.kind === TReservationKind.COLIVING ? ["#606dbc", faBed] : ["#6dbc6d", faBriefcase]
     const icon = <Popover
       content={<ReservationLoader day={i}/>}
-      arrowPointAtCenter
-      trigger="click"
     ><a><FontAwesomeIcon style={{ color: r[0] }} icon={r[1]} /></a></Popover>
     if (i.state == TDayState.PENDING_REVIEW) {
       return <Badge count={<ClockCircleOutlined />}>{icon}</Badge>
