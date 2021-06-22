@@ -14,15 +14,19 @@ import DateRangePicker from "react-bootstrap-daterangepicker"
 // you will also need the css that comes with bootstrap-daterangepicker
 import "bootstrap-daterangepicker/daterangepicker.css"
 import moment, { Moment } from "moment"
-import { Badge, Checkbox, Form, Input, Popover, Radio, Skeleton, Space, Spin, Table, Tag } from "antd"
+import { Badge, Checkbox, Descriptions, Popover, Radio, Skeleton, Space, Spin, Table, Tag } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import Column from "antd/lib/table/Column"
 import {
-  ActionButtons, getContributionStateTitle, getMealPlanTitle, TMealPlans,
+  ActionButtons,
+  getContributionStateTitle,
+  getMealPlanTitle,
+  TMealPlans,
   TReservation,
   TReservationContributionState,
   TReservationKind,
   TReservationRequestConverter,
+  TReservationState,
 } from "../models/Reservation"
 import { TDay, TDayConverter, TDayState } from "../models/Day"
 import { ClockCircleOutlined } from "@ant-design/icons"
@@ -111,57 +115,48 @@ const WithContent = (
     else {
       return <>
         <Space direction="vertical">
-          <Space direction="horizontal">
-            <Tag color={$enum.mapValue(r.contributionState).with({
-              [TReservationContributionState.START]: "blue",
-              [TReservationContributionState.PENDING]: "yellow",
-              [TReservationContributionState.EMAILED]: "green",
-            })}>Paiement {getContributionStateTitle(r.contributionState)}</Tag>
-            {r.volunteering &&
-            <Tag color="green">Volontaire</Tag>
-            }
-          </Space>
-          <Form size="small" layout="vertical" colon={true}>
-            <Form.Item label="Contribution">
-              <Space>
-                <Form.Item noStyle>
-                  <Input readOnly value={r.contribution?.toString()} />
-                </Form.Item>
+          <Descriptions bordered size="small" column={4}>
 
-              </Space>
-            </Form.Item>
-            <Form.Item label="Contribution suggérée">
-              <Space>
-                <Form.Item noStyle>
-                  <Input readOnly value={r.suggestedContribution?.toString()} />
-                </Form.Item>
-                <Text>{r.contribution && r.suggestedContribution ? `${Math.round(r.contribution / r.suggestedContribution * 100)}%` : undefined}</Text>
-              </Space>
-            </Form.Item>
-            <Form.Item label={"# repas/j"}>
-                <Radio.Group value={r.mealPlan}>
-                  {$enum(TMealPlans).map((t) => {
-                    return <Radio key={t} value={t}>{getMealPlanTitle(t)}</Radio>
-                  })}
-                </Radio.Group>
-            </Form.Item>
-            <Form.Item label={"Heure d'arrivée"}>
-              <Input readOnly value={r.arrivalTime}/>
-            </Form.Item>
-            <Form.Item label={"+1"}>
-              <Input readOnly value={r.conditionalArrival} />
-            </Form.Item>
-            <Form.Item label={"-1"}>
-              <Input readOnly value={r.blockedPax} />
-            </Form.Item>
-            <Form.Item label={"Note"}>
-              <Input.TextArea readOnly autoSize={true} value={r.note} />
-            </Form.Item>
+            <Descriptions.Item label="Étiquettes" span={4}>
+              {r.state == TReservationState.CONFIRMED &&
+              <Tag color="green">Confirmé</Tag>
+              }
+              {r.volunteering &&
+              <Tag color="cyan">Volontaire</Tag>
+              }
+            </Descriptions.Item>
 
-          </Form>
+            <Descriptions.Item label="Payé">{r.contribution?.toString()} €</Descriptions.Item>
+            <Descriptions.Item label="Suggéré">{r.suggestedContribution?.toString()} €</Descriptions.Item>
+            <Descriptions.Item label="Perf."><Text>{r.contribution && r.suggestedContribution ? `${Math.round(r.contribution / r.suggestedContribution * 100)}%` : undefined}</Text></Descriptions.Item>
+            <Descriptions.Item label="État">
+              <Tag color={$enum.mapValue(r.contributionState).with({
+                [TReservationContributionState.START]: "cyan",
+                [TReservationContributionState.PENDING]: "gold",
+                [TReservationContributionState.EMAILED]: "blue",
+                [TReservationContributionState.PAID]: "green",
+              })}>{getContributionStateTitle(r.contributionState)}</Tag>
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Heure d'arrivée" span={2}>
+              {r.arrivalTime}
+            </Descriptions.Item>
+            <Descriptions.Item label="# repas/j" span={2}>
+              <Radio.Group value={r.mealPlan}>
+                {$enum(TMealPlans).map((t) => {
+                  return <Radio key={t} value={t}>{getMealPlanTitle(t)}</Radio>
+                })}
+              </Radio.Group>
+            </Descriptions.Item>
+
+            <Descriptions.Item label="+1" span={2}>{r.conditionalArrival}</Descriptions.Item>
+            <Descriptions.Item label="-1" span={2}>{r.blockedPax}</Descriptions.Item>
+          <Descriptions.Item label="Note" span={4}>
+              {r.note}
+            </Descriptions.Item>
+          </Descriptions>
           <ActionButtons isSupervisor={true} reservation={r}/>
         </Space>
-
       </>
     }
   }

@@ -10,7 +10,13 @@ import React, { useState } from "react"
 import WorkInProgress from "../core/WorkInProgress"
 import { Button, Popconfirm, Space } from "antd"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faCheckDouble, faEdit, faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
+import {
+  faCheckDouble,
+  faEdit,
+  faExclamationCircle,
+  faHandHolding,
+  faHandHoldingUsd,
+} from "@fortawesome/free-solid-svg-icons"
 import { $enum } from "ts-enum-util"
 
 type QueryDocumentSnapshot<T> = firebase.firestore.QueryDocumentSnapshot<T>
@@ -30,6 +36,7 @@ export enum TReservationContributionState {
   START = "START",
   EMAILED = "EMAILED",
   PENDING = "PENDING",
+  PAID = "PAID",
 }
 
 export enum TMealPlans {
@@ -399,9 +406,27 @@ export async function cancelReservation(reservation:TReservation) {
   await batch.commit()
 }
 
+export async function confirmPayment(reservation: TReservation) {
+  if (!reservation.id) {
+    throw Error(`reservation.id is not defined`)
+  }
+
+  const request_ref = db.doc(`pax/${reservation.paxId}/requests/${reservation.id}`)
+    .withConverter(TReservationRequestConverter)
+
+  reservation.contributionState = TReservationContributionState.PAID
+  await request_ref.set(
+    reservation
+    , {merge: true}
+  )
+
+}
+
+
 
 export const ActionButtons = ({ reservation, isSupervisor }: { reservation: TReservation, isSupervisor: boolean }) => {
   const [isConfirmationSubmitting, setIsConfirmationSubmitting] = useState(false)
+  const [isPaymentConfirmationSubmitting, setIsPaymentConfirmationSubmitting] = useState(false)
 
   const myConfirmReservation = async () => {
     setIsConfirmationSubmitting(true)
@@ -418,6 +443,14 @@ export const ActionButtons = ({ reservation, isSupervisor }: { reservation: TRes
     // When all done, reset the UI
     setIsCancelingSubmitting(false)
   }
+
+  const myConfirmPayment = async () => {
+    setIsPaymentConfirmationSubmitting(true)
+    await confirmPayment(reservation)
+    // When all done, reset the UI
+    setIsPaymentConfirmationSubmitting(false)
+  }
+
 
 
   const actions = [
@@ -441,21 +474,39 @@ export const ActionButtons = ({ reservation, isSupervisor }: { reservation: TRes
     </Popconfirm>,
   ]
   if (isSupervisor) {
-    const confirm = <Popconfirm
-      key="confirm"
-      placement="topLeft"
-      onConfirm={myConfirmReservation}
-      title="Est-ce que tu veux confirmer cette réservation ?"
-      okText="Oui"
-      cancelText="Non"
-    ><Button
-      size="small"
-      disabled={[TReservationState.CANCELED, TReservationState.CONFIRMED].includes(reservation.state) }
-      loading={isConfirmationSubmitting}
-      type="primary"
-      icon={<FontAwesomeIcon icon={faCheckDouble} />}>Confirmer</Button>
-    </Popconfirm>
-    actions.push(confirm)
+
+      const confirmPaymentBtn = <Popconfirm
+        key="confirmPayment"
+        placement="topLeft"
+        onConfirm={myConfirmPayment}
+        title="Est-ce que tu veux confirmer le paiement ?"
+        okText="Oui"
+        cancelText="Non"
+      ><Button
+        size="small"
+        disabled={[TReservationState.CANCELED, ].includes(reservation.state) || reservation.contributionState != TReservationContributionState.PENDING}
+        loading={isPaymentConfirmationSubmitting}
+        type="primary"
+        icon={<FontAwesomeIcon icon={faHandHoldingUsd} />}>OK payé</Button>
+      </Popconfirm>
+      actions.push(confirmPaymentBtn)
+
+      const confirmBtn = <Popconfirm
+        key="confirm"
+        placement="topLeft"
+        onConfirm={myConfirmReservation}
+        title="Est-ce que tu veux confirmer cette réservation ?"
+        okText="Oui"
+        cancelText="Non"
+      ><Button
+        size="small"
+        disabled={[TReservationState.CANCELED, TReservationState.CONFIRMED].includes(reservation.state) || reservation.contributionState == TReservationContributionState.PENDING}
+        loading={isConfirmationSubmitting}
+        type="primary"
+        icon={<FontAwesomeIcon icon={faCheckDouble} />}>Confirmer</Button>
+      </Popconfirm>
+      actions.push(confirmBtn)
+
   }
   return <Space>{actions}</Space>
 
@@ -481,6 +532,7 @@ export const getContributionStateTitle = (contributionState: TReservationContrib
   return $enum.mapValue(contributionState).with({
     [TReservationContributionState.START]: "Différé",
     [TReservationContributionState.PENDING]: "À vérifier",
-    [TReservationContributionState.EMAILED]: "Email envoyé"
+    [TReservationContributionState.EMAILED]: "Email envoyé",
+    [TReservationContributionState.PAID]: "Payé",
   })
 }
