@@ -145,6 +145,9 @@ const WithContent = (
             <Form.Item label={"+1"}>
               <Input readOnly value={r.conditionalArrival} />
             </Form.Item>
+            <Form.Item label={"-1"}>
+              <Input readOnly value={r.blockedPax} />
+            </Form.Item>
             <Form.Item label={"Note"}>
               <Input.TextArea readOnly autoSize={true} value={r.note} />
             </Form.Item>

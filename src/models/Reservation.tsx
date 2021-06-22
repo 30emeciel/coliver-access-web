@@ -52,6 +52,7 @@ export interface TReservationDto {
   note?: string,
   meal_plan? : TMealPlans,
   conditional_arrival?: string,
+  blocked_pax?: string,
 }
 
 export abstract class TReservation {
@@ -67,7 +68,8 @@ export abstract class TReservation {
     public state = TReservationState.PENDING_REVIEW,
     public arrivalTime?: string,
     public note?: string,
-    public conditionalArrival?: string
+    public conditionalArrival?: string,
+    public blockedPax?: string,
 ) {}
 
 
@@ -84,7 +86,7 @@ export abstract class TReservation {
 
   abstract toRangeDays(): DateTime[]
 
-  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):Pick<TReservation, "id" | "paxId" | "created" | "arrivalDate" | "arrivalTime" | "state" | "contribution" | "suggestedContribution" | "contributionState" | "mealPlan" | "note" | "conditionalArrival"> {
+  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):Pick<TReservation, "id" | "paxId" | "created" | "arrivalDate" | "arrivalTime" | "state" | "contribution" | "suggestedContribution" | "contributionState" | "mealPlan" | "note" | "conditionalArrival" | "blockedPax"> {
     const dto = snapshot.data()
     const paxId = snapshot.ref.parent?.parent?.id
     if (!paxId) {
@@ -103,6 +105,7 @@ export abstract class TReservation {
       arrivalTime: dto.arrival_time,
       note: dto.note,
       conditionalArrival: dto.conditional_arrival,
+      blockedPax: dto.blocked_pax,
     }
   }
 
@@ -119,6 +122,7 @@ export abstract class TReservation {
       arrival_time: this.arrivalTime,
       note: this.note,
       conditional_arrival: this.conditionalArrival,
+      blocked_pax: this.blockedPax,
     })
   }
 
@@ -140,8 +144,9 @@ export class TColivingReservation extends TReservation {
     arrivalTime?: string,
     note?: string,
     conditionalArrival?: string,
+    blockedPax?: string,
   ) {
-    super(paxId, arrivalDate, contribution, suggestedContribution, contributionState, mealPlan, id, created, state, arrivalTime, note, conditionalArrival)
+    super(paxId, arrivalDate, contribution, suggestedContribution, contributionState, mealPlan, id, created, state, arrivalTime, note, conditionalArrival, blockedPax)
   }
 
 
@@ -207,6 +212,7 @@ export class TColivingReservation extends TReservation {
       rest.arrivalTime,
       rest.note,
       rest.conditionalArrival,
+      rest.blockedPax,
     )
   }
 
@@ -234,8 +240,9 @@ export class TCoworkingReservation extends TReservation {
     arrivalTime?: string,
     note?: string,
     conditionalArrival?: string,
+    blockedPax?: string,
   ) {
-    super(paxId, arrivalDate, contribution, suggestedContribution, contributionState, mealPlan, id, created, state, arrivalTime, note, conditionalArrival)
+    super(paxId, arrivalDate, contribution, suggestedContribution, contributionState, mealPlan, id, created, state, arrivalTime, note, conditionalArrival, blockedPax)
   }
 
   protected static KIND = TReservationKind.COWORKING
@@ -266,7 +273,8 @@ export class TCoworkingReservation extends TReservation {
       rest.state,
       rest.arrivalTime,
       rest.note,
-      rest.conditionalArrival
+      rest.conditionalArrival,
+      rest.blockedPax,
     )
   }
 

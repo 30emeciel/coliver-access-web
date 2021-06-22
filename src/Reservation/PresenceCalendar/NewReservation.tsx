@@ -103,6 +103,9 @@ export default function NewReservation(
   const [conditionalArrival, setConditionalArrival] = useState<string | undefined>(undefined)
   const [price, setPrice] = useState<number | undefined>(undefined)
   const [note, setNote] = useState<string|undefined>(undefined)
+  const [isBlockedPax, setIsBlockedPax] = useState(false)
+  const [blockedPax, setBlockedPax] = useState<string|undefined>(undefined)
+
 
   const [interval, setInterval] = useState<null | Interval>(null)
   useEffect(() => {
@@ -186,7 +189,7 @@ export default function NewReservation(
         canGoNext: mealPlan != undefined,
         canGoPrevious: true,
         content: <>
-          <Form labelCol={{ span: 8 }} wrapperCol={{ span: 16 }}>
+          <Form labelCol={{ span: 12 }}>
             <Form.Item label="Nombre de repas par jour" required={true} tooltip="Moyenne de repas par jour que tu penses prendre pendant ton séjour. Le prix suggéré à la fin sera calculée en fonction de ton choix.">
               <Radio.Group value={mealPlan} onChange={(e) => {setMealPlan(e.target.value)}}>
                 {$enum(TMealPlans).map((t) => {
@@ -211,7 +214,7 @@ export default function NewReservation(
                 <Option value="22h-minuit">22h-minuit</Option>
               </Select>
             </Form.Item>
-            <Form.Item label="Ma venue est conditionnée par la venue d'une +1 ?">
+            <Form.Item label="Ma venue est conditionnée par la venue d'une +1">
               <Switch checked={isConditionalArrival} onChange={(e) => setIsConditionalArrival(e)} />
             </Form.Item>
             {isConditionalArrival &&
@@ -219,6 +222,18 @@ export default function NewReservation(
               <Input value={conditionalArrival} onChange={(e) => setConditionalArrival(e.target.value)} />
             </Form.Item>
             }
+            <Form.Item
+              label={<Text>Ma venue est conditionnée par la <Text strong>non-présence</Text> d'une personne</Text>}
+              help="Parmi les personnes susceptibles de participer, il y en a-t-il une dont la présence te mettrait en tension ou t'empêcherait de participer sereinement ?">
+              <Switch checked={isBlockedPax} onChange={(e) => setIsBlockedPax(e)} />
+            </Form.Item>
+            {isBlockedPax &&
+            <Form.Item
+              label="Nom et/ou Facebook de la ou les personne·s">
+              <Input value={blockedPax} onChange={(e) => setBlockedPax(e.target.value)} />
+            </Form.Item>
+            }
+            <Divider />
 
             <Form.Item label="Autre chose à nous partager ?">
               <Input.TextArea value={note} autoSize={{minRows: 3}} showCount={true} maxLength={1000} onChange={(e) => setNote(e.target.value)} />
@@ -252,7 +267,7 @@ export default function NewReservation(
             Quelle que soit ta contribution, nous te remercions de nous aider à faire perdurer ce lieu 🏡 !
           </p>
 
-          <Form labelCol={{ span: 8 }} layout="horizontal">
+          <Form labelCol={{ span: 4 }} layout="horizontal">
 
             <Form.Item label="Prix suggéré">
               <Text strong>{total_suggested_price}€</Text>
@@ -478,7 +493,7 @@ export default function NewReservation(
 
 
   return <>
-    <Modal keyboard={true} maskClosable={false} visible={true} width={800} destroyOnClose={true} onCancel={onCancel} footer={buttons}>
+    <Modal keyboard={true} maskClosable={false} visible={true} width={1000} destroyOnClose={true} onCancel={onCancel} footer={buttons}>
       <MediaQuery minWidth={600}>
         <Steps
           type="navigation"
