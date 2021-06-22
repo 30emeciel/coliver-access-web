@@ -111,17 +111,23 @@ const WithContent = (
     else {
       return <>
         <Space direction="vertical">
+          <Space direction="horizontal">
+            <Tag color={$enum.mapValue(r.contributionState).with({
+              [TReservationContributionState.START]: "blue",
+              [TReservationContributionState.PENDING]: "yellow",
+              [TReservationContributionState.EMAILED]: "green",
+            })}>Paiement {getContributionStateTitle(r.contributionState)}</Tag>
+            {r.volunteering &&
+            <Tag color="green">Volontaire</Tag>
+            }
+          </Space>
           <Form size="small" layout="vertical" colon={true}>
             <Form.Item label="Contribution">
               <Space>
                 <Form.Item noStyle>
                   <Input readOnly value={r.contribution?.toString()} />
                 </Form.Item>
-                  <Tag color={$enum.mapValue(r.contributionState).with({
-                    [TReservationContributionState.START]: "blue",
-                    [TReservationContributionState.PENDING]: "yellow",
-                    [TReservationContributionState.EMAILED]: "green",
-                  })}>{getContributionStateTitle(r.contributionState)}</Tag>
+
               </Space>
             </Form.Item>
             <Form.Item label="Contribution suggérée">
@@ -165,6 +171,7 @@ const WithContent = (
       return <></>
     const r: [string, IconDefinition] = i.kind === TReservationKind.COLIVING ? ["#606dbc", faBed] : ["#6dbc6d", faBriefcase]
     const icon = <Popover
+      arrowPointAtCenter
       content={<ReservationLoader day={i}/>}
     ><a><FontAwesomeIcon style={{ color: r[0] }} icon={r[1]} /></a></Popover>
     if (i.state == TDayState.PENDING_REVIEW) {

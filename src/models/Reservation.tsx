@@ -53,6 +53,7 @@ export interface TReservationDto {
   meal_plan? : TMealPlans,
   conditional_arrival?: string,
   blocked_pax?: string,
+  volunteering? : boolean,
 }
 
 export abstract class TReservation {
@@ -63,6 +64,7 @@ export abstract class TReservation {
     public suggestedContribution: number | null,
     public contributionState : TReservationContributionState,
     public mealPlan: TMealPlans,
+    public volunteering: boolean,
     public id?: string,
     public created?: DateTime,
     public state = TReservationState.PENDING_REVIEW,
@@ -86,7 +88,7 @@ export abstract class TReservation {
 
   abstract toRangeDays(): DateTime[]
 
-  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):Pick<TReservation, "id" | "paxId" | "created" | "arrivalDate" | "arrivalTime" | "state" | "contribution" | "suggestedContribution" | "contributionState" | "mealPlan" | "note" | "conditionalArrival" | "blockedPax"> {
+  static fromFirestore(snapshot: admin.firestore.QueryDocumentSnapshot<TReservationDto>):Pick<TReservation, "id" | "paxId" | "created" | "arrivalDate" | "arrivalTime" | "state" | "contribution" | "suggestedContribution" | "contributionState" | "mealPlan" | "note" | "conditionalArrival" | "blockedPax" | "volunteering"> {
     const dto = snapshot.data()
     const paxId = snapshot.ref.parent?.parent?.id
     if (!paxId) {
@@ -106,6 +108,7 @@ export abstract class TReservation {
       note: dto.note,
       conditionalArrival: dto.conditional_arrival,
       blockedPax: dto.blocked_pax,
+      volunteering: dto.volunteering ?? false,
     }
   }
 
@@ -123,6 +126,7 @@ export abstract class TReservation {
       note: this.note,
       conditional_arrival: this.conditionalArrival,
       blocked_pax: this.blockedPax,
+      volunteering: this.volunteering,
     })
   }
 
@@ -138,6 +142,7 @@ export class TColivingReservation extends TReservation {
     suggestedContribution: number | null,
     contributionState: TReservationContributionState,
     mealPlan: TMealPlans,
+    volunteering: boolean,
     id?: string,
     created?: DateTime,
     state?: TReservationState,
@@ -146,7 +151,7 @@ export class TColivingReservation extends TReservation {
     conditionalArrival?: string,
     blockedPax?: string,
   ) {
-    super(paxId, arrivalDate, contribution, suggestedContribution, contributionState, mealPlan, id, created, state, arrivalTime, note, conditionalArrival, blockedPax)
+    super(paxId, arrivalDate, contribution, suggestedContribution, contributionState, mealPlan, volunteering, id, created, state, arrivalTime, note, conditionalArrival, blockedPax)
   }
 
 
@@ -206,6 +211,7 @@ export class TColivingReservation extends TReservation {
       rest.suggestedContribution,
       rest.contributionState,
       rest.mealPlan,
+      rest.volunteering,
       rest.id,
       rest.created,
       rest.state,
@@ -234,6 +240,7 @@ export class TCoworkingReservation extends TReservation {
     suggestedContribution: number | null,
     contributionState: TReservationContributionState,
     mealPlan: TMealPlans,
+    volunteering: boolean,
     id?: string,
     created?: DateTime,
     state?: TReservationState,
@@ -241,8 +248,9 @@ export class TCoworkingReservation extends TReservation {
     note?: string,
     conditionalArrival?: string,
     blockedPax?: string,
+
   ) {
-    super(paxId, arrivalDate, contribution, suggestedContribution, contributionState, mealPlan, id, created, state, arrivalTime, note, conditionalArrival, blockedPax)
+    super(paxId, arrivalDate, contribution, suggestedContribution, contributionState, mealPlan, volunteering, id, created, state, arrivalTime, note, conditionalArrival, blockedPax)
   }
 
   protected static KIND = TReservationKind.COWORKING
@@ -268,6 +276,7 @@ export class TCoworkingReservation extends TReservation {
       rest.suggestedContribution,
       rest.contributionState,
       rest.mealPlan,
+      rest.volunteering,
       rest.id,
       rest.created,
       rest.state,
@@ -471,7 +480,7 @@ export const getMealPlanTitle = (mealPlan: TMealPlans) => {
 export const getContributionStateTitle = (contributionState: TReservationContributionState) => {
   return $enum.mapValue(contributionState).with({
     [TReservationContributionState.START]: "Différé",
-    [TReservationContributionState.PENDING]: "A vérifier",
+    [TReservationContributionState.PENDING]: "À vérifier",
     [TReservationContributionState.EMAILED]: "Email envoyé"
   })
 }

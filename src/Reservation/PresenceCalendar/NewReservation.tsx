@@ -105,6 +105,7 @@ export default function NewReservation(
   const [note, setNote] = useState<string|undefined>(undefined)
   const [isBlockedPax, setIsBlockedPax] = useState(false)
   const [blockedPax, setBlockedPax] = useState<string|undefined>(undefined)
+  const [isVolunteering, setIsVolunteering] = useState(false)
 
 
   const [interval, setInterval] = useState<null | Interval>(null)
@@ -121,11 +122,11 @@ export default function NewReservation(
 
   const numberOfNights = interval ? interval.count("days") - 1 : null
 
-  const stay_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * COLIVING_PRICE_PER_NIGHT : undefined) : COWORKING_PRICE_PER_DAY
-  const misc_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * MISC_PRICE_PER_DAY : undefined) : MISC_PRICE_PER_DAY
+  const stay_suggested_price = isVolunteering ? 0 : (kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * COLIVING_PRICE_PER_NIGHT : undefined) : COWORKING_PRICE_PER_DAY)
+  const misc_suggested_price = isVolunteering ? 0 : (kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * MISC_PRICE_PER_DAY : undefined) : MISC_PRICE_PER_DAY)
   const meal_suggested_price_per_day = mealPlan ? getMealPlanPrice(mealPlan) : undefined
   const meal_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights && meal_suggested_price_per_day != undefined ? numberOfNights * meal_suggested_price_per_day : undefined) : meal_suggested_price_per_day
-  const total_suggested_price = stay_suggested_price && misc_suggested_price && meal_suggested_price != undefined ? stay_suggested_price + misc_suggested_price + meal_suggested_price : undefined
+  const total_suggested_price = stay_suggested_price != undefined && misc_suggested_price != undefined && meal_suggested_price != undefined ? stay_suggested_price + misc_suggested_price + meal_suggested_price : undefined
   const minPrice = total_suggested_price ? total_suggested_price - total_suggested_price / 2 : undefined
   const maxPrice = total_suggested_price ? total_suggested_price + total_suggested_price / 2 : undefined
 
@@ -214,6 +215,16 @@ export default function NewReservation(
                 <Option value="22h-minuit">22h-minuit</Option>
               </Select>
             </Form.Item>
+
+            <Form.Item
+              label="J'aimerai me porter volontaire pour le fonctionnement du lieu"
+              tooltip="En étant volontaire, je participe aux cercles d'autogestion journaliers, et je me prépare pour mener des projets comme l'aménagement des pièces, la maintenance des appareils, le ménage, ...
+                 En contrepartie, le prix suggéré inclus uniquement les repas."
+            >
+              <Switch checked={isVolunteering} onChange={(e) => setIsVolunteering(e)} />
+            </Form.Item>
+
+            <Divider />
             <Form.Item label="Ma venue est conditionnée par la venue d'une +1">
               <Switch checked={isConditionalArrival} onChange={(e) => setIsConditionalArrival(e)} />
             </Form.Item>
@@ -224,7 +235,7 @@ export default function NewReservation(
             }
             <Form.Item
               label={<Text>Ma venue est conditionnée par la <Text strong>non-présence</Text> d'une personne</Text>}
-              help="Parmi les personnes susceptibles de participer, il y en a-t-il une dont la présence te mettrait en tension ou t'empêcherait de participer sereinement ?">
+              tooltip="Parmi les personnes susceptibles de participer, il y en a-t-il une dont la présence te mettrait en tension ou t'empêcherait de participer sereinement ?">
               <Switch checked={isBlockedPax} onChange={(e) => setIsBlockedPax(e)} />
             </Form.Item>
             {isBlockedPax &&
@@ -234,7 +245,6 @@ export default function NewReservation(
             </Form.Item>
             }
             <Divider />
-
             <Form.Item label="Autre chose à nous partager ?">
               <Input.TextArea value={note} autoSize={{minRows: 3}} showCount={true} maxLength={1000} onChange={(e) => setNote(e.target.value)} />
             </Form.Item>
@@ -445,12 +455,14 @@ export default function NewReservation(
               total_suggested_price,
               payLater ? TReservationContributionState.START : TReservationContributionState.PENDING,
               mealPlan,
+              isVolunteering,
               undefined,
               undefined,
               undefined,
               arrivalTime,
               note,
               conditionalArrival,
+              blockedPax,
             )
           }
           else {
@@ -462,12 +474,14 @@ export default function NewReservation(
               total_suggested_price,
               payLater ? TReservationContributionState.START : TReservationContributionState.PENDING,
               mealPlan,
+              isVolunteering,
               undefined,
               undefined,
               undefined,
               arrivalTime,
               note,
               conditionalArrival,
+              blockedPax,
             )
           }
           createReservation(request_data).then(
