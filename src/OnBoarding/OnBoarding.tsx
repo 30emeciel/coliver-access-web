@@ -1,4 +1,4 @@
-import { SmileOutlined, SolutionOutlined } from "@ant-design/icons"
+import { SolutionOutlined } from "@ant-design/icons"
 import { Card, Spin, Steps } from "antd"
 import { useContext, useEffect, useRef, useState } from "react"
 import PaxContext from "src/core/paxContext"
@@ -6,8 +6,9 @@ import { TPax, TPaxConverter, TPaxStates } from "src/models/Pax"
 import { getEnvOrFail } from "src/core/getEnvOrFail"
 import myloglevel from "src/core/myloglevel"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faUserCheck } from "@fortawesome/free-solid-svg-icons"
+import { faCalendarCheck, faUserCheck } from "@fortawesome/free-solid-svg-icons"
 import { faEnvelopeOpen } from "@fortawesome/free-regular-svg-icons"
+
 
 const log = myloglevel.getLogger("OnBoarding")
 
@@ -97,7 +98,7 @@ export default function OnBoarding() {
             <Steps current={uc.doc.state === TPaxStates.Registered ? 1 : 0} responsive={true}>
               <Step title="Étape 1 : Préinscription" description="Aide-moi à mieux te connaître" icon={<SolutionOutlined />}/>
               <Step title="Étape 2 : Confirmation" description="Attends la confirmation de ta préinscription" icon={<FontAwesomeIcon icon={faUserCheck} />}/>
-              <Step title="C'est parti !" icon={<SmileOutlined />} />
+              <Step title="Étape 3 : Réservation" description="Reviens sur le site pour réserver ta venue" icon={<FontAwesomeIcon icon={faCalendarCheck} />} />
             </Steps>
             </Card>
         <br />
