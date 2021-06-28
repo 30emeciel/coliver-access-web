@@ -1,4 +1,4 @@
-import { faBed, faBriefcase, faCalendarCheck, IconDefinition } from "@fortawesome/free-solid-svg-icons"
+import { faBed, faBriefcase, faCalendarCheck, faCheckCircle, IconDefinition } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import loglevel from "loglevel"
 import { DateTime, Interval } from "luxon"
@@ -14,7 +14,7 @@ import DateRangePicker from "react-bootstrap-daterangepicker"
 // you will also need the css that comes with bootstrap-daterangepicker
 import "bootstrap-daterangepicker/daterangepicker.css"
 import moment, { Moment } from "moment"
-import { Badge, Checkbox, Descriptions, Popover, Radio, Skeleton, Space, Spin, Table, Tag } from "antd"
+import { Badge, Checkbox, Descriptions, Popover, Radio, Skeleton, Space, Spin, Switch, Table, Tag } from "antd"
 import Avatar from "antd/lib/avatar/avatar"
 import Column from "antd/lib/table/Column"
 import {
@@ -166,6 +166,7 @@ const WithContent = (
       return <></>
     const r: [string, IconDefinition] = i.kind === TReservationKind.COLIVING ? ["#606dbc", faBed] : ["#6dbc6d", faBriefcase]
     const icon = <Popover
+      trigger="click"
       arrowPointAtCenter
       content={<ReservationLoader day={i}/>}
     ><a><FontAwesomeIcon style={{ color: r[0] }} icon={r[1]} /></a></Popover>
