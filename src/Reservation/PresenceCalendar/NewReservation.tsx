@@ -133,7 +133,7 @@ export default function NewReservation(
 
   useEffect(() => {
     setPrice(total_suggested_price)
-  }, [kind, mealPlan, interval, setPrice])
+  }, [kind, mealPlan, interval, isVolunteering, setPrice])
 
   function getStep(stepId: StepId) {
     return $enum.mapValue(stepId).with({
