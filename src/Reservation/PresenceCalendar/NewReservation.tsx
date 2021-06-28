@@ -122,8 +122,9 @@ export default function NewReservation(
 
   const numberOfNights = interval ? interval.count("days") - 1 : null
 
-  const stay_suggested_price = isVolunteering ? 0 : (kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * COLIVING_PRICE_PER_NIGHT : undefined) : COWORKING_PRICE_PER_DAY)
-  const misc_suggested_price = isVolunteering ? 0 : (kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * MISC_PRICE_PER_DAY : undefined) : MISC_PRICE_PER_DAY)
+  const stay_suggested_per_night_price = (kind == TReservationKind.COLIVING ? COLIVING_PRICE_PER_NIGHT :  COWORKING_PRICE_PER_DAY) / (isVolunteering ? 2 : 1)
+  const stay_suggested_price = (kind == TReservationKind.COLIVING ? (numberOfNights ?? 1) : 1 ) * stay_suggested_per_night_price
+  const misc_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights ? numberOfNights * MISC_PRICE_PER_DAY : undefined) : MISC_PRICE_PER_DAY
   const meal_suggested_price_per_day = mealPlan ? getMealPlanPrice(mealPlan) : undefined
   const meal_suggested_price = kind == TReservationKind.COLIVING ? (numberOfNights && meal_suggested_price_per_day != undefined ? numberOfNights * meal_suggested_price_per_day : undefined) : meal_suggested_price_per_day
   const total_suggested_price = stay_suggested_price != undefined && misc_suggested_price != undefined && meal_suggested_price != undefined ? stay_suggested_price + misc_suggested_price + meal_suggested_price : undefined
@@ -218,8 +219,8 @@ export default function NewReservation(
 
             <Form.Item
               label="J'aimerai me porter volontaire pour le fonctionnement du lieu"
-              tooltip="En étant volontaire, je participe aux cercles d'autogestion journaliers, et je me prépare pour mener des projets comme l'aménagement des pièces, la maintenance des appareils, le ménage, ...
-                 En contrepartie, le prix suggéré inclus uniquement les repas."
+              tooltip="En étant volontaire, je participe aux cercles d'autogestion journaliers, et je mènes des projets comme l'aménagement des pièces, la maintenance des appareils, le ménage, etc.. pour un minimum de 4h jusqu'à 6h par jour.
+                 En contrepartie, le prix juste suggéré est réduit."
             >
               <Switch checked={isVolunteering} onChange={(e) => setIsVolunteering(e)} />
             </Form.Item>
@@ -296,7 +297,7 @@ export default function NewReservation(
                     <li>Maintenance</li>
                 </ul>
                 </p>}
-                           help={`${kind == TReservationKind.COLIVING ? COLIVING_PRICE_PER_NIGHT : COWORKING_PRICE_PER_DAY}€ par jour`}>
+                           help={`${stay_suggested_per_night_price}€ par jour`}>
                   <span>{stay_suggested_price}€</span>
                 </Form.Item>
                 <Form.Item label="Repas" help={`${meal_suggested_price_per_day}€ par jour`}
