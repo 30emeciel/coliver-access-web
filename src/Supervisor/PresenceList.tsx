@@ -230,7 +230,10 @@ const WithContent = (
 }
 
 const PresenceList = () => {
-  const [period, setPeriod] = useState<[DateTime, DateTime]>([DateTime.local().startOf("month"), DateTime.local().endOf("month")])
+  const [period, setPeriod] = useState<[DateTime, DateTime]>([
+    DateTime.local().set({hour: 0, minute: 0, second: 0, millisecond: 0}).minus({days: 15}),
+    DateTime.local().set({hour: 0, minute: 0, second: 0, millisecond: 0}).plus({days: 15})]
+  )
   const [showEmail, setShowEmail] = useState(false)
 
   const [daySnaps, daySnapsLoading, dayError] = useCollection<TDay>(
@@ -262,11 +265,17 @@ const PresenceList = () => {
             ranges: {
               "Les 7 derniers jours": [moment().subtract(6, "days"), moment()],
               "Les 30 derniers jours": [moment().subtract(29, "days"), moment()],
+              "15 jours avant et après": [moment().subtract(15, "days"), moment().add(15, "days")],
               "Ce mois-ci": [moment().startOf("month"), moment().endOf("month")],
               "Le mois dernier": [
                 moment().subtract(1, "month").startOf("month"),
                 moment().subtract(1, "month").endOf("month"),
               ],
+              "Le mois suivant": [
+                moment().add(1, "month").startOf("month"),
+                moment().add(1, "month").endOf("month"),
+              ],
+
             },
             locale: {
               format: "DD/MM/YYYY",
