@@ -87,7 +87,7 @@ export default function OnBoarding() {
   }
 
   const cognitoFormEntry = {
-    Uid: uc.doc.sub,
+    Uid: uc.doc.id,
     MyNameMonNom: uc.doc.name,
     CourrielEmail: uc.doc.email,
   }

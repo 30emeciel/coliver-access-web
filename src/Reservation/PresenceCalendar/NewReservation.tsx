@@ -449,7 +449,7 @@ export default function NewReservation(
             const arrivalDate = interval.start
             const departureDate = interval.end
             request_data = new TColivingReservation(
-              currentUser.sub,
+              currentUser.id,
               arrivalDate,
               departureDate,
               p,
@@ -469,7 +469,7 @@ export default function NewReservation(
           else {
             const start = DateTime.fromJSDate(arrivalDate)
             request_data = new TCoworkingReservation(
-              currentUser.sub,
+              currentUser.id,
               start,
               p,
               total_suggested_price,

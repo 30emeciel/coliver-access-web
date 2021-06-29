@@ -49,7 +49,7 @@ const getCollectionFromMode = (mode: ReservationListMode, pax: TPax) => {
       .where("state", "==", "PENDING_REVIEW")
       .orderBy("created", "asc")
   }
-  let q:CollectionReference|Query = db.collection(`pax/${pax.sub}/requests`)
+  let q:CollectionReference|Query = db.collection(`pax/${pax.id}/requests`)
 
   const today = DateTime.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).minus({days: 1}).toJSDate()
 
@@ -91,7 +91,7 @@ export default function ReservationList({ pax: initialPax, mode = ReservationLis
     if (!paxList)
       return
     const m = paxList.reduce((previousValue, currentValue) => {
-      previousValue.set(currentValue.sub, currentValue)
+      previousValue.set(currentValue.id, currentValue)
       return previousValue
     }, new Map<string, TPax>())
     setPaxMap(m)

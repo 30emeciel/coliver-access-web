@@ -48,6 +48,9 @@ const Account = ({ paxId }: { paxId?: string }) => {
         <h2><FontAwesomeIcon icon={faUser} /> {paxId ? `Compte de ${paxDoc.name}` : "Mon compte"}</h2>
       </Row>
       <Form labelCol={{ span: 4 }} wrapperCol={{ span: 8 }}>
+        <Form.Item label="Pax ID" name="paxId" initialValue={paxDoc.id}>
+          <Input readOnly />
+        </Form.Item>
         <Form.Item label="Name" name="Name" initialValue={paxDoc.name}>
           <Input readOnly />
         </Form.Item>

@@ -10,7 +10,7 @@ export enum TPaxStates {
 
 
 export interface TPax {
-  sub: string
+  id: string
   name: string
   email: string
   state: TPaxStates
@@ -25,7 +25,7 @@ export const TPaxConverter: admin.firestore.FirestoreDataConverter<TPax> = {
     const data = snapshot.data(options)
 
     return {
-      sub: data.sub,
+      id: snapshot.id,
       name: data.name,
       email: data.email,
       state: data.state ?? TPaxStates.Authenticated,

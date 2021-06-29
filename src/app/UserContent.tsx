@@ -47,7 +47,7 @@ const AccountLoader = () => {
 
 const ReservationLoader = () => {
   const uc = useContext(PaxContext)
-  const paxId = uc.doc!.sub!
+  const paxId = uc.doc!.id!
   const { id: reservationId } = useParams<IdParams>()
   return <EditReservation paxId={paxId} requestId={reservationId} />
 }

@@ -41,7 +41,7 @@ export default function ReservationLoader({
                                             onSubmit,
                                           }: { calendarPax: TPax; calValue: Date; onSubmit: () => void }) {
   const docDayRef = myfirebase.firestore()
-    .doc(`pax/${calendarPax.sub}/days/${DateTime.fromJSDate(calValue).toISODate()}`)
+    .doc(`pax/${calendarPax.id}/days/${DateTime.fromJSDate(calValue).toISODate()}`)
     .withConverter(TDayConverter)
   const [dayDoc, ] = useDocumentData<TDay>(docDayRef)
   const [reservation, ] = useTypedDocumentData<TReservation>(TReservationRequestConverter, dayDoc?.request)

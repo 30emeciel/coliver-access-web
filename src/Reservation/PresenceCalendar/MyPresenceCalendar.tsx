@@ -29,7 +29,7 @@ export default function MyPresenceCalendar({ pax }: { pax: TPax }) {
   const [appState, setAppState] = useState(AppStates.Normal)
 
   const [listDays, listDaysLoading, ] = useCollectionData<TDay>(
-    db.collection(`pax/${pax.sub}/days`).withConverter(TDayConverter).orderBy("on", "asc"),
+    db.collection(`pax/${pax.id}/days`).withConverter(TDayConverter).orderBy("on", "asc"),
   )
 
   const [userDays, setUserDays] = useState<TMapDays>(new Map())

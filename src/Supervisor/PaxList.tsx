@@ -21,10 +21,10 @@ const WithContent = ({ isLoading, paxDocs }: { isLoading: boolean, paxDocs: TPax
 
   const listItem = (paxDoc: TPax) => {
     const buttons = [
-      <Button size="small" type="primary" onClick={() => goToPaxAccountView(history, paxDoc.sub)}>
+      <Button size="small" type="primary" onClick={() => goToPaxAccountView(history, paxDoc.id)}>
         <FontAwesomeIcon icon={faUser} /> Compte
       </Button>,
-      <Button size="small" onClick={() => history.push(`/supervisor/pax/${paxDoc.sub}/presence`)} className="ml-2">
+      <Button size="small" onClick={() => history.push(`/supervisor/pax/${paxDoc.id}/presence`)} className="ml-2">
         <FontAwesomeIcon icon={faUserClock} /> Présence
       </Button>,
     ]
