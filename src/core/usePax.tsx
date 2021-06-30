@@ -20,103 +20,115 @@ const useUser = () => {
   const {
     user: auth0User,
     isLoading: auth0IsLoading,
-    isAuthenticated: auth0IsAuthenticated,
     getAccessTokenSilently,
     error: auth0Error,
   } = useAuth0()
-  const [firebaseAuthUser, firebaseAuthIsLoading, firebaseAuthError] = useFirebaseAuthState(firebase.auth())
+  const [, firebaseAuthIsLoading, firebaseAuthError] = useFirebaseAuthState(firebase.auth())
 
   const [auth0Token, setAuth0Token] = useState<string | null>(null)
-  const [auth0isTokenLoading, setAuth0IsTokenLoading] = useState(false)
-  useEffect(() => {
-    if (auth0IsLoading || !auth0User) {
-      return
-    }
-    log.debug("getAccessTokenSilently")
-    setAuth0IsTokenLoading(true)
-    getAccessTokenSilently(auth0_options).then((auth0_token) => {
-      log.debug("setAuth0Token")
-      setAuth0Token(auth0_token)
-      setAuth0IsTokenLoading(false)
-    })
-  }, [auth0IsLoading, auth0User, getAccessTokenSilently, setAuth0IsTokenLoading])
+
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (!auth0Token) {
+    if (auth0IsLoading) {
       return
     }
-    freshdeskLogin(auth0Token)
+    if (auth0User) {
+
+      log.debug("getAccessTokenSilently")
+      getAccessTokenSilently(auth0_options).then((auth0_token) => {
+        log.debug("setAuth0Token")
+        freshdeskLogin(auth0_token)
+        setAuth0Token(auth0_token)
+      })
+    }
+    else {
+      // final state
+      setIsLoading(false)
+    }
     return () =>  {
+      log.debug("freshdeskLogout")
       freshdeskLogout()
     }
-  }, [auth0Token])
-  const [firestoreIsTokenLoading, setFirestoreIsTokenLoading] = useState(false)
+
+  }, [auth0IsLoading, auth0User, getAccessTokenSilently])
+
+  const [paxDocRef, setPaxDocRef] = useState<firebase.firestore.DocumentReference>()
+
   useEffect(() =>  {
     if (firebaseAuthIsLoading) {
       //wait firebase to be ready
       return
     }
 
-    if (firebaseAuthUser) {
-      // if pax is already authenticated, nothing to do
-      return
-    }
-
-    if (!auth0User || !auth0Token) {
+    if (!auth0Token) {
       //auth0 not ready yet, stop here and wait
       return
     }
 
-    log.debug("axios post")
+    log.debug("auth0-firebase-token-exchange POST");
     // exchange auth0 token to firebase auth token
-    setFirestoreIsTokenLoading(true);
     (async () => {
       const exchange_token_response = await axios
         .post(`${FUNCTIONS_HOST}/auth0-firebase-token-exchange`, {
           access_token: auth0Token,
         })
-
-      log.debug("firebase auth signInWithCustomToken")
+      log.debug("auth0-firebase-token-exchange DONE");
       localStorage.setItem("ERROR_REPORTING_API_KEY", exchange_token_response.data.error_reporting_api_key)
-      await firebase.auth().signInWithCustomToken(exchange_token_response.data.firebase_token)
+      log.debug("firebase auth signInWithCustomToken")
+      const userCredentials = await firebase.auth().signInWithCustomToken(exchange_token_response.data.firebase_token)
       log.debug("firebase auth signInWithCustomToken DONE")
+      const firebaseAuthUser = userCredentials.user
+      if (!firebaseAuthUser) {
+        throw "!firebaseAuthUser"
+      }
+      log.debug("setPaxDocRef")
+      setPaxDocRef(db.doc(`pax/${firebaseAuthUser.uid}`).withConverter(TPaxConverter))
     })()
-  }, [firebaseAuthUser, firebaseAuthIsLoading, auth0User, auth0Token, setFirestoreIsTokenLoading])
+  }, [firebaseAuthIsLoading, auth0Token, setPaxDocRef])
 
-  const [userDocRef, setUserDocRef] = useState<firebase.firestore.DocumentReference>()
+  const [paxDocSnap, , paxDocError] = useDocument(paxDocRef)
 
   useEffect(() => {
-    if (!firebaseAuthUser) {
+    if (!paxDocSnap) {
       return
     }
-    log.debug("setUserDocRef")
-    setUserDocRef(db.doc(`pax/${firebaseAuthUser.uid}`).withConverter(TPaxConverter))
-    setFirestoreIsTokenLoading(false)
-  }, [firebaseAuthUser, setUserDocRef, setFirestoreIsTokenLoading])
+    if (!paxDocSnap.exists) {
+      throw "!userDocSnap.exists"
+    }
 
-  const [userDocSnap, isUserDocLoading, userDocError] = useDocument(userDocRef)
-  const error = auth0Error || firebaseAuthError || userDocError
-  const isAuthenticated = auth0IsAuthenticated && firebaseAuthUser != null
-  const isLoading =
-    auth0IsLoading ||
-    auth0isTokenLoading ||
-    firestoreIsTokenLoading ||
-    firebaseAuthIsLoading ||
-    isUserDocLoading ||
-    (isAuthenticated && !userDocSnap)
+    //final state
+    setIsLoading(false)
+  }, [paxDocSnap, setIsLoading])
+
+  const error = auth0Error || firebaseAuthError || paxDocError
+
+  useEffect(() => {
+    if (error)
+      setIsLoading(false)
+  }, [error])
+
+  const paxData = paxDocSnap?.exists ? paxDocSnap?.data() as TPax : undefined
+  const isAuthenticated = paxData != undefined
 
   const ret = {
     isLoading: isLoading,
     isAuthenticated: isAuthenticated,
-    userSnap: isAuthenticated ? userDocSnap : undefined,
-    userData: isAuthenticated ? userDocSnap?.data() as TPax : undefined,
-    docRef: isAuthenticated ? userDocRef : undefined,
+    paxData: isAuthenticated ? paxDocSnap?.data() as TPax : undefined,
+    paxDocRef: isAuthenticated ? paxDocRef : undefined,
     error: error
   }
   log.debug(
-    `isLoading ${isLoading} isAuthenticated: ${isAuthenticated} userDocSnap: ${!!userDocSnap} userDocSnap?.exists: ${
-      userDocSnap?.exists
-    } userDocSnap?.data(): ${!!userDocSnap?.data()} docRef: ${!!userDocRef} error: ${!!error}`
+    `\
+isLoading ${isLoading} \
+isAuth0Loading: ${auth0IsLoading} \
+isFirebaseAuthLoading: ${firebaseAuthIsLoading} \
+isAuthenticated: ${isAuthenticated} \
+paxDocSnap: ${!!paxDocSnap} \
+paxDocSnap?.exists: ${!!paxDocSnap?.exists} \
+paxDocSnap?.data(): ${!!paxDocSnap?.data()} \
+paxDocRef: ${!!paxDocRef} \
+error: ${!!error}`
   )
   useDebugValue(ret)
   return ret

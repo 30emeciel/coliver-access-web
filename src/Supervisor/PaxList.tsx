@@ -70,25 +70,27 @@ const BadgeDocsCount = ({docs, isLoading}:{docs: DocumentData[] | undefined, isL
     <Badge count={docs?.length} showZero={true}/>
   </>
 }
-const PaxList = () => {
 
-  const paxListPanel = (key: string, title: string, criteria: (query: Query) => Query) => {
-    const [paxDocs, paxDocLoading, paxDocsError] = useCollectionData<TPax>(
-      criteria(db.collection("pax"))
-        .orderBy("name", "asc")
-        .withConverter(TPaxConverter)
-    )
+const PaxListPanel = (key: string, title: string, criteria: (query: Query) => Query) => {
+  const [paxDocs, paxDocLoading, paxDocsError] = useCollectionData<TPax>(
+    criteria(db.collection("pax"))
+      .orderBy("name", "asc")
+      .withConverter(TPaxConverter)
+  )
 
-    if (paxDocsError) {
-      throw paxDocsError
-    }
-
-    return <>
-      <Panel key={key} header={<><strong>{title}</strong>{" "}<BadgeDocsCount docs={paxDocs} isLoading={paxDocLoading}/></>}>
-        <WithContent isLoading={paxDocLoading} paxDocs={paxDocs} />
-      </Panel>
-    </>
+  if (paxDocsError) {
+    throw paxDocsError
   }
+
+  return <>
+    <Panel key={key} header={<><strong>{title}</strong>{" "}<BadgeDocsCount docs={paxDocs} isLoading={paxDocLoading}/></>}>
+      <WithContent isLoading={paxDocLoading} paxDocs={paxDocs} />
+    </Panel>
+  </>
+}
+
+
+const PaxList = () => {
 
   return (
     <>
@@ -98,9 +100,9 @@ const PaxList = () => {
 
 
       <Collapse ghost={true} defaultActiveKey="confirmed-pax-list">
-        {paxListPanel("authenticated-pax-list", "Pax en attente de préinscription", query => query.where("state", "==", "AUTHENTICATED"))}
-        {paxListPanel("pending-review-pax-list", "Pax en attente de validation", query => query.where("state", "==", "REGISTERED"))}
-        {paxListPanel("confirmed-pax-list", "Pax confirmés", query => query.where("state", "==", "CONFIRMED"))}
+        {PaxListPanel("authenticated-pax-list", "Pax en attente de préinscription", query => query.where("state", "==", "AUTHENTICATED"))}
+        {PaxListPanel("pending-review-pax-list", "Pax en attente de validation", query => query.where("state", "==", "REGISTERED"))}
+        {PaxListPanel("confirmed-pax-list", "Pax confirmés", query => query.where("state", "==", "CONFIRMED"))}
       </Collapse>
 
 

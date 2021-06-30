@@ -1,11 +1,13 @@
 import { Result, Skeleton, Spin } from "antd"
 import { lazy, Suspense, useContext } from "react"
 import { useDocumentData } from "react-firebase-hooks/firestore"
-import { Route, Switch, useParams } from "react-router-dom"
+import { Redirect, Route, Switch, useParams } from "react-router-dom"
 import db from "src/core/db"
 import PaxContext from "src/core/paxContext"
-import { TPax } from "src/models/Pax"
+import { TPax, TPaxStates } from "src/models/Pax"
 import { ReservationListMode } from "src/Reservation/ReservationList"
+import OnBoarding from "../OnBoarding/OnBoarding"
+import { NoUserContent } from "./NoUserContent"
 
 const Dashboard = lazy(() => import("src/Dashboard/Dashboard"))
 const PaxList = lazy(() => import("src/Supervisor/PaxList"))
@@ -64,12 +66,17 @@ const SubPageLoading = () => {
 export function UserContent() {
   const uc = useContext(PaxContext);
 
-  if (!uc.doc) {
-    throw Error("pax is empty!");
-  }
   return (
     <Suspense fallback={<SubPageLoading />}>
       <Switch>
+        <Route exact path="/login">
+          {uc.doc ? <Redirect to="/" /> : <NoUserContent />}
+        </Route>
+        {!uc.doc && <Redirect to="/login" /> }
+        <Route exact path="/onboarding">
+          {uc.doc && uc.doc.state === TPaxStates.Confirmed ? <Redirect to="/" /> : <OnBoarding />}
+        </Route>
+        {uc.doc && uc.doc.state !== TPaxStates.Confirmed && <Redirect to="/onboarding"/>}
         <Route exact path="/">
           <Dashboard />
         </Route>

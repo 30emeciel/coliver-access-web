@@ -3,32 +3,30 @@ import { ErrorBoundary } from "react-error-boundary"
 import { BrowserRouter } from "react-router-dom"
 import PaxContext, { TPaxContext } from "src/core/paxContext"
 import useUser from "src/core/usePax"
-import OnBoarding from "src/OnBoarding/OnBoarding"
 import "./App.less"
 import "./react-collapse.css"
 import { ErrorFallback } from "./ErrorFallback"
 import { NavLinks } from "./NavLinks"
-import { NoUserContent } from "./NoUserContent"
 import { UserContent } from "./UserContent"
-import { TPaxStates } from "../models/Pax"
-import { Button, Col, Divider, Drawer, Row } from "antd"
+import { Button, Col, Divider, Drawer, Row, Spin } from "antd"
 import { MenuOutlined } from "@ant-design/icons"
 import { useState } from "react"
 import { getEnvOrFail } from "src/core/getEnvOrFail"
 import Text from "antd/es/typography/Text"
+import { NoUserContent } from "./NoUserContent"
 
 const VERSION = getEnvOrFail("VERSION")
 
 const App = () => {
   const {
-    isLoading: isUserLoading,
+    isLoading: isPaxLoading,
     isAuthenticated: isUserAuthenticated,
-    userData: userDoc,
-    docRef: userDocRef
+    paxData: userDoc,
+    paxDocRef: userDocRef
   } = useUser()
 
   const userContextValue: TPaxContext = {
-    isLoading: isUserLoading,
+    isLoading: isPaxLoading,
     isAuthenticated: isUserAuthenticated,
     doc: userDoc,
     ref: userDocRef
@@ -64,12 +62,7 @@ const App = () => {
             </Header>
             <Content style={{padding: "8px 16px"}}>
               <ErrorBoundary FallbackComponent={ErrorFallback}>
-                {!isUserLoading && isUserAuthenticated && userDoc ? (
-                  userDoc.state === TPaxStates.Confirmed ?
-                    <UserContent /> : <OnBoarding />
-                ) : (
-                  <NoUserContent isUserLoading={isUserLoading} />
-                )}
+                {isPaxLoading ? <Spin size="large"><NoUserContent /></Spin> : <UserContent />}
               </ErrorBoundary>
             </Content>
             <Footer><Divider plain><Text type="secondary">Fait avec ❤ au 30ème Ciel 🌈 - {VERSION}</Text></Divider></Footer>
