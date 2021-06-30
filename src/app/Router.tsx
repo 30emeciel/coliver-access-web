@@ -7,11 +7,11 @@ import PaxContext from "src/core/paxContext"
 import { TPax, TPaxStates } from "src/models/Pax"
 import { ReservationListMode } from "src/Reservation/ReservationList"
 import OnBoarding from "../OnBoarding/OnBoarding"
-import { NoUserContent } from "./NoUserContent"
+import { Login } from "./Login"
 
 const Dashboard = lazy(() => import("src/Dashboard/Dashboard"))
 const PaxList = lazy(() => import("src/Supervisor/PaxList"))
-const PresenceList = lazy(() => import("src/Supervisor/PresenceList"))
+const PresenceList = lazy(() => import("src/Supervisor/PresenceTable"))
 const EditReservation = lazy(() => import("src/Reservation/EditReservation"))
 const ReservationIndex = lazy(() => import("src/Reservation/ReservationIndex"))
 const Account = lazy(() => import("src/Account/Account"))
@@ -63,14 +63,14 @@ const SubPageLoading = () => {
     <Skeleton active />
   </>
 }
-export function UserContent() {
+export function Router() {
   const uc = useContext(PaxContext);
 
   return (
     <Suspense fallback={<SubPageLoading />}>
       <Switch>
         <Route exact path="/login">
-          {uc.doc ? <Redirect to="/" /> : <NoUserContent />}
+          {uc.doc ? <Redirect to="/" /> : <Login />}
         </Route>
         {!uc.doc && <Redirect to="/login" /> }
         <Route exact path="/onboarding">
@@ -80,7 +80,7 @@ export function UserContent() {
         <Route exact path="/">
           <Dashboard />
         </Route>
-        <Route exact path="/my-reservations">
+        <Route exact path="/reservations">
           <ReservationIndex />
         </Route>
         <Route exact path="/reservation/:id">
@@ -98,7 +98,7 @@ export function UserContent() {
         <Route exact path="/supervisor/pax/:id/account">
           <AccountLoader />
         </Route>
-        <Route exact path="/supervisor/presence-summary">
+        <Route exact path="/supervisor/presence-table">
           <PresenceList />
         </Route>
         <Route exact path="/supervisor/reservations">

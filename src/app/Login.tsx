@@ -1,10 +1,10 @@
 import { useAuth0 } from "@auth0/auth0-react"
 import { faSignInAlt, faUserPlus } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Button, Divider, Row, Spin } from "antd"
+import { Button, Divider, Row } from "antd"
 import Layout, { Content } from "antd/lib/layout/layout"
 
-export function NoUserContent() {
+export function Login() {
   const { loginWithRedirect, isLoading } = useAuth0();
 
   return (

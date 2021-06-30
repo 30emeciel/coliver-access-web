@@ -47,9 +47,9 @@ export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentM
         {pc.doc && pc.doc.state === TPaxStates.Confirmed && (
           <>
             <Menu.Item
-              key="/my-reservations"
+              key="/reservations"
               icon={<FontAwesomeIcon icon={faBookReader} />}
-              onClick={() => onMenuSelect("/my-reservations")}
+              onClick={() => onMenuSelect("/reservations")}
             >
               Mes réservations
             </Menu.Item>
@@ -84,9 +84,9 @@ export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentM
                 Réservations en attente
               </Menu.Item>
               <Menu.Item
-                key="/supervisor/presence-summary"
+                key="/supervisor/presence-table"
                 icon={<FontAwesomeIcon icon={faCalendarCheck} />}
-                onClick={() => onMenuSelect("/supervisor/presence-summary")}
+                onClick={() => onMenuSelect("/supervisor/presence-table")}
               >
                 Tableau des présences
               </Menu.Item>

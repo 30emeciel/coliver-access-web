@@ -33,7 +33,7 @@ import { ClockCircleOutlined } from "@ant-design/icons"
 import { $enum } from "ts-enum-util"
 import Text from "antd/es/typography/Text"
 
-const log = loglevel.getLogger("PresenceList")
+const log = loglevel.getLogger("PresenceTable")
 
 const UserField = ({ paxId, showEmail }: { paxId: string, showEmail: boolean }) => {
   const paxDocRef = db.doc(`pax/${paxId}`)
@@ -229,7 +229,7 @@ const WithContent = (
   )
 }
 
-const PresenceList = () => {
+const PresenceTable = () => {
   const [period, setPeriod] = useState<[DateTime, DateTime]>([
     DateTime.local().set({hour: 0, minute: 0, second: 0, millisecond: 0}).minus({days: 15}),
     DateTime.local().set({hour: 0, minute: 0, second: 0, millisecond: 0}).plus({days: 15})]
@@ -324,4 +324,4 @@ const PresenceList = () => {
   </>
 }
 
-export default PresenceList
+export default PresenceTable
