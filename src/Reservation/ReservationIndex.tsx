@@ -1,4 +1,4 @@
-import { Alert, Collapse, Modal } from "antd"
+import { Collapse } from "antd"
 import React, { useContext } from "react"
 import myloglevel from "src/core/myloglevel"
 import MyPresenceCalendar from "./PresenceCalendar/MyPresenceCalendar"
@@ -7,10 +7,6 @@ import { TPax } from "../models/Pax"
 import PaxContext from "../core/paxContext"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUserClock } from "@fortawesome/free-solid-svg-icons"
-import TheCalendar from "./PresenceCalendar/TheCalendar"
-import BackButton from "../Buttons/BackButton"
-import ReservationLoader from "./PresenceCalendar/ReservationLoader"
-import NewReservation from "./PresenceCalendar/NewReservation"
 
 const log = myloglevel.getLogger("ReservationIndex")
 const { Panel } = Collapse

@@ -15,7 +15,7 @@ import {
   faEdit,
   faExclamationCircle,
   faHandHolding,
-  faHandHoldingUsd,
+  faHandHoldingUsd, faStop, faUndo,
 } from "@fortawesome/free-solid-svg-icons"
 import { $enum } from "ts-enum-util"
 
@@ -406,7 +406,7 @@ export async function cancelReservation(reservation:TReservation) {
   await batch.commit()
 }
 
-export async function confirmPayment(reservation: TReservation) {
+export async function updatePayment(reservation: TReservation, paymentState: TReservationContributionState) {
   if (!reservation.id) {
     throw Error(`reservation.id is not defined`)
   }
@@ -414,7 +414,7 @@ export async function confirmPayment(reservation: TReservation) {
   const request_ref = db.doc(`pax/${reservation.paxId}/requests/${reservation.id}`)
     .withConverter(TReservationRequestConverter)
 
-  reservation.contributionState = TReservationContributionState.PAID
+  reservation.contributionState = paymentState
   await request_ref.set(
     reservation
     , {merge: true}
@@ -444,9 +444,9 @@ export const ActionButtons = ({ reservation, isSupervisor }: { reservation: TRes
     setIsCancelingSubmitting(false)
   }
 
-  const myConfirmPayment = async () => {
+  const myUpdatePayment = async () => {
     setIsPaymentConfirmationSubmitting(true)
-    await confirmPayment(reservation)
+    await updatePayment(reservation, reservation.contributionState == TReservationContributionState.PAID ? TReservationContributionState.PENDING : TReservationContributionState.PAID )
     // When all done, reset the UI
     setIsPaymentConfirmationSubmitting(false)
   }
@@ -455,6 +455,7 @@ export const ActionButtons = ({ reservation, isSupervisor }: { reservation: TRes
 
   const actions = [
     <WorkInProgress><Button
+      disabled
       key="edit"
       size="small"
       icon={<FontAwesomeIcon icon={faEdit} />}>Modifier</Button></WorkInProgress>,
@@ -475,20 +476,14 @@ export const ActionButtons = ({ reservation, isSupervisor }: { reservation: TRes
   ]
   if (isSupervisor) {
 
-      const confirmPaymentBtn = <Popconfirm
-        key="confirmPayment"
-        placement="topLeft"
-        onConfirm={myConfirmPayment}
-        title="Est-ce que tu veux confirmer le paiement ?"
-        okText="Oui"
-        cancelText="Non"
-      ><Button
+      const confirmPaymentBtn = <Button
         size="small"
-        disabled={[TReservationState.CANCELED, ].includes(reservation.state) || reservation.contributionState != TReservationContributionState.PENDING}
+        disabled={[TReservationState.CANCELED, ].includes(reservation.state)}
         loading={isPaymentConfirmationSubmitting}
-        type="primary"
-        icon={<FontAwesomeIcon icon={faHandHoldingUsd} />}>OK payé</Button>
-      </Popconfirm>
+        onClick={myUpdatePayment}
+        type={reservation.contributionState == TReservationContributionState.PAID ? "default" : "primary"}
+        icon={reservation.contributionState == TReservationContributionState.PAID  ? <FontAwesomeIcon icon={faUndo} /> : <FontAwesomeIcon icon={faHandHoldingUsd} />}>{reservation.contributionState == TReservationContributionState.PAID ? "Non payé" : "Marqué payé"}</Button>
+
       actions.push(confirmPaymentBtn)
 
       const confirmBtn = <Popconfirm
