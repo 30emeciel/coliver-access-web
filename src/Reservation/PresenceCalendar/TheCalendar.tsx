@@ -1,7 +1,7 @@
 import { Col, Row, Space, Spin } from "antd"
 import Calendar, { CalendarTileProperties } from "react-calendar"
 import "react-calendar/dist/Calendar.css"
-import "./Calendar.css"
+import "./Calendar.less"
 import { TCalendarContext } from "./MyPresenceCalendarTypes"
 import { DateTime } from "luxon"
 

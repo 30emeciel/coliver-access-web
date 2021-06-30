@@ -4,7 +4,6 @@ import { BrowserRouter } from "react-router-dom"
 import PaxContext, { TPaxContext } from "src/core/paxContext"
 import useUser from "src/core/usePax"
 import "./App.less"
-import "./react-collapse.css"
 import { ErrorFallback } from "./ErrorFallback"
 import { NavLinks } from "./NavLinks"
 import { Router } from "./Router"
@@ -42,7 +41,7 @@ const App = () => {
         <PaxContext.Provider value={userContextValue}>
           <Layout className="layout">
             <Header>
-              <Row>
+              <Row justify="space-between">
                 <Col span={1}>
                   <span role="img" aria-label="rainbow" style={{ margin: "0px 8px 0 8px" }}>🌈</span>
                 </Col>

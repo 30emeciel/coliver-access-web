@@ -42,6 +42,7 @@ export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentM
     onClick={() => {freshdeskOpen()}}
       icon={<FontAwesomeIcon icon={faQuestionCircle} />}>Aide</Menu.Item>
 
+
   return (<>
       <Menu mode={mobile ? "inline" : "horizontal"} theme={mobile ? "light" : "dark"} selectedKeys={[location.pathname]}>
         {pc.doc && pc.doc.state === TPaxStates.Confirmed && (
@@ -94,10 +95,11 @@ export function NavLinks({mobile, onParentMenuSelect}:{mobile:boolean, onParentM
           </>
         )}
         {freshDeskMenuItem}
+      </Menu>
+      <Menu mode={mobile ? "inline" : "horizontal"} theme={mobile ? "light" : "dark"} style={mobile ? undefined : {position: 'absolute', top: 0, right: 0}}>
         {pc.isAuthenticated && <>
           { mobile && <Menu.Divider />}
           <SubMenu
-            style={mobile ? {} : { float: "right" }}
             icon={pc.doc?.picture && <Avatar style={{margin: "0 4px 0 0"}} size="small" src={pc.doc.picture} />}
             title={pc.doc?.name ? pc.doc.name : "-"}
           >

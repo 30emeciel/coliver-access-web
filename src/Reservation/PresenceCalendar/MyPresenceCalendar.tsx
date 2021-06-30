@@ -9,9 +9,8 @@ import ReservationLoader from "./ReservationLoader"
 import TheCalendar from "./TheCalendar"
 import myloglevel from "src/core/myloglevel"
 import { TDay, TDayConverter } from "../../models/Day"
-import BackButton from "../../Buttons/BackButton"
+import BackButton from "../../core/Buttons/BackButton"
 import NewReservation from "./NewReservation"
-import { TReservationKind } from "../../models/Reservation"
 
 const log = myloglevel.getLogger("MyPresenceCalendar")
 
