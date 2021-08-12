@@ -370,12 +370,9 @@ export default function NewReservation(
                   <Switch checked={freePrice} onChange={(e) => setFreePrice(e)} />
                 </Form.Item>
 
-                <p>
-                  Tu peux payer soit avec une carte bancaire ou avec Lydia si tu es sur ton
-                  téléphone portable. Il est préférable que tu inscrives ton nom pour que nous puissions
-                  plus facilement gérer notre comptabilité 😉.
-                </p>
-                <p>Si ta réservation n'est pas acceptée, tu seras remboursé intégralement.</p>
+                <Text strong>
+                  Si ta réservation est acceptée, nous te demanderons de payer en espèces à ton arrivée.
+                </Text>
               </>
             }
           </Form>
@@ -487,20 +484,15 @@ export default function NewReservation(
           }
           createReservation(request_data).then(
             () => {
-              if (payLater) {
-                message.success("Ta demande de réservation est envoyée. Nous allons revenir vers toi bientôt. Merci ❤")
+              message.success("Ta demande de réservation est envoyée. Nous allons revenir vers toi bientôt. Merci ❤")
                   .then()
-              }
-              else {
-                window.location.href = "https://lydia-app.com/collect/30eme-ciel/fr"
-              }
               onSubmit()
             },
             handleError
           )
 
         }}>
-          { payLater ? <>Envoyer <FontAwesomeIcon icon={faCheckCircle} /> </> :<>Payer <FontAwesomeIcon icon={faExternalLinkAlt}/></> }
+          Envoyer ma demande <FontAwesomeIcon icon={faCheckCircle} />
         </Button>
       }
     </Space>

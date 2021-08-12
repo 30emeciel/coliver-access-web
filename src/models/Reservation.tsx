@@ -495,7 +495,7 @@ export const ActionButtons = ({ reservation, isSupervisor }: { reservation: TRes
         cancelText="Non"
       ><Button
         size="small"
-        disabled={[TReservationState.CANCELED, TReservationState.CONFIRMED].includes(reservation.state) || reservation.contributionState == TReservationContributionState.PENDING}
+        disabled={[TReservationState.CANCELED, TReservationState.CONFIRMED].includes(reservation.state)}
         loading={isConfirmationSubmitting}
         type="primary"
         icon={<FontAwesomeIcon icon={faCheckDouble} />}>Confirmer</Button>
