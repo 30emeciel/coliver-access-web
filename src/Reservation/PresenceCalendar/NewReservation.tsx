@@ -72,7 +72,7 @@ const chooseToTransition = false
 
 // coliver resident => 19 euros
 const COLIVING_PRICE_PER_NIGHT = 24
-const COWORKING_PRICE_PER_DAY = 12
+const COWORKING_PRICE_PER_DAY = 2
 const MISC_PRICE_PER_DAY = 3
 
 export default function NewReservation(
